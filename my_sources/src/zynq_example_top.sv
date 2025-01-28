@@ -128,9 +128,8 @@ module zynq_example_top
     );
 
 //------------------
-
    
-   design_1_wrapper zynq_example_wrapper_i
+   design_1_wrapper design_1_wrapper_i
      (
       // internal (stays within the FPGA chip, to let the ARM core IP communicate with the soft logic)
       .BRAM_PORTB_0_addr(BRAM_addr),
