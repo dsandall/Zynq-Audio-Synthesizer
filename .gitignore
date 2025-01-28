@@ -11,15 +11,16 @@
 !refactor_jan27.srcs/
 !refactor_jan27.srcs/*
 
+# and of course vitis! (it gets its own gitignore file, dont worry)
+!vitis_project/
+!vitis_project/*
+
+
 # project data
 !*.xpr pro
 # wave cfg
 !*.wcfg
-
-# and of course vitis!
-#!vitis_project/
-#!vitis_project/*
-
+strstr
 # forgive me for i have sinned
 # https://theapache64.github.io/git-do-not-ignore/
 refactor_jan27.gen/*
