@@ -2,7 +2,7 @@
 //Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
-//Date        : Mon Jan 27 22:48:34 2025
+//Date        : Tue Jan 28 00:04:50 2025
 //Host        : ice-cubed running 64-bit EndeavourOS Linux
 //Command     : generate_target design_1_wrapper.bd
 //Design      : design_1_wrapper
@@ -11,7 +11,14 @@
 `timescale 1 ps / 1 ps
 
 module design_1_wrapper
-   (DDR_addr,
+   (BRAM_PORTB_0_addr,
+    BRAM_PORTB_0_clk,
+    BRAM_PORTB_0_din,
+    BRAM_PORTB_0_dout,
+    BRAM_PORTB_0_en,
+    BRAM_PORTB_0_rst,
+    BRAM_PORTB_0_we,
+    DDR_addr,
     DDR_ba,
     DDR_cas_n,
     DDR_ck_n,
@@ -37,6 +44,13 @@ module design_1_wrapper
     leds_4bits_tri_o,
     peripheral_aresetn_0,
     sws_4bits_tri_i);
+  input [31:0]BRAM_PORTB_0_addr;
+  input BRAM_PORTB_0_clk;
+  input [31:0]BRAM_PORTB_0_din;
+  output [31:0]BRAM_PORTB_0_dout;
+  input BRAM_PORTB_0_en;
+  input BRAM_PORTB_0_rst;
+  input [3:0]BRAM_PORTB_0_we;
   inout [14:0]DDR_addr;
   inout [2:0]DDR_ba;
   inout DDR_cas_n;
@@ -64,6 +78,13 @@ module design_1_wrapper
   output [0:0]peripheral_aresetn_0;
   input [3:0]sws_4bits_tri_i;
 
+  wire [31:0]BRAM_PORTB_0_addr;
+  wire BRAM_PORTB_0_clk;
+  wire [31:0]BRAM_PORTB_0_din;
+  wire [31:0]BRAM_PORTB_0_dout;
+  wire BRAM_PORTB_0_en;
+  wire BRAM_PORTB_0_rst;
+  wire [3:0]BRAM_PORTB_0_we;
   wire [14:0]DDR_addr;
   wire [2:0]DDR_ba;
   wire DDR_cas_n;
@@ -92,7 +113,14 @@ module design_1_wrapper
   wire [3:0]sws_4bits_tri_i;
 
   design_1 design_1_i
-       (.DDR_addr(DDR_addr),
+       (.BRAM_PORTB_0_addr(BRAM_PORTB_0_addr),
+        .BRAM_PORTB_0_clk(BRAM_PORTB_0_clk),
+        .BRAM_PORTB_0_din(BRAM_PORTB_0_din),
+        .BRAM_PORTB_0_dout(BRAM_PORTB_0_dout),
+        .BRAM_PORTB_0_en(BRAM_PORTB_0_en),
+        .BRAM_PORTB_0_rst(BRAM_PORTB_0_rst),
+        .BRAM_PORTB_0_we(BRAM_PORTB_0_we),
+        .DDR_addr(DDR_addr),
         .DDR_ba(DDR_ba),
         .DDR_cas_n(DDR_cas_n),
         .DDR_ck_n(DDR_ck_n),

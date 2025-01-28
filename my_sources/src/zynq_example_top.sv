@@ -88,21 +88,21 @@ module zynq_example_top
     assign audio_cons_muten = 1'b1;
          
          
-//   fibonacci_bram fibonacci_bram_i
-//     (
-//      
-//      .clk(clk), 
-//      .rst(rst), 
-//      
-//      .BRAM_addr(BRAM_addr),
-//      .BRAM_clk(BRAM_clk),
-//      .BRAM_din(BRAM_din),
-//      .BRAM_dout(BRAM_dout),
-//      .BRAM_en(BRAM_en),
-//      .BRAM_rst(BRAM_rst),
-//      .BRAM_we(BRAM_we)
-//      
-//      );
+   fibonacci_bram fibonacci_bram_i
+     (
+      
+      .clk(clk), 
+      .rst(rst), 
+      
+      .BRAM_addr(BRAM_addr),
+      .BRAM_clk(BRAM_clk),
+      .BRAM_din(BRAM_din),
+      .BRAM_dout(BRAM_dout),
+      .BRAM_en(BRAM_en),
+      .BRAM_rst(BRAM_rst),
+      .BRAM_we(BRAM_we)
+      
+      );
       
       
       pain_and_suffering pain_i (
@@ -132,13 +132,13 @@ module zynq_example_top
    design_1_wrapper design_1_wrapper_i
      (
       // internal (stays within the FPGA chip, to let the ARM core IP communicate with the soft logic)
-      //.BRAM_PORTB_0_addr(BRAM_addr),
-      //.BRAM_PORTB_0_clk(BRAM_clk),
-      //.BRAM_PORTB_0_din(BRAM_din),
-      //.BRAM_PORTB_0_dout(BRAM_dout),
-      //.BRAM_PORTB_0_en(BRAM_en),
-      //.BRAM_PORTB_0_rst(BRAM_rst),
-      //.BRAM_PORTB_0_we(BRAM_we),
+      .BRAM_PORTB_0_addr(BRAM_addr),
+      .BRAM_PORTB_0_clk(BRAM_clk),
+      .BRAM_PORTB_0_din(BRAM_din),
+      .BRAM_PORTB_0_dout(BRAM_dout),
+      .BRAM_PORTB_0_en(BRAM_en),
+      .BRAM_PORTB_0_rst(BRAM_rst),
+      .BRAM_PORTB_0_we(BRAM_we),
       
       //.BRAM_SynthBuffer_PORTA_1_addr(BRAM_SynthBuffer_addr),
       //.BRAM_SynthBuffer_PORTA_1_clk(BRAM_SynthBuffer_clk),

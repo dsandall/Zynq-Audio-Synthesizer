@@ -243,15 +243,12 @@ int main() {
   print("Hello World\n\r");
   print("Successfully ran Hello World application");
 
-  for (int i = 0; i < 16 * 4; i = i + 4) {
-    XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, i, i);
-  }
+//   for (int i = 0; i < 16 * 4; i = i + 4) {
+//     XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, i, i);
+//   }
 
   int out_data;
   int loop_count = 0;
-
-//   volatile u32 *i2s_ctrl = (u32 *)XPAR_I2S_TRANSMITTER_0_BASEADDR;
-//   i2s_ctrl[2] = 0x00000001; // set enable core bit
 
   while (1) {
 
@@ -260,24 +257,13 @@ int main() {
     u32 switches = XGpio_DiscreteRead(&Gpio, SWITCH_CHANNEL);
     XGpio_DiscreteWrite(&Gpio, LED_CHANNEL, switches);
     xil_printf("checkeddddd! %x\n\r", switches);
-    //sleep(1);
+    sleep(1);
 
     for (int i = 0; i < 16 * 4; i = i + 4) {
       out_data = XBram_ReadReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, i);
       xil_printf("%d: %d\n\r", i, out_data);
     }
 
-    // // Accessing the I2S transmitter control registers
-    // for (int i = 0; i < 6; i++) {
-    //   xil_printf("%02x== %x\n\r", i * sizeof(u32), i2s_ctrl[i]);
-    // }
-    // xil_printf("%02x== %x\n\r", 8 * sizeof(u32), i2s_ctrl[8]);
-    // xil_printf("%02x== %x\n\r", 12 * sizeof(u32), i2s_ctrl[12]);
-    // xil_printf("%02x== %x\n\r", 13 * sizeof(u32), i2s_ctrl[13]);
-    // xil_printf("%02x== %x\n\r", 14 * sizeof(u32), i2s_ctrl[14]);
-    // xil_printf("%02x== %x\n\r", 15 * sizeof(u32), i2s_ctrl[15]);
-
-    // i2s_ctrl[0x14 / 4] = 0x00000002; // clear interrupt flag?
   }
 
   cleanup_platform();

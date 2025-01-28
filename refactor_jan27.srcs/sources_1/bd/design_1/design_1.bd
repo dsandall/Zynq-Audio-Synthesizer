@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0xF3FAF9DCFE044ECA",
+      "boundary_crc": "0xE9A7DD9822A4EAE5",
       "device": "xc7z020clg400-1",
       "gen_directory": "../../../../refactor_jan27.gen/sources_1/bd/design_1",
       "name": "design_1",
@@ -245,6 +245,44 @@
           "READ_LATENCY": {
             "value": "1",
             "value_src": "default"
+          }
+        },
+        "port_maps": {
+          "ADDR": {
+            "physical_name": "BRAM_PORTB_0_addr",
+            "direction": "I",
+            "left": "31",
+            "right": "0"
+          },
+          "CLK": {
+            "physical_name": "BRAM_PORTB_0_clk",
+            "direction": "I"
+          },
+          "DIN": {
+            "physical_name": "BRAM_PORTB_0_din",
+            "direction": "I",
+            "left": "31",
+            "right": "0"
+          },
+          "DOUT": {
+            "physical_name": "BRAM_PORTB_0_dout",
+            "direction": "O",
+            "left": "31",
+            "right": "0"
+          },
+          "EN": {
+            "physical_name": "BRAM_PORTB_0_en",
+            "direction": "I"
+          },
+          "RST": {
+            "physical_name": "BRAM_PORTB_0_rst",
+            "direction": "I"
+          },
+          "WE": {
+            "physical_name": "BRAM_PORTB_0_we",
+            "direction": "I",
+            "left": "3",
+            "right": "0"
           }
         }
       }
@@ -1975,10 +2013,21 @@
         "ip_revision": "9",
         "xci_name": "design_1_blk_mem_gen_0_1",
         "xci_path": "ip/design_1_blk_mem_gen_0_1/design_1_blk_mem_gen_0_1.xci",
-        "inst_hier_path": "blk_mem_gen_0"
+        "inst_hier_path": "blk_mem_gen_0",
+        "parameters": {
+          "Memory_Type": {
+            "value": "True_Dual_Port_RAM"
+          }
+        }
       }
     },
     "interface_nets": {
+      "BRAM_PORTB_0_1": {
+        "interface_ports": [
+          "BRAM_PORTB_0",
+          "blk_mem_gen_0/BRAM_PORTB"
+        ]
+      },
       "S00_AXI_1": {
         "interface_ports": [
           "axi_interconnect_0/S00_AXI",
