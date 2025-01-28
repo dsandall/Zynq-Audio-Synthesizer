@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0xE9A7DD9822A4EAE5",
+      "boundary_crc": "0xE9A7DD9884F984FC",
       "device": "xc7z020clg400-1",
       "gen_directory": "../../../../refactor_jan27.gen/sources_1/bd/design_1",
       "name": "design_1",
@@ -245,6 +245,9 @@
           "READ_LATENCY": {
             "value": "1",
             "value_src": "default"
+          },
+          "READ_WRITE_MODE": {
+            "value": "READ_WRITE"
           }
         },
         "port_maps": {
@@ -283,6 +286,36 @@
             "direction": "I",
             "left": "3",
             "right": "0"
+          }
+        }
+      },
+      "BRAM_PORTB_1": {
+        "mode": "Slave",
+        "vlnv_bus_definition": "xilinx.com:interface:bram:1.0",
+        "vlnv": "xilinx.com:interface:bram_rtl:1.0",
+        "parameters": {
+          "MASTER_TYPE": {
+            "value": "OTHER",
+            "value_src": "default"
+          },
+          "MEM_ECC": {
+            "value": "NONE",
+            "value_src": "default"
+          },
+          "MEM_SIZE": {
+            "value": "8192",
+            "value_src": "default"
+          },
+          "MEM_WIDTH": {
+            "value": "32",
+            "value_src": "default"
+          },
+          "READ_LATENCY": {
+            "value": "1",
+            "value_src": "default"
+          },
+          "READ_WRITE_MODE": {
+            "value": "READ_WRITE"
           }
         }
       }
@@ -2015,8 +2048,29 @@
         "xci_path": "ip/design_1_blk_mem_gen_0_1/design_1_blk_mem_gen_0_1.xci",
         "inst_hier_path": "blk_mem_gen_0",
         "parameters": {
+          "Coe_File": {
+            "value": "../../../../../../my_sources/rom/unsigned_sine_wave_64_samples.coe"
+          },
+          "Enable_32bit_Address": {
+            "value": "true"
+          },
+          "Fill_Remaining_Memory_Locations": {
+            "value": "false"
+          },
+          "Load_Init_File": {
+            "value": "true"
+          },
           "Memory_Type": {
             "value": "True_Dual_Port_RAM"
+          },
+          "Write_Width_A": {
+            "value": "32"
+          },
+          "Write_Width_B": {
+            "value": "32"
+          },
+          "use_bram_block": {
+            "value": "Stand_Alone"
           }
         }
       }
@@ -2120,11 +2174,6 @@
           "processing_system7_0/FCLK_RESET0_N",
           "proc_sys_reset_0/ext_reset_in"
         ]
-      }
-    },
-    "comments": {
-      "/BRAM_PORTB_0": {
-        "comment_0": "to fib module\n\n"
       }
     },
     "addressing": {

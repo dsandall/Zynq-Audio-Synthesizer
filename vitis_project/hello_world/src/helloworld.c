@@ -252,7 +252,7 @@ int main() {
 
   while (1) {
 
-    XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, 0, loop_count++);
+    //XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, 0, loop_count++);
 
     u32 switches = XGpio_DiscreteRead(&Gpio, SWITCH_CHANNEL);
     XGpio_DiscreteWrite(&Gpio, LED_CHANNEL, switches);
@@ -261,8 +261,11 @@ int main() {
 
     for (int i = 0; i < 16 * 4; i = i + 4) {
       out_data = XBram_ReadReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, i);
-      xil_printf("%d: %d\n\r", i, out_data);
+      xil_printf("%d: %X\n\r", i, out_data);
     }
+
+
+    break;
 
   }
 

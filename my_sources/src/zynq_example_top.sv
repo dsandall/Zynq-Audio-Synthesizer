@@ -88,24 +88,34 @@ module zynq_example_top
     assign audio_cons_muten = 1'b1;
          
          
-   fibonacci_bram fibonacci_bram_i
-     (
+//   fibonacci_bram fibonacci_bram_i
+//     (
+//
+//      .clk(clk), 
+//      .rst(rst), 
+//
+//      .BRAM_addr(BRAM_addr),
+//      .BRAM_clk(BRAM_clk),
+//      .BRAM_din(BRAM_din),
+//      .BRAM_dout(BRAM_dout),
+//      .BRAM_en(BRAM_en),
+//      .BRAM_rst(BRAM_rst),
+//      .BRAM_we(BRAM_we)
+//
+//      );
+         
       
-      .clk(clk), 
-      .rst(rst), 
-      
-      .BRAM_addr(BRAM_addr),
-      .BRAM_clk(BRAM_clk),
-      .BRAM_din(BRAM_din),
-      .BRAM_dout(BRAM_dout),
-      .BRAM_en(BRAM_en),
-      .BRAM_rst(BRAM_rst),
-      .BRAM_we(BRAM_we)
-      
-      );
-      
-      
-      pain_and_suffering pain_i (
+    I2S_bram_DMA I2S_bram_DMA_i (
+              .clk(clk),               // System clock
+        .rst(1'b1),               // System reset
+
+        .BRAM_addr(BRAM_addr),   // BRAM address
+        .BRAM_clk(BRAM_clk),     // BRAM clock
+        .BRAM_din(BRAM_din),     // BRAM data input
+        .BRAM_dout(BRAM_dout),   // BRAM data output
+        .BRAM_en(BRAM_en),       // BRAM enable
+        .BRAM_rst(BRAM_rst),     // BRAM reset
+        .BRAM_we(BRAM_we),        // BRAM write enable
       .audio_I2S_bclk(audio_I2S_bclk), 
       .audio_I2S_pblrc(audio_I2S_pblrc),
       .audio_I2S_pbdat(audio_I2S_pbdat),
@@ -115,21 +125,22 @@ module zynq_example_top
       
       
        // Instantiate the BRAM interface module
-    bram_general_interface bram_interface_instance (
-        .clk(clk),               // System clock
-        .rst(rst),               // System reset
-        .BRAM_addr(BRAM_SynthBuffer_addr),   // BRAM address
-        .BRAM_clk(BRAM_SynthBuffer_clk),     // BRAM clock
-        .BRAM_din(BRAM_SynthBuffer_din),     // BRAM data input
-        .BRAM_dout(BRAM_SynthBuffer_dout),   // BRAM data output
-        .BRAM_en(BRAM_SynthBuffer_en),       // BRAM enable
-        .BRAM_rst(BRAM_SynthBuffer_rst),     // BRAM reset
-        .BRAM_we(BRAM_SynthBuffer_we)        // BRAM write enable
-    );
+   // bram_general_interface bram_interface_instance (
+   //     .clk(clk),               // System clock
+   //     .rst(1'b1),               // System reset
+
+   //     .BRAM_addr(BRAM_addr),   // BRAM address
+   //     .BRAM_clk(BRAM_clk),     // BRAM clock
+   //     .BRAM_din(BRAM_din),     // BRAM data input
+   //     .BRAM_dout(BRAM_dout),   // BRAM data output
+   //     .BRAM_en(BRAM_en),       // BRAM enable
+   //     .BRAM_rst(BRAM_rst),     // BRAM reset
+   //     .BRAM_we(BRAM_we)        // BRAM write enable
+   // );
 
 //------------------
    
-   design_1_wrapper design_1_wrapper_i
+   design_1_wrapper design_1_wrapper_iwithout 
      (
       // internal (stays within the FPGA chip, to let the ARM core IP communicate with the soft logic)
       .BRAM_PORTB_0_addr(BRAM_addr),
