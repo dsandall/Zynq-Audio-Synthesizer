@@ -23,8 +23,8 @@
 
 
 // Sample register parameters
-localparam int CLIP_LEN = 64;
-localparam int SAMPLE_BITS = 16;
+//
+
 
 
 
@@ -47,15 +47,18 @@ module I2S_bram_DMA (
     input      mclk              // Master Clock (256x sample rate)
 );
 
+localparam int SAMPLE_BITS = 16;
+localparam int CLIP_LEN = 64;
 
 
-  reg [SAMPLE_BITS-1:0] sample [CLIP_LEN - 1];
+  reg [SAMPLE_BITS-1:0] sample [CLIP_LEN];
    
    pain_and_suffering pain_i (
       .audio_I2S_bclk(audio_I2S_bclk), 
       .audio_I2S_pblrc(audio_I2S_pblrc),
       .audio_I2S_pbdat(audio_I2S_pbdat),
-      .mclk(the_mclk),
+      .mclk(mclk),
+
       .sample(sample) 
       );
 
@@ -76,7 +79,10 @@ module I2S_bram_DMA (
     
     state_t state;
 
-    localparam NUM_WORDS = (CLIP_LEN-1); // Number of words to process
+    // Connect BRAM clock to the system clock
+    assign BRAM_clk = clk;
+
+    localparam NUM_WORDS = (CLIP_LEN); // Number of words to process
     localparam WAIT_LEN = 4; 
     localparam BRAM_DELAY = 2; // bram read delay
     localparam BRAM_ADDR_INCREMENT = 1;
@@ -95,9 +101,11 @@ module I2S_bram_DMA (
 
     reg [2:0] index;                        // Index for accessing data_buffer
     reg [2:0] reverse_index;                // Index for reverse writing
+    int delay_bram;
 
     // Control logic for BRAM operations
     always_ff @(posedge clk or posedge rst) begin
+
         if (rst) begin
             BRAM_addr <= 0;
             BRAM_en <= 0;
@@ -107,7 +115,9 @@ module I2S_bram_DMA (
             reverse_index <= 0;
             state <= IDLE;
         end else begin
+
             BRAM_rst <= 0; // De-assert BRAM reset after initialization
+
             case (state)
                 IDLE: begin
                     BRAM_en <= 1;
@@ -118,12 +128,18 @@ module I2S_bram_DMA (
 
                     if (!rst) begin
                         state <= READ;
+                        delay_bram <= 0;
                     end 
 
                 end
+
                 READ: begin
+
                     BRAM_en <= 1;
                     BRAM_we <= 0;
+
+//TODO: loads do not work because block ram waits are currently broken. Refer to the simulator. 
+
                     index <= index + 1; // increment index
                     
                     if (index < NUM_WORDS) begin
@@ -139,6 +155,7 @@ module I2S_bram_DMA (
                     end 
 
                 end
+
                 WAIT: begin
 
                     wait_cnt--;
@@ -159,7 +176,6 @@ module I2S_bram_DMA (
         end
     end
 
-    // Connect BRAM clock to the system clock
-    assign BRAM_clk = clk;
+
 
 endmodule

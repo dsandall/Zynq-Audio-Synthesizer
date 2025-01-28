@@ -107,7 +107,7 @@ module zynq_example_top
       
     I2S_bram_DMA I2S_bram_DMA_i (
               .clk(clk),               // System clock
-        .rst(1'b1),               // System reset
+        .rst(rst),               // System reset
 
         .BRAM_addr(BRAM_addr),   // BRAM address
         .BRAM_clk(BRAM_clk),     // BRAM clock
@@ -116,6 +116,8 @@ module zynq_example_top
         .BRAM_en(BRAM_en),       // BRAM enable
         .BRAM_rst(BRAM_rst),     // BRAM reset
         .BRAM_we(BRAM_we),        // BRAM write enable
+
+
       .audio_I2S_bclk(audio_I2S_bclk), 
       .audio_I2S_pblrc(audio_I2S_pblrc),
       .audio_I2S_pbdat(audio_I2S_pbdat),
@@ -206,8 +208,5 @@ module zynq_example_top
 
       */
       );      
-      
-
- 
      
 endmodule

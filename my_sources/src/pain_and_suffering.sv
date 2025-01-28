@@ -5,6 +5,9 @@
 // Additional Comments: // I2S Transciever
 //////////////////////////////////////////////////////////////////////////////////
 
+localparam int SAMPLE_BITS = 16;
+localparam int CLIP_LEN = 64;
+
 
 module pain_and_suffering (
   // I2S
@@ -14,7 +17,7 @@ module pain_and_suffering (
     input      mclk,              // Master Clock (256x sample rate)
 
   // SAMPLE_REGISTERS
-    input [SAMPLE_BITS-1:0] sample                    [CLIP_LEN - 1]
+    input [SAMPLE_BITS-1:0] sample                    [CLIP_LEN]
 
 );
 
@@ -26,16 +29,8 @@ module pain_and_suffering (
 
 
 
-
-
-
-  localparam int PLAYBACK_FREQUENCY_DIVIDER = 64; //how many times should the same sample play befor the sample_index is incremented?
+  localparam int PLAYBACK_FREQUENCY_DIVIDER = 8; //how many times should the same sample play befor the sample_index is incremented?
  //TODO: calculate sine frequency basecd on divider, clip length, mclk
-
-
-
-
-
 
   // Parameters
   //localparam int SAMPLE_RATE = 44100;  // Sample rate in Hz
@@ -72,10 +67,11 @@ module pain_and_suffering (
     if (lr_divider >= (SAMPLE_BITS - 1)) begin
       lr_divider <= 0;
       audio_I2S_pblrc <= ~audio_I2S_pblrc;
-    end
+    end 
+      
 
     // manage the sample data
-    audio_I2S_pbdat <= sample[(SAMPLE_BITS -1)-lr_divider][sample_index];
+    audio_I2S_pbdat <= sample[(SAMPLE_BITS-1)-lr_divider][sample_index];
   end
 
   // change the sample being played (the magnitude of the square wave)

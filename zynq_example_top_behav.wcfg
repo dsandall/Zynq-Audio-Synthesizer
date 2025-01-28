@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="zynq_example_top_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="\$unit_I2S_bram_DMA_sv_86169200 " />
+            <top_module name="axi_bram_ctrl_funcs" />
+            <top_module name="axi_vip_pkg" />
+            <top_module name="glbl" />
+            <top_module name="ipif_pkg" />
+            <top_module name="std" />
+            <top_module name="vcomponents" />
+            <top_module name="xil_common_vip_pkg" />
+            <top_module name="zynq_example_top" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="1,215.400 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,531.901 ns"></ZoomEndTime>
+      <Cursor1Time time="1,281.900 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="149"></NameColumnWidth>
+      <ValueColumnWidth column_width="123"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="2" />
+   <wvobject type="group" fp_name="group76">
+      <obj_property name="label">top</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="logic" fp_name="/zynq_example_top/IIC_0_sda">
+         <obj_property name="ElementShortName">IIC_0_sda</obj_property>
+         <obj_property name="ObjectShortName">IIC_0_sda</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/IIC_0_scl">
+         <obj_property name="ElementShortName">IIC_0_scl</obj_property>
+         <obj_property name="ObjectShortName">IIC_0_scl</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/audio_cons_mclk">
+         <obj_property name="ElementShortName">audio_cons_mclk</obj_property>
+         <obj_property name="ObjectShortName">audio_cons_mclk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/audio_I2S_bclk">
+         <obj_property name="ElementShortName">audio_I2S_bclk</obj_property>
+         <obj_property name="ObjectShortName">audio_I2S_bclk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/audio_I2S_pbdat">
+         <obj_property name="ElementShortName">audio_I2S_pbdat</obj_property>
+         <obj_property name="ObjectShortName">audio_I2S_pbdat</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/audio_I2S_pblrc">
+         <obj_property name="ElementShortName">audio_I2S_pblrc</obj_property>
+         <obj_property name="ObjectShortName">audio_I2S_pblrc</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/clk">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/rst">
+         <obj_property name="ElementShortName">rst</obj_property>
+         <obj_property name="ObjectShortName">rst</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/BRAM_addr">
+         <obj_property name="ElementShortName">BRAM_addr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">BRAM_addr[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/BRAM_clk">
+         <obj_property name="ElementShortName">BRAM_clk</obj_property>
+         <obj_property name="ObjectShortName">BRAM_clk</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/BRAM_din">
+         <obj_property name="ElementShortName">BRAM_din[31:0]</obj_property>
+         <obj_property name="ObjectShortName">BRAM_din[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/BRAM_dout">
+         <obj_property name="ElementShortName">BRAM_dout[31:0]</obj_property>
+         <obj_property name="ObjectShortName">BRAM_dout[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/BRAM_en">
+         <obj_property name="ElementShortName">BRAM_en</obj_property>
+         <obj_property name="ObjectShortName">BRAM_en</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/BRAM_rst">
+         <obj_property name="ElementShortName">BRAM_rst</obj_property>
+         <obj_property name="ObjectShortName">BRAM_rst</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/BRAM_we">
+         <obj_property name="ElementShortName">BRAM_we[3:0]</obj_property>
+         <obj_property name="ObjectShortName">BRAM_we[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/the_mclk">
+         <obj_property name="ElementShortName">the_mclk</obj_property>
+         <obj_property name="ObjectShortName">the_mclk</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group75">
+      <obj_property name="label">I2S</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/clk">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/rst">
+         <obj_property name="ElementShortName">rst</obj_property>
+         <obj_property name="ObjectShortName">rst</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_addr">
+         <obj_property name="ElementShortName">BRAM_addr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">BRAM_addr[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_clk">
+         <obj_property name="ElementShortName">BRAM_clk</obj_property>
+         <obj_property name="ObjectShortName">BRAM_clk</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_din">
+         <obj_property name="ElementShortName">BRAM_din[31:0]</obj_property>
+         <obj_property name="ObjectShortName">BRAM_din[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_dout">
+         <obj_property name="ElementShortName">BRAM_dout[31:0]</obj_property>
+         <obj_property name="ObjectShortName">BRAM_dout[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_en">
+         <obj_property name="ElementShortName">BRAM_en</obj_property>
+         <obj_property name="ObjectShortName">BRAM_en</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_rst">
+         <obj_property name="ElementShortName">BRAM_rst</obj_property>
+         <obj_property name="ObjectShortName">BRAM_rst</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_we">
+         <obj_property name="ElementShortName">BRAM_we[3:0]</obj_property>
+         <obj_property name="ObjectShortName">BRAM_we[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/audio_I2S_bclk">
+         <obj_property name="ElementShortName">audio_I2S_bclk</obj_property>
+         <obj_property name="ObjectShortName">audio_I2S_bclk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/audio_I2S_pbdat">
+         <obj_property name="ElementShortName">audio_I2S_pbdat</obj_property>
+         <obj_property name="ObjectShortName">audio_I2S_pbdat</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/audio_I2S_pblrc">
+         <obj_property name="ElementShortName">audio_I2S_pblrc</obj_property>
+         <obj_property name="ObjectShortName">audio_I2S_pblrc</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/mclk">
+         <obj_property name="ElementShortName">mclk</obj_property>
+         <obj_property name="ObjectShortName">mclk</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/sample">
+         <obj_property name="ElementShortName">sample[0:63][15:0]</obj_property>
+         <obj_property name="ObjectShortName">sample[0:63][15:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/state">
+         <obj_property name="ElementShortName">state[2:0]</obj_property>
+         <obj_property name="ObjectShortName">state[2:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/wait_cnt">
+         <obj_property name="ElementShortName">wait_cnt[31:0]</obj_property>
+         <obj_property name="ObjectShortName">wait_cnt[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/data_buffer">
+         <obj_property name="ElementShortName">data_buffer[0:63][31:0]</obj_property>
+         <obj_property name="ObjectShortName">data_buffer[0:63][31:0]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/index">
+         <obj_property name="ElementShortName">index[2:0]</obj_property>
+         <obj_property name="ObjectShortName">index[2:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/reverse_index">
+         <obj_property name="ElementShortName">reverse_index[2:0]</obj_property>
+         <obj_property name="ObjectShortName">reverse_index[2:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/SAMPLE_BITS">
+         <obj_property name="ElementShortName">SAMPLE_BITS[31:0]</obj_property>
+         <obj_property name="ObjectShortName">SAMPLE_BITS[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/CLIP_LEN">
+         <obj_property name="ElementShortName">CLIP_LEN[31:0]</obj_property>
+         <obj_property name="ObjectShortName">CLIP_LEN[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/NUM_WORDS">
+         <obj_property name="ElementShortName">NUM_WORDS[31:0]</obj_property>
+         <obj_property name="ObjectShortName">NUM_WORDS[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/WAIT_LEN">
+         <obj_property name="ElementShortName">WAIT_LEN[31:0]</obj_property>
+         <obj_property name="ObjectShortName">WAIT_LEN[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_DELAY">
+         <obj_property name="ElementShortName">BRAM_DELAY[31:0]</obj_property>
+         <obj_property name="ObjectShortName">BRAM_DELAY[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_ADDR_INCREMENT">
+         <obj_property name="ElementShortName">BRAM_ADDR_INCREMENT[31:0]</obj_property>
+         <obj_property name="ObjectShortName">BRAM_ADDR_INCREMENT[31:0]</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

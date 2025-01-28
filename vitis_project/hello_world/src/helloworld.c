@@ -257,7 +257,7 @@ int main() {
     u32 switches = XGpio_DiscreteRead(&Gpio, SWITCH_CHANNEL);
     XGpio_DiscreteWrite(&Gpio, LED_CHANNEL, switches);
     xil_printf("checkeddddd! %x\n\r", switches);
-    sleep(1);
+    sleep(2);
 
     for (int i = 0; i < 16 * 4; i = i + 4) {
       out_data = XBram_ReadReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, i);
