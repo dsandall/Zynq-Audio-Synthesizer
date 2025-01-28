@@ -1,14 +1,14 @@
 {
   "schema": "xilinx.com:schema:json_instance:1.0",
   "ip_inst": {
-    "xci_name": "design_1_blk_mem_gen_0_0",
+    "xci_name": "design_1_blk_mem_gen_0_1",
     "cell_name": "blk_mem_gen_0",
     "component_reference": "xilinx.com:ip:blk_mem_gen:8.4",
     "ip_revision": "9",
-    "gen_directory": "../../../../../../refactor_jan27.gen/sources_1/bd/design_1/ip/design_1_blk_mem_gen_0_0",
+    "gen_directory": "../../../../../../refactor_jan27.gen/sources_1/bd/design_1/ip/design_1_blk_mem_gen_0_1",
     "parameters": {
       "component_parameters": {
-        "Component_Name": [ { "value": "design_1_blk_mem_gen_0_0", "resolve_type": "user", "usage": "all" } ],
+        "Component_Name": [ { "value": "design_1_blk_mem_gen_0_1", "resolve_type": "user", "usage": "all" } ],
         "Interface_Type": [ { "value": "Native", "resolve_type": "user", "usage": "all" } ],
         "AXI_Type": [ { "value": "AXI4_Full", "resolve_type": "user", "usage": "all" } ],
         "AXI_Slave_Type": [ { "value": "Memory_Slave", "resolve_type": "user", "usage": "all" } ],
@@ -175,7 +175,7 @@
         "IPCONTEXT": [ { "value": "IP_Integrator" } ],
         "IPREVISION": [ { "value": "9" } ],
         "MANAGED": [ { "value": "TRUE" } ],
-        "OUTPUTDIR": [ { "value": "../../../../../../refactor_jan27.gen/sources_1/bd/design_1/ip/design_1_blk_mem_gen_0_0" } ],
+        "OUTPUTDIR": [ { "value": "../../../../../../refactor_jan27.gen/sources_1/bd/design_1/ip/design_1_blk_mem_gen_0_1" } ],
         "SELECTEDSIMMODEL": [ { "value": "" } ],
         "SHAREDDIR": [ { "value": "../../ipshared" } ],
         "SWVERSION": [ { "value": "2024.2" } ],

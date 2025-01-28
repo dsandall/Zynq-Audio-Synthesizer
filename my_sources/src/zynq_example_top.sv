@@ -88,21 +88,21 @@ module zynq_example_top
     assign audio_cons_muten = 1'b1;
          
          
-   fibonacci_bram fibonacci_bram_i
-     (
-      
-      .clk(clk), 
-      .rst(rst), 
-      
-      .BRAM_addr(BRAM_addr),
-      .BRAM_clk(BRAM_clk),
-      .BRAM_din(BRAM_din),
-      .BRAM_dout(BRAM_dout),
-      .BRAM_en(BRAM_en),
-      .BRAM_rst(BRAM_rst),
-      .BRAM_we(BRAM_we)
-      
-      );
+//   fibonacci_bram fibonacci_bram_i
+//     (
+//      
+//      .clk(clk), 
+//      .rst(rst), 
+//      
+//      .BRAM_addr(BRAM_addr),
+//      .BRAM_clk(BRAM_clk),
+//      .BRAM_din(BRAM_din),
+//      .BRAM_dout(BRAM_dout),
+//      .BRAM_en(BRAM_en),
+//      .BRAM_rst(BRAM_rst),
+//      .BRAM_we(BRAM_we)
+//      
+//      );
       
       
       pain_and_suffering pain_i (
@@ -132,23 +132,23 @@ module zynq_example_top
    design_1_wrapper design_1_wrapper_i
      (
       // internal (stays within the FPGA chip, to let the ARM core IP communicate with the soft logic)
-      .BRAM_PORTB_0_addr(BRAM_addr),
-      .BRAM_PORTB_0_clk(BRAM_clk),
-      .BRAM_PORTB_0_din(BRAM_din),
-      .BRAM_PORTB_0_dout(BRAM_dout),
-      .BRAM_PORTB_0_en(BRAM_en),
-      .BRAM_PORTB_0_rst(BRAM_rst),
-      .BRAM_PORTB_0_we(BRAM_we),
+      //.BRAM_PORTB_0_addr(BRAM_addr),
+      //.BRAM_PORTB_0_clk(BRAM_clk),
+      //.BRAM_PORTB_0_din(BRAM_din),
+      //.BRAM_PORTB_0_dout(BRAM_dout),
+      //.BRAM_PORTB_0_en(BRAM_en),
+      //.BRAM_PORTB_0_rst(BRAM_rst),
+      //.BRAM_PORTB_0_we(BRAM_we),
       
-      .BRAM_SynthBuffer_PORTA_1_addr(BRAM_SynthBuffer_addr),
-      .BRAM_SynthBuffer_PORTA_1_clk(BRAM_SynthBuffer_clk),
-      .BRAM_SynthBuffer_PORTA_1_din(BRAM_SynthBuffer_din),
-      .BRAM_SynthBuffer_PORTA_1_dout(BRAM_SynthBuffer_dout),
-      .BRAM_SynthBuffer_PORTA_1_en(BRAM_SynthBuffer_en),
-      .BRAM_SynthBuffer_PORTA_1_we(BRAM_SynthBuffer_we),
+      //.BRAM_SynthBuffer_PORTA_1_addr(BRAM_SynthBuffer_addr),
+      //.BRAM_SynthBuffer_PORTA_1_clk(BRAM_SynthBuffer_clk),
+      //.BRAM_SynthBuffer_PORTA_1_din(BRAM_SynthBuffer_din),
+      //.BRAM_SynthBuffer_PORTA_1_dout(BRAM_SynthBuffer_dout),
+      //.BRAM_SynthBuffer_PORTA_1_en(BRAM_SynthBuffer_en),
+      //.BRAM_SynthBuffer_PORTA_1_we(BRAM_SynthBuffer_we),
     
-      .peripheral_aresetn(rstn),
-      .FCLK_CLK0(clk),
+      .peripheral_aresetn_0(rstn),
+      .FCLK_CLK0_0(clk),
       
       // external (leaves the FPGA, interfaces with the rest of the on board peripherals)
       .DDR_addr(DDR_addr),
@@ -187,9 +187,13 @@ module zynq_example_top
       //.IIC_0_scl_io(IIC_0_scl), // to I2C audio registers
       //.IIC_0_sda_io(IIC_0_sda), 
       .MCLK(the_mclk) //WARN: this is a terrible name, very easily confused with the master clock
-/*      .sdata_0_out_0(audio_I2S_pbdat), // I2S Converter > I2S chip off board
+
+/*
+      .sdata_0_out_0(audio_I2S_pbdat), // I2S Converter > I2S chip off board
       .lrclk_out_0(audio_I2S_pblrc),
-      .bclk_out_0(audio_I2S_bclk)*/
+      .bclk_out_0(audio_I2S_bclk)
+
+      */
       );      
       
 
