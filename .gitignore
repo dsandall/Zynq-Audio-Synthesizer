@@ -1,0 +1,24 @@
+/* 
+# ignore everything, 
+# but include:
+
+!.gitignore
+!README
+
+!my_sources/
+!my_sources/*
+
+!refactor_jan27.srcs/
+!refactor_jan27.srcs/*
+
+
+# project data
+!*.xpr pro
+# wave cfg
+!*.wcfg
+
+# and of course vitis!
+#!vitis_project/
+#!vitis_project/*
+
+

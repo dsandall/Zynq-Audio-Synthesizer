@@ -1,0 +1,28 @@
+#Audio Codec, from digital audio example
+#set_property -dict { PACKAGE_PIN R19   IOSTANDARD LVCMOS33 } [get_ports { audio_I2S_bclk }]; #IO_0_34 Sch=ac_bclk
+#set_property -dict { PACKAGE_PIN R17   IOSTANDARD LVCMOS33 } [get_ports { audio_cons_mclk }]; #IO_L19N_T3_VREF_34 Sch=ac_mclk
+#set_property -dict { PACKAGE_PIN P18   IOSTANDARD LVCMOS33 } [get_ports { audio_cons_muten }]; #IO_L23N_T3_34 Sch=ac_muten
+#set_property -dict { PACKAGE_PIN R18   IOSTANDARD LVCMOS33 } [get_ports { audio_I2S_pbdat }]; #IO_L20N_T3_34 Sch=ac_pbdat
+#set_property -dict { PACKAGE_PIN T19   IOSTANDARD LVCMOS33 } [get_ports { audio_I2S_pblrc }]; #IO_25_34 Sch=ac_pblrc
+##set_property -dict { PACKAGE_PIN R16   IOSTANDARD LVCMOS33 } [get_ports { audio_I2S_recdat }]; #IO_L19P_T3_34 Sch=ac_recdat
+##set_property -dict { PACKAGE_PIN Y18   IOSTANDARD LVCMOS33 } [get_ports { audio_I2S_reclrc }]; #IO_L17P_T2_34 Sch=ac_reclrc
+#set_property -dict { PACKAGE_PIN N18   IOSTANDARD LVCMOS33 } [get_ports { IIC_0_scl }]; #IO_L13P_T2_MRCC_34 Sch=ac_scl
+#set_property -dict { PACKAGE_PIN N17   IOSTANDARD LVCMOS33 } [get_ports { IIC_0_sda }]; #IO_L23P_T3_34 Sch=ac_sda
+
+set_property -dict { PACKAGE_PIN L14   IOSTANDARD LVCMOS33 } [get_ports { audio_I2S_bclk }]; #IO_0_34 Sch=ac_bclk
+set_property -dict { PACKAGE_PIN N15   IOSTANDARD LVCMOS33 } [get_ports { audio_cons_mclk }]; #IO_L19N_T3_VREF_34 Sch=ac_mclk
+set_property -dict { PACKAGE_PIN P18   IOSTANDARD LVCMOS33 } [get_ports { audio_cons_muten }]; #IO_L23N_T3_34 Sch=ac_muten
+set_property -dict { PACKAGE_PIN K16   IOSTANDARD LVCMOS33 } [get_ports { audio_I2S_pbdat }]; #IO_L20N_T3_34 Sch=ac_pbdat
+set_property -dict { PACKAGE_PIN K14   IOSTANDARD LVCMOS33 } [get_ports { audio_I2S_pblrc }]; #IO_25_34 Sch=ac_pblrc
+#set_property -dict { PACKAGE_PIN R16   IOSTANDARD LVCMOS33 } [get_ports { audio_I2S_recdat }]; #IO_L19P_T3_34 Sch=ac_recdat
+#set_property -dict { PACKAGE_PIN Y18   IOSTANDARD LVCMOS33 } [get_ports { audio_I2S_reclrc }]; #IO_L17P_T2_34 Sch=ac_reclrc
+set_property -dict { PACKAGE_PIN N18   IOSTANDARD LVCMOS33 } [get_ports { IIC_0_scl }]; #IO_L13P_T2_MRCC_34 Sch=ac_scl
+set_property -dict { PACKAGE_PIN N17   IOSTANDARD LVCMOS33 } [get_ports { IIC_0_sda }]; #IO_L23P_T3_34 Sch=ac_sda
+
+
+
+##LEDs
+set_property -dict { PACKAGE_PIN M14   IOSTANDARD LVCMOS33 } [get_ports { led[0] }]; #IO_L23P_T3_35 Sch=led[0]
+set_property -dict { PACKAGE_PIN M15   IOSTANDARD LVCMOS33 } [get_ports { led[1] }]; #IO_L23N_T3_35 Sch=led[1]
+set_property -dict { PACKAGE_PIN G14   IOSTANDARD LVCMOS33 } [get_ports { led[2] }]; #IO_0_35 Sch=led[2]
+set_property -dict { PACKAGE_PIN D18   IOSTANDARD LVCMOS33 } [get_ports { led[3] }]; #IO_L3N_T0_DQS_AD1N_35 Sch=led[3]
