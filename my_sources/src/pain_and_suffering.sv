@@ -5,30 +5,26 @@
 // Additional Comments: // I2S Transciever
 //////////////////////////////////////////////////////////////////////////////////
 
-localparam int SAMPLE_BITS = 16;
-localparam int CLIP_LEN = 64;
 
-
-module pain_and_suffering (
+module pain_and_suffering #(
+  parameter int SAMPLE_BITS,
+  parameter int CLIP_LEN,
+  parameter int FREQ_RES_BITS,
+parameter int VOLUME_BITS
+  )(
   // I2S
     output reg audio_I2S_bclk,   // Bit Clock
     output reg audio_I2S_pbdat,  // Playback Data
     output reg audio_I2S_pblrc,  // Word Select (LR Clock)
     input      mclk,              // Master Clock (256x sample rate)
-    input  [3:0]switches, 
+    //input  [3:0]switches, 
   // SAMPLE_REGISTERS
-    input [SAMPLE_BITS-1:0] sample                    [CLIP_LEN]
-
+    input [SAMPLE_BITS - 1:0] sample                    [CLIP_LEN],
+    input[FREQ_RES_BITS - 1: 0]  frequency,
+    input[VOLUME_BITS-1:0] volume
 );
 
-
 ////// I2C Begin
-
-
-
-
-
-
   // Parameters
   //localparam int SAMPLE_RATE = 44100;  // Sample rate in Hz
   localparam int MCLK_DIV = 256;  // MCLK to SAMPLE_RATE divider
@@ -40,7 +36,7 @@ module pain_and_suffering (
 
 
  //TODO: calculate sine frequency basecd on divider, clip length, mclk
- int playback_frequency_divider = switches; //how many times should the same sample play befor the sample_index is incremented?
+ wire [FREQ_RES_BITS - 1: 0] playback_frequency_divider = frequency; //how many times should the same sample play befor the sample_index is incremented?
 
   // The Data
   // playback frequency = sample_freq / sample_freq_divider

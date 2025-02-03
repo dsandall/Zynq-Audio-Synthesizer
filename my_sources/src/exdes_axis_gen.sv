@@ -47,108 +47,95 @@
 
 
 //tb
-`timescale 1ns/1ps
-(* DowngradeIPIdentifiedWarnings="yes" *)
-module exdes_axis_gen
-(
-	input clk,
-	input resetn,
+`timescale 1ns / 1ps (* DowngradeIPIdentifiedWarnings="yes" *)
+module exdes_axis_gen (
+    input clk,
+    input resetn,
 
-	input  DataGen_Enable,
-	input  m_axis_audio_tready,
-	output m_axis_audio_tvalid,
-	output  [2:0] m_axis_audio_tid,
-	output [31:0] m_axis_audio_tdata
+    input DataGen_Enable,
+    input m_axis_audio_tready,
+    output m_axis_audio_tvalid,
+    output [2:0] m_axis_audio_tid,
+    output [31:0] m_axis_audio_tdata
 );
 
-logic signed [24 -1:0] DataGen_SampleValues [2* 1];
-logic [191:0]  DataGen_ChannelStatus = {32'h01234567, 
-                			32'h89ABCDEF,
-                			32'hAABBCCDD,
-                			32'hEEFF0011,
-                			32'h22334455,
-                			32'h66778899};
-logic [31:0]   DataGen_ChannelCounter;
-logic [31:0]   DataGen_FrameCounter;
-logic [31:0]   DataGen_AesOut;
+  logic signed [24 -1:0] DataGen_SampleValues[2* 1];
+  logic [191:0] DataGen_ChannelStatus = {
+    32'h01234567, 32'h89ABCDEF, 32'hAABBCCDD, 32'hEEFF0011, 32'h22334455, 32'h66778899
+  };
+  logic [31:0] DataGen_ChannelCounter;
+  logic [31:0] DataGen_FrameCounter;
+  logic [31:0] DataGen_AesOut;
 
-logic [3:0] cAES_BSYNC   = 4'b0001;
-logic [3:0] cAES_SF1SYNC = 4'b0010;
-logic [3:0] cAES_SF2SYNC = 4'b0011;
+  logic [3:0] cAES_BSYNC = 4'b0001;
+  logic [3:0] cAES_SF1SYNC = 4'b0010;
+  logic [3:0] cAES_SF2SYNC = 4'b0011;
 
-logic        nAxis_TValid;
-logic        nAxis_TReady;
-logic [ 2:0] nAxis_TID;
-logic [31:0] nAxis_TData;
+  logic nAxis_TValid;
+  logic nAxis_TReady;
+  logic [2:0] nAxis_TID;
+  logic [31:0] nAxis_TData;
 
-assign m_axis_audio_tvalid = nAxis_TValid; 
-assign m_axis_audio_tid = nAxis_TID; 
-assign m_axis_audio_tdata = nAxis_TData;
-assign nAxis_TReady = m_axis_audio_tready; 
+  assign m_axis_audio_tvalid = nAxis_TValid;
+  assign m_axis_audio_tid = nAxis_TID;
+  assign m_axis_audio_tdata = nAxis_TData;
+  assign nAxis_TReady = m_axis_audio_tready;
 
-always_ff @(posedge clk)
-begin
+  always_ff @(posedge clk) begin
     //if reset is low, or DataGen is disabled,
-  if (!resetn || !DataGen_Enable) begin
-    nAxis_TValid <= 1'b0;
-    DataGen_ChannelCounter = 0;
-    DataGen_FrameCounter = 0;
-    foreach (DataGen_SampleValues[i]) begin
-      DataGen_SampleValues[i] = 0;
-    end
-  end
-  else begin
-    // else continue operation
-    if (!nAxis_TValid || 
-       (nAxis_TValid & nAxis_TReady)) begin
-      nAxis_TValid <= 1'b1;
-      
-      nAxis_TID    <= DataGen_ChannelCounter;
-      
-      DataGen_AesOut[31] = 1'b0;
-      DataGen_AesOut[30] = DataGen_ChannelStatus[DataGen_FrameCounter];
-      DataGen_AesOut[29] = 1'b0;
-      DataGen_AesOut[28] = 1'b0;
-      DataGen_AesOut[27-: 24 ] = DataGen_SampleValues[DataGen_ChannelCounter];
-      nAxis_TData[31:4] <= DataGen_AesOut[31:4];
-      
-      if (DataGen_ChannelCounter[0] == 1'b0) begin
-        if (DataGen_FrameCounter == 'd0) begin
-          nAxis_TData[3:0] <= cAES_BSYNC;
-        end
-        else begin
-          nAxis_TData[3:0] <= cAES_SF1SYNC;
-        end
+    if (!resetn || !DataGen_Enable) begin
+      nAxis_TValid <= 1'b0;
+      DataGen_ChannelCounter = 0;
+      DataGen_FrameCounter   = 0;
+      foreach (DataGen_SampleValues[i]) begin
+        DataGen_SampleValues[i] = 0;
       end
-      else begin
-        nAxis_TData[3:0] <= cAES_SF2SYNC;
-      end
-      
-      if (DataGen_ChannelCounter < (2* 1 )-1) begin
-        DataGen_ChannelCounter <= DataGen_ChannelCounter + 1'b1;
-      end
-      else begin
-        DataGen_ChannelCounter <= 'd0;
-        
-        if (DataGen_FrameCounter < 'd191) begin
-          DataGen_FrameCounter <= DataGen_FrameCounter + 1'b1;
-        end
-        else begin
-          DataGen_FrameCounter <= 0;
-        end
-        
-        foreach (DataGen_SampleValues[i]) begin
-          if (DataGen_SampleValues[i] > -128) begin
-            DataGen_SampleValues[i] = DataGen_SampleValues[i] - 1;
+    end else begin
+      // else continue operation
+      if (!nAxis_TValid || (nAxis_TValid & nAxis_TReady)) begin
+        nAxis_TValid <= 1'b1;
+
+        nAxis_TID    <= DataGen_ChannelCounter;
+
+        DataGen_AesOut[31] = 1'b0;
+        DataGen_AesOut[30] = DataGen_ChannelStatus[DataGen_FrameCounter];
+        DataGen_AesOut[29] = 1'b0;
+        DataGen_AesOut[28] = 1'b0;
+        DataGen_AesOut[27-:24] = DataGen_SampleValues[DataGen_ChannelCounter];
+        nAxis_TData[31:4] <= DataGen_AesOut[31:4];
+
+        if (DataGen_ChannelCounter[0] == 1'b0) begin
+          if (DataGen_FrameCounter == 'd0) begin
+            nAxis_TData[3:0] <= cAES_BSYNC;
+          end else begin
+            nAxis_TData[3:0] <= cAES_SF1SYNC;
           end
-          else begin
-            DataGen_SampleValues[i] = 128;
+        end else begin
+          nAxis_TData[3:0] <= cAES_SF2SYNC;
+        end
+
+        if (DataGen_ChannelCounter < (2 * 1) - 1) begin
+          DataGen_ChannelCounter <= DataGen_ChannelCounter + 1'b1;
+        end else begin
+          DataGen_ChannelCounter <= 'd0;
+
+          if (DataGen_FrameCounter < 'd191) begin
+            DataGen_FrameCounter <= DataGen_FrameCounter + 1'b1;
+          end else begin
+            DataGen_FrameCounter <= 0;
+          end
+
+          foreach (DataGen_SampleValues[i]) begin
+            if (DataGen_SampleValues[i] > -128) begin
+              DataGen_SampleValues[i] = DataGen_SampleValues[i] - 1;
+            end else begin
+              DataGen_SampleValues[i] = 128;
+            end
           end
         end
       end
     end
   end
-end
 
 
 

@@ -51,9 +51,8 @@ module zynq_example_top
 
    );
    
-   
-
-   
+      wire [31:0]gpio_ctrl_i_32b_tri_i;
+      wire [31:0]gpio_ctrl_o_32b_tri_o;
    
    logic	clk;
    logic	rst;
@@ -78,16 +77,11 @@ module zynq_example_top
    
    logic [3:0] dummy;
    
-   assign led[0] = audio_I2S_pblrc;
-   assign led[1] = audio_I2S_pbdat;
 
-    wire the_mclk;
-    assign audio_cons_mclk = the_mclk;
-   
-   
-    assign audio_cons_muten = 1'b1;
-         
-         
+  //assign led[0] = audio_I2S_pblrc;
+  //assign led[1] = audio_I2S_pbdat;
+  //assign audio_cons_muten = 1'b1;
+
 //   fibonacci_bram fibonacci_bram_i
 //     (
 //
@@ -106,7 +100,7 @@ module zynq_example_top
          
       
     I2S_bram_DMA I2S_bram_DMA_i (
-              .clk(clk),               // System clock
+        .clk(clk),               // System clock
         .rst(rst),               // System reset
 
         .BRAM_addr(BRAM_addr),   // BRAM address
@@ -117,13 +111,18 @@ module zynq_example_top
         .BRAM_rst(BRAM_rst),     // BRAM reset
         .BRAM_we(BRAM_we),        // BRAM write enable
 
-
+// control sources
         .switches(sws_4bits_tri_i),
 
+      .gpio_ctrl_i_32b_tri_i(gpio_ctrl_i_32b_tri_i),
+      .gpio_ctrl_o_32b_tri_o(gpio_ctrl_o_32b_tri_o),
+      .ip2intc_irpt_0(ip2intc_irpt_0), 
+
+// audio output bus
       .audio_I2S_bclk(audio_I2S_bclk), 
       .audio_I2S_pblrc(audio_I2S_pblrc),
       .audio_I2S_pbdat(audio_I2S_pbdat),
-      .mclk(the_mclk)
+      .mclk(audio_cons_mclk )
       );
       
       
@@ -146,26 +145,13 @@ module zynq_example_top
    
    design_1_wrapper design_1_wrapper_i 
      (
-      // internal (stays within the FPGA chip, to let the ARM core IP communicate with the soft logic)
-      .BRAM_PORTB_0_addr(BRAM_addr),
-      .BRAM_PORTB_0_clk(BRAM_clk),
-      .BRAM_PORTB_0_din(BRAM_din),
-      .BRAM_PORTB_0_dout(BRAM_dout),
-      .BRAM_PORTB_0_en(BRAM_en),
-      .BRAM_PORTB_0_rst(BRAM_rst),
-      .BRAM_PORTB_0_we(BRAM_we),
-      
-      //.BRAM_SynthBuffer_PORTA_1_addr(BRAM_SynthBuffer_addr),
-      //.BRAM_SynthBuffer_PORTA_1_clk(BRAM_SynthBuffer_clk),
-      //.BRAM_SynthBuffer_PORTA_1_din(BRAM_SynthBuffer_din),
-      //.BRAM_SynthBuffer_PORTA_1_dout(BRAM_SynthBuffer_dout),
-      //.BRAM_SynthBuffer_PORTA_1_en(BRAM_SynthBuffer_en),
-      //.BRAM_SynthBuffer_PORTA_1_we(BRAM_SynthBuffer_we),
+
     
+      //// MCU reset, MCU clk
       .peripheral_aresetn_0(rstn),
       .FCLK_CLK0_0(clk),
       
-      // external (leaves the FPGA, interfaces with the rest of the on board peripherals)
+      //// external (leaves the FPGA, interfaces with the rest of the on board peripherals)
       .DDR_addr(DDR_addr),
       .DDR_ba(DDR_ba),
       .DDR_cas_n(DDR_cas_n),
@@ -187,9 +173,38 @@ module zynq_example_top
       .FIXED_IO_ps_clk(FIXED_IO_ps_clk),
       .FIXED_IO_ps_porb(FIXED_IO_ps_porb),
       .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb),
-      .leds_4bits_tri_o(dummy),
+
+
+      //// on board LEDs and switches
+      .leds_4bits_tri_o(led),
       .sws_4bits_tri_i(sws_4bits_tri_i),
+
+
+      //// audio control gpio
+      .gpio_ctrl_i_32b_tri_i(gpio_ctrl_i_32b_tri_i),
+      .gpio_ctrl_o_32b_tri_o(gpio_ctrl_o_32b_tri_o),
+      .ip2intc_irpt_0(ip2intc_irpt_0), // and interrupt
+
+      .MCLK(MCLK), //WARN: this is a terrible name, very easily confused with the master clock
+
+      // internal (stays within the FPGA chip, to let the ARM core IP communicate with the soft logic)
+      .BRAM_PORTB_0_addr(BRAM_addr),
+      .BRAM_PORTB_0_clk(BRAM_clk),
+      .BRAM_PORTB_0_din(BRAM_din),
+      .BRAM_PORTB_0_dout(BRAM_dout),
+      .BRAM_PORTB_0_en(BRAM_en),
+      .BRAM_PORTB_0_rst(BRAM_rst),
+      .BRAM_PORTB_0_we(BRAM_we)
       
+      //.BRAM_SynthBuffer_PORTA_1_addr(BRAM_SynthBuffer_addr),
+      //.BRAM_SynthBuffer_PORTA_1_clk(BRAM_SynthBuffer_clk),
+      //.BRAM_SynthBuffer_PORTA_1_din(BRAM_SynthBuffer_din),
+      //.BRAM_SynthBuffer_PORTA_1_dout(BRAM_SynthBuffer_dout),
+      //.BRAM_SynthBuffer_PORTA_1_en(BRAM_SynthBuffer_en),
+      //.BRAM_SynthBuffer_PORTA_1_we(BRAM_SynthBuffer_we),
+      
+
+
       //// adding my own stuff for audio
       
       // These stay on this module
@@ -201,7 +216,6 @@ module zynq_example_top
       // these leave the chip (constraints file)
       //.IIC_0_scl_io(IIC_0_scl), // to I2C audio registers
       //.IIC_0_sda_io(IIC_0_sda), 
-      .MCLK(the_mclk) //WARN: this is a terrible name, very easily confused with the master clock
 
 /*
       .sdata_0_out_0(audio_I2S_pbdat), // I2S Converter > I2S chip off board
@@ -210,5 +224,9 @@ module zynq_example_top
 
       */
       );      
+
+
+
+    assign audio_cons_mclk = MCLK;
      
 endmodule
