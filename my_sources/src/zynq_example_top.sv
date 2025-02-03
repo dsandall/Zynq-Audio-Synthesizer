@@ -118,6 +118,8 @@ module zynq_example_top
         .BRAM_we(BRAM_we),        // BRAM write enable
 
 
+        .switches(sws_4bits_tri_i),
+
       .audio_I2S_bclk(audio_I2S_bclk), 
       .audio_I2S_pblrc(audio_I2S_pblrc),
       .audio_I2S_pbdat(audio_I2S_pbdat),
@@ -142,7 +144,7 @@ module zynq_example_top
 
 //------------------
    
-   design_1_wrapper design_1_wrapper_iwithout 
+   design_1_wrapper design_1_wrapper_i 
      (
       // internal (stays within the FPGA chip, to let the ARM core IP communicate with the soft logic)
       .BRAM_PORTB_0_addr(BRAM_addr),

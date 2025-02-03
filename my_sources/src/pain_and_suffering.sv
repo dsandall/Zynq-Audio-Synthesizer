@@ -15,7 +15,7 @@ module pain_and_suffering (
     output reg audio_I2S_pbdat,  // Playback Data
     output reg audio_I2S_pblrc,  // Word Select (LR Clock)
     input      mclk,              // Master Clock (256x sample rate)
-
+    input  [3:0]switches, 
   // SAMPLE_REGISTERS
     input [SAMPLE_BITS-1:0] sample                    [CLIP_LEN]
 
@@ -29,9 +29,6 @@ module pain_and_suffering (
 
 
 
-  localparam int PLAYBACK_FREQUENCY_DIVIDER = 8; //how many times should the same sample play befor the sample_index is incremented?
- //TODO: calculate sine frequency basecd on divider, clip length, mclk
-
   // Parameters
   //localparam int SAMPLE_RATE = 44100;  // Sample rate in Hz
   localparam int MCLK_DIV = 256;  // MCLK to SAMPLE_RATE divider
@@ -40,6 +37,10 @@ module pain_and_suffering (
   // Registers
   int        bclk_divider = 0;  // Toggles to generate BCLK
   int        lr_divider = 0;  // Toggles to generate LRCLK
+
+
+ //TODO: calculate sine frequency basecd on divider, clip length, mclk
+ int playback_frequency_divider = switches; //how many times should the same sample play befor the sample_index is incremented?
 
   // The Data
   // playback frequency = sample_freq / sample_freq_divider
@@ -86,6 +87,9 @@ module pain_and_suffering (
       end else begin
         sample_index--;
       end
+
+      freq_counter = (playback_frequency_divider);
+
     end else begin
       freq_counter--;
     end
