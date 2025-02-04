@@ -21,10 +21,10 @@ module pain_and_suffering #(
     // input  [3:0]switches, 
     // SAMPLE_REGISTERS
     shortint sample[CLIP_LEN],
-    //input [FREQ_RES_BITS - 1:0] frequency,
+    // input [FREQ_RES_BITS - 1:0] frequency,
     input [VOLUME_BITS-1:0] volume,
     output reg [7:0] sample_index
-    //pointer to the current audio buffer
+    // pointer to the current audio buffer
 );
 
   ////// I2C Begin
@@ -44,6 +44,19 @@ module pain_and_suffering #(
 
   // The Data
   // playback frequency = sample_freq / sample_freq_divider
+  //
+  initial begin
+    sample_index = 0;
+    audio_I2S_bclk = 0;
+    audio_I2S_pblrc = 0;
+    audio_I2S_pbdat = 0;
+  end
+
+  volume_shift volume_shift_i (
+      .sample_in(sample[sample_index]),
+      .sample_out(volume_adjusted_sample),
+      .volume(volume)
+  );
 
   ////// MCLK
   //clock divider to create BCLK
@@ -71,25 +84,49 @@ module pain_and_suffering #(
 
 
     // manage the sample data
-    volume_adjusted_sample = sample[sample_index] >>> volume;  //arithmetic shift, preserve sign
     audio_I2S_pbdat <= volume_adjusted_sample[(SAMPLE_BITS-1)-lr_divider];
   end
 
-  //// change the sample being played (the magnitude of the square wave)
-  //int freq_counter;
+
 
   always @(negedge audio_I2S_pblrc) begin
 
-    //if (freq_counter == 0) begin
     if (sample_index == 0) begin
       sample_index = (CLIP_LEN - 1);
     end else begin
       sample_index--;
     end
-    //  freq_counter = (playback_frequency_divider);
-    //end else begin
-    //  freq_counter--;
-    //end
+
   end
 
+endmodule
+
+module volume_shift (
+    input  logic signed [15:0] sample_in,  // 16-bit audio sample
+    input  logic        [ 7:0] volume,     // 8-bit volume (0 to 255)
+    output logic signed [15:0] sample_out  // Scaled 16-bit sample
+);
+
+  logic signed [15:0] temp;
+  always_comb begin
+    case (volume[7:5])  // Use upper 3 bits for coarse scaling
+      3'b000: temp = sample_in >>> 8;  // ~ 0.0039 (1/256)
+      3'b001: temp = (sample_in >>> 7) + (sample_in >>> 8);  // ~ 0.0117 (3/256)
+      3'b010: temp = sample_in >>> 6;  // ~ 0.0156 (4/256)
+      3'b011: temp = (sample_in >>> 5) + (sample_in >>> 7);  // ~ 0.0468 (12/256)
+      3'b100: temp = sample_in >>> 4;  // ~ 0.0625 (16/256)
+      3'b101: temp = (sample_in >>> 3) + (sample_in >>> 5);  // ~ 0.1406 (36/256)
+      3'b110: temp = sample_in >>> 2;  // ~ 0.25 (64/256)
+      3'b111: temp = (sample_in >>> 1) + (sample_in >>> 3);  // ~ 0.625 (160/256)
+    endcase
+
+    // Fine adjustment using lower bits
+    if (volume[4]) temp = temp + (temp >>> 3);  // Adjust for midpoints
+    if (volume[3]) temp = temp + (temp >>> 4);
+    if (volume[2]) temp = temp + (temp >>> 5);
+    if (volume[1]) temp = temp + (temp >>> 6);
+    if (volume[0]) temp = temp + (temp >>> 7);
+  end
+
+  assign sample_out = temp;
 endmodule

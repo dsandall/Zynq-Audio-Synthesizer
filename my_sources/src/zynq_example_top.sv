@@ -56,7 +56,7 @@ module zynq_example_top (
   localparam int SAMPLE_BITS = 16;
   localparam int CLIP_LEN = 256;
   localparam int FREQ_RES_BITS = 4;
-  localparam int VOLUME_BITS = 4;
+  localparam int VOLUME_BITS = 8;
 
   // instantiate clock and reset
   logic clk;
@@ -79,14 +79,19 @@ module zynq_example_top (
 
   //// assign the bits to the associated controls
   // From Arm Cores
-  wire [FREQ_RES_BITS -1:0] frequency = gpio_ctrl_o_32b_tri_o[FREQ_RES_BITS-1:0];
-  wire refresh = gpio_ctrl_o_32b_tri_o[31];
-  wire [VOLUME_BITS-1: 0] volume_master = gpio_ctrl_o_32b_tri_o [(VOLUME_BITS-1 + FREQ_RES_BITS) : (0 + FREQ_RES_BITS)];
+  wire [FREQ_RES_BITS -1:0] player_source_freq = gpio_ctrl_o_32b_tri_o[FREQ_RES_BITS-1:0];
+  wire refresh = gpio_ctrl_o_32b_tri_o[4];
+  wire [VOLUME_BITS-1:0] volume_master = gpio_ctrl_o_32b_tri_o[15 : 8];
+
+  logic [VOLUME_BITS-1:0] player_source_vol = gpio_ctrl_o_32b_tri_o[23 : 16];
+  logic [VOLUME_BITS-1:0] bram_source_vol = gpio_ctrl_o_32b_tri_o[31 : 24];
+
+
+
   // From Board
   //wire [VOLUME_BITS-1:0] volume_master = sws_4bits_tri_i;  // volume == switches
   // To Arm Cores
   // To Board
-
 
   //   logic [31:0]	BRAM_SynthBuffer_addr;
   //   logic	BRAM_SynthBuffer_clk;
@@ -101,7 +106,9 @@ module zynq_example_top (
   //assign audio_cons_muten = 1'b1;
 
   shortint m_sample_buffer[CLIP_LEN];
-  wire [7:0] m_sample_index;
+  logic [7:0] m_sample_index;
+
+  // for viewing in simulation
 
   pain_and_suffering #(
       .SAMPLE_BITS(SAMPLE_BITS),
@@ -154,11 +161,12 @@ module zynq_example_top (
 
   //TODO:
   localparam PLAYER_CLIP_LEN = 32;
-  int player_vol = 4;
   shortint player_sample_buffer;  // Buffer for data read from BRAM
+
   player_module #(
       .SAMPLE_BITS(SAMPLE_BITS),
-      .CLIP_LEN(PLAYER_CLIP_LEN)
+      .CLIP_LEN(PLAYER_CLIP_LEN),
+      .FREQ_RES_BITS(FREQ_RES_BITS)
   ) player_module_i (
       .mclk(audio_cons_mclk),
       .rst (rst),
@@ -167,24 +175,33 @@ module zynq_example_top (
       .p_sample_buffer(player_sample_buffer),
       .valid(player_valid),
 
-      .volume(player_vol)
+      .volume(player_source_vol),
+      .p_frequency(player_source_freq)
   );
 
 
   // Audio Combinator prototype
   // Bram data buffer at set frequency matching the m sample buffer
   // player
+
+  shortint bram_sample_buffer[CLIP_LEN];
+
   genvar i;
   generate
     for (i = 0; i < CLIP_LEN; i = i + 1) begin
-      assign m_sample_buffer[i] = bram_data_buffer[i][SAMPLE_BITS-1:0] + player_sample_buffer;
-
+      assign bram_sample_buffer[i] = bram_data_buffer[i][SAMPLE_BITS-1:0]; //WARN: TEMPORARY GAIN SHIFT FOR BRAM SOURCE
       // WARN: this is currently inefficient, as the bram reads in chunks of
       // 32, but the samples are stored in only the first 16 bits. If this
       // becomes a constraint, pack the samples into words, or increase the
       // frequency.
     end
   endgenerate
+
+  always_ff @(posedge audio_cons_mclk) begin
+    for (int i = 0; i < CLIP_LEN; i = i + 1) begin
+      m_sample_buffer[i] <= (bram_sample_buffer[i] >>> bram_source_vol) + (player_sample_buffer);  // Store in buffer
+    end
+  end
 
   //------------------
 

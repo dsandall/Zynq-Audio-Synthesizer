@@ -17,19 +17,81 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
-      <ZoomEndTime time="170.000001 us"></ZoomEndTime>
-      <Cursor1Time time="10.673600 us"></Cursor1Time>
+      <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
+      <ZoomEndTime time="283.500000001 ms"></ZoomEndTime>
+      <Cursor1Time time="131.008671000 ms"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="337"></NameColumnWidth>
-      <ValueColumnWidth column_width="124"></ValueColumnWidth>
+      <NameColumnWidth column_width="242"></NameColumnWidth>
+      <ValueColumnWidth column_width="60"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="4" />
+   <WVObjectSize size="9" />
+   <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjusted_sample">
+      <obj_property name="ElementShortName">volume_adjusted_sample[15:0]</obj_property>
+      <obj_property name="ObjectShortName">volume_adjusted_sample[15:0]</obj_property>
+      <obj_property name="Radix">REALRADIX</obj_property>
+      <obj_property name="radix_realType">SIGNEDFIXEDPOINTRADIX</obj_property>
+      <obj_property name="radix_fractionWidth">8</obj_property>
+      <obj_property name="radix_otherWidth">0</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">800</obj_property>
+      <obj_property name="AnalogYRangeType">ANALOG_YRANGETYPE_FIXED</obj_property>
+      <obj_property name="AnalogYRangeMin">-127.000000</obj_property>
+      <obj_property name="AnalogYRRangeMax">128.000000</obj_property>
+      <obj_property name="AnalogInterpolation">ANALOG_INTERPOLATION_HOLD</obj_property>
+      <obj_property name="AnalogOffscale">ANALOG_OFFSCALE_CLIP</obj_property>
+      <obj_property name="AnalogHorizLine">0.000000</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/zynq_example_top/player_module_i/current_sample_novol">
+      <obj_property name="ElementShortName">current_sample_novol[15:0]</obj_property>
+      <obj_property name="ObjectShortName">current_sample_novol[15:0]</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+      <obj_property name="Radix">REALRADIX</obj_property>
+      <obj_property name="radix_realType">SIGNEDFIXEDPOINTRADIX</obj_property>
+      <obj_property name="radix_fractionWidth">8</obj_property>
+      <obj_property name="radix_otherWidth">0</obj_property>
+      <obj_property name="AnalogYRangeType">ANALOG_YRANGETYPE_AUTO</obj_property>
+      <obj_property name="AnalogYRangeMin">0.000000</obj_property>
+      <obj_property name="AnalogYRRangeMax">0.000000</obj_property>
+      <obj_property name="AnalogInterpolation">ANALOG_INTERPOLATION_HOLD</obj_property>
+      <obj_property name="AnalogOffscale">ANALOG_OFFSCALE_HIDE</obj_property>
+      <obj_property name="AnalogHorizLine">0.000000</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjusted_sample">
+      <obj_property name="ElementShortName">volume_adjusted_sample[15:0]</obj_property>
+      <obj_property name="ObjectShortName">volume_adjusted_sample[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="radix_realType">SIGNEDFIXEDPOINTRADIX</obj_property>
+      <obj_property name="radix_fractionWidth">8</obj_property>
+      <obj_property name="radix_otherWidth">0</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      <obj_property name="AnalogYRangeType">ANALOG_YRANGETYPE_FIXED</obj_property>
+      <obj_property name="AnalogYRangeMin">-127.000000</obj_property>
+      <obj_property name="AnalogYRRangeMax">128.000000</obj_property>
+      <obj_property name="AnalogInterpolation">ANALOG_INTERPOLATION_HOLD</obj_property>
+      <obj_property name="AnalogOffscale">ANALOG_OFFSCALE_CLIP</obj_property>
+      <obj_property name="AnalogHorizLine">0.000000</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/zynq_example_top/player_sample_buffer">
+      <obj_property name="ElementShortName">player_sample_buffer[15:0]</obj_property>
+      <obj_property name="ObjectShortName">player_sample_buffer[15:0]</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+      <obj_property name="CellHeight">100</obj_property>
+      <obj_property name="AnalogYRangeType">ANALOG_YRANGETYPE_AUTO</obj_property>
+      <obj_property name="AnalogYRangeMin">0.000000</obj_property>
+      <obj_property name="AnalogYRRangeMax">0.000000</obj_property>
+      <obj_property name="AnalogInterpolation">ANALOG_INTERPOLATION_HOLD</obj_property>
+      <obj_property name="AnalogOffscale">ANALOG_OFFSCALE_HIDE</obj_property>
+      <obj_property name="AnalogHorizLine">0.000000</obj_property>
+      <obj_property name="Radix">REALRADIX</obj_property>
+      <obj_property name="radix_realType">SIGNEDFIXEDPOINTRADIX</obj_property>
+      <obj_property name="radix_fractionWidth">8</obj_property>
+      <obj_property name="radix_otherWidth">0</obj_property>
+   </wvobject>
    <wvobject type="group" fp_name="group114">
       <obj_property name="label">pain_i</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject type="logic" fp_name="/zynq_example_top/pain_i/audio_I2S_bclk">
          <obj_property name="ElementShortName">audio_I2S_bclk</obj_property>
          <obj_property name="ObjectShortName">audio_I2S_bclk</obj_property>
@@ -51,8 +113,8 @@
          <obj_property name="ObjectShortName">sample[0:255][15:0]</obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume">
-         <obj_property name="ElementShortName">volume[3:0]</obj_property>
-         <obj_property name="ObjectShortName">volume[3:0]</obj_property>
+         <obj_property name="ElementShortName">volume[7:0]</obj_property>
+         <obj_property name="ObjectShortName">volume[7:0]</obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/pain_i/sample_index">
          <obj_property name="ElementShortName">sample_index[7:0]</obj_property>
@@ -94,7 +156,6 @@
    <wvobject type="group" fp_name="group380">
       <obj_property name="label">Player_module</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject type="logic" fp_name="/zynq_example_top/player_module_i/mclk">
          <obj_property name="ElementShortName">mclk</obj_property>
          <obj_property name="ObjectShortName">mclk</obj_property>
@@ -115,9 +176,21 @@
          <obj_property name="ElementShortName">valid</obj_property>
          <obj_property name="ObjectShortName">valid</obj_property>
       </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/player_module_i/player_sample_index">
+         <obj_property name="ElementShortName">player_sample_index[4:0]</obj_property>
+         <obj_property name="ObjectShortName">player_sample_index[4:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/player_module_i/p_frequency">
+         <obj_property name="ElementShortName">p_frequency[3:0]</obj_property>
+         <obj_property name="ObjectShortName">p_frequency[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/player_module_i/freq_counter">
+         <obj_property name="ElementShortName">freq_counter[31:0]</obj_property>
+         <obj_property name="ObjectShortName">freq_counter[31:0]</obj_property>
+      </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/player_module_i/volume">
-         <obj_property name="ElementShortName">volume[3:0]</obj_property>
-         <obj_property name="ObjectShortName">volume[3:0]</obj_property>
+         <obj_property name="ElementShortName">volume[7:0]</obj_property>
+         <obj_property name="ObjectShortName">volume[7:0]</obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/player_module_i/SAMPLE_BITS">
          <obj_property name="ElementShortName">SAMPLE_BITS[31:0]</obj_property>
@@ -126,6 +199,10 @@
       <wvobject type="array" fp_name="/zynq_example_top/player_module_i/CLIP_LEN">
          <obj_property name="ElementShortName">CLIP_LEN[31:0]</obj_property>
          <obj_property name="ObjectShortName">CLIP_LEN[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/player_module_i/FREQ_RES_BITS">
+         <obj_property name="ElementShortName">FREQ_RES_BITS[31:0]</obj_property>
+         <obj_property name="ObjectShortName">FREQ_RES_BITS[31:0]</obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/player_module_i/VOLUME_BITS">
          <obj_property name="ElementShortName">VOLUME_BITS[31:0]</obj_property>
@@ -309,6 +386,7 @@
       <wvobject type="group" fp_name="group445">
          <obj_property name="label">gpio Controls</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
          <wvobject type="array" fp_name="/zynq_example_top/gpio_ctrl_i_32b_tri_i">
             <obj_property name="ElementShortName">gpio_ctrl_i_32b_tri_i[31:0]</obj_property>
             <obj_property name="ObjectShortName">gpio_ctrl_i_32b_tri_i[31:0]</obj_property>
@@ -317,17 +395,25 @@
             <obj_property name="ElementShortName">gpio_ctrl_o_32b_tri_o[31:0]</obj_property>
             <obj_property name="ObjectShortName">gpio_ctrl_o_32b_tri_o[31:0]</obj_property>
          </wvobject>
-         <wvobject type="array" fp_name="/zynq_example_top/frequency">
-            <obj_property name="ElementShortName">frequency[3:0]</obj_property>
-            <obj_property name="ObjectShortName">frequency[3:0]</obj_property>
+         <wvobject type="array" fp_name="/zynq_example_top/player_source_freq">
+            <obj_property name="ElementShortName">player_source_freq[3:0]</obj_property>
+            <obj_property name="ObjectShortName">player_source_freq[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/volume_master">
+            <obj_property name="ElementShortName">volume_master[7:0]</obj_property>
+            <obj_property name="ObjectShortName">volume_master[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/player_source_vol">
+            <obj_property name="ElementShortName">player_source_vol[7:0]</obj_property>
+            <obj_property name="ObjectShortName">player_source_vol[7:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/bram_source_vol">
+            <obj_property name="ElementShortName">bram_source_vol[7:0]</obj_property>
+            <obj_property name="ObjectShortName">bram_source_vol[7:0]</obj_property>
          </wvobject>
          <wvobject type="logic" fp_name="/zynq_example_top/refresh">
             <obj_property name="ElementShortName">refresh</obj_property>
             <obj_property name="ObjectShortName">refresh</obj_property>
-         </wvobject>
-         <wvobject type="array" fp_name="/zynq_example_top/volume_master">
-            <obj_property name="ElementShortName">volume_master[3:0]</obj_property>
-            <obj_property name="ObjectShortName">volume_master[3:0]</obj_property>
          </wvobject>
       </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/m_sample_index">
@@ -338,41 +424,13 @@
          <obj_property name="ElementShortName">m_sample_buffer[0:255][15:0]</obj_property>
          <obj_property name="ObjectShortName">m_sample_buffer[0:255][15:0]</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/zynq_example_top/bram_data_buffer">
-         <obj_property name="ElementShortName">bram_data_buffer[0:255][31:0]</obj_property>
-         <obj_property name="ObjectShortName">bram_data_buffer[0:255][31:0]</obj_property>
-      </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/player_sample_buffer">
          <obj_property name="ElementShortName">player_sample_buffer[15:0]</obj_property>
          <obj_property name="ObjectShortName">player_sample_buffer[15:0]</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/zynq_example_top/player_valid">
-         <obj_property name="ElementShortName">player_valid</obj_property>
-         <obj_property name="ObjectShortName">player_valid</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/zynq_example_top/ip2intc_irpt_0">
-         <obj_property name="ElementShortName">ip2intc_irpt_0</obj_property>
-         <obj_property name="ObjectShortName">ip2intc_irpt_0</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/zynq_example_top/SAMPLE_BITS">
-         <obj_property name="ElementShortName">SAMPLE_BITS[31:0]</obj_property>
-         <obj_property name="ObjectShortName">SAMPLE_BITS[31:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/zynq_example_top/CLIP_LEN">
-         <obj_property name="ElementShortName">CLIP_LEN[31:0]</obj_property>
-         <obj_property name="ObjectShortName">CLIP_LEN[31:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/zynq_example_top/FREQ_RES_BITS">
-         <obj_property name="ElementShortName">FREQ_RES_BITS[31:0]</obj_property>
-         <obj_property name="ObjectShortName">FREQ_RES_BITS[31:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/zynq_example_top/VOLUME_BITS">
-         <obj_property name="ElementShortName">VOLUME_BITS[31:0]</obj_property>
-         <obj_property name="ObjectShortName">VOLUME_BITS[31:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/zynq_example_top/PLAYER_CLIP_LEN">
-         <obj_property name="ElementShortName">PLAYER_CLIP_LEN[31:0]</obj_property>
-         <obj_property name="ObjectShortName">PLAYER_CLIP_LEN[31:0]</obj_property>
-      </wvobject>
+   </wvobject>
+   <wvobject type="array" fp_name="/zynq_example_top/player_module_i/triangle_lut">
+      <obj_property name="ElementShortName">triangle_lut[0:31][15:0]</obj_property>
+      <obj_property name="ObjectShortName">triangle_lut[0:31][15:0]</obj_property>
    </wvobject>
 </wave_config>

@@ -130,7 +130,7 @@ module I2S_bram_DMA #(
             // also recall the bram is 32 bits, with samples stored in first
             // 16 bits of each word
 
-            //bram_data_buffer[index-BRAM_DELAY] <= (BRAM_dout >> volume);
+            //bram_data_buffer[index-BRAM_DELAY] <= (BRAM_dout >>> volume);
             bram_data_buffer[index-BRAM_DELAY] <= BRAM_dout;
           end
 

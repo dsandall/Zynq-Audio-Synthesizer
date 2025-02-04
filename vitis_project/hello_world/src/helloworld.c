@@ -34,12 +34,13 @@
 
 #include "platform.h"
 
-#include "xbram.h"
-#include "xgpio.h"
+
 #include "xil_printf.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <xil_types.h>
+#include "xbram.h"
+#include "xgpio.h"
 
 #define LED_CHANNEL 1
 #define SWITCH_CHANNEL 2
@@ -49,11 +50,36 @@
 
 volatile unsigned int  *AudioCrtlReg = (unsigned int *) XPAR_AUDIO_CONTROL_GPIO_BASEADDR;  
 
-void writeFreq(uint8_t freq){
+ // // From Arm Cores
+ // wire [FREQ_RES_BITS -1:0] player_source_freq = gpio_ctrl_o_32b_tri_o[FREQ_RES_BITS-1:0];
+ // wire refresh = gpio_ctrl_o_32b_tri_o[4];
+ // wire [VOLUME_BITS-1:0] volume_master = gpio_ctrl_o_32b_tri_o[15 : 8];
+
+ // logic [VOLUME_BITS-1:0] player_source_vol = gpio_ctrl_o_32b_tri_o[23 : 16];
+ // logic [VOLUME_BITS-1:0] bram_source_vol = gpio_ctrl_o_32b_tri_o[31 : 24];
+//
+void writePlayerFreq(uint8_t freq){
     *AudioCrtlReg = (*AudioCrtlReg & 0xFFF0) | (freq & 0x000F);
 };
-void writeVol(uint8_t vol){
-    *AudioCrtlReg = (*AudioCrtlReg & 0xFF0F) | ((vol & 0x000F) << 4);
+
+void writeRefresh(uint8_t bool){
+  if (bool){
+    *AudioCrtlReg = (*AudioCrtlReg & 0xFFEF) | (0x1 << 4);
+  } else {
+    *AudioCrtlReg = (*AudioCrtlReg & 0xFFEF);
+  }
+};
+
+void writeMasterVol(uint8_t vol){
+    *AudioCrtlReg = (*AudioCrtlReg & 0x00FF) | ((vol & 0x00FF) << 8);
+};
+
+void writePlayerVol(uint8_t vol){
+  *(AudioCrtlReg ) = (*(AudioCrtlReg)  & 0xFF00FFFF) | ((vol & 0x00FF) << 16);
+};
+
+void writeBramVol(uint8_t vol){
+  *(AudioCrtlReg ) = (*(AudioCrtlReg)  & 0x00FFFFFF) | ((vol & 0x00FF) << 24);
 };
 
 void flickBit(int bit){
@@ -128,12 +154,17 @@ int main() {
     } else {
         f = f+1;
     }
- 
-    writeVol(f);
+
+    xil_printf("sizof int %d\n", sizeof(unsigned int));
+    writePlayerVol(0x00);
+    writeBramVol(3);
+    writeMasterVol(0xFF);
+    writePlayerFreq(f);
+
+    //writeRefresh();
     xil_printf("bit flicked: %d\n", f);
-    //*AudioCrtlReg ^= (unsigned int) 0x0000;
-    //*AudioCrtlReg ^= 0xFFFF;
-    xil_printf("reg is %d\n\r", *AudioCrtlReg);
+    xil_printf("reg is %x\n\r", *(uint32_t*)AudioCrtlReg);
+    //xil_printf("reg is %x\n\r", *(AudioCrtlReg+sizeof(uint32_t)));
     sleep(1);
   }
   cleanup_platform();
