@@ -47,6 +47,19 @@
 #define SWITCHES_MASK 0x0F // 4 switches
 #include "xparameters.h"
 
+volatile unsigned int  *AudioCrtlReg = (unsigned int *) XPAR_AUDIO_CONTROL_GPIO_BASEADDR;  
+
+void writeFreq(uint8_t freq){
+    *AudioCrtlReg = (*AudioCrtlReg & 0xFFF0) | (freq & 0x000F);
+};
+void writeVol(uint8_t vol){
+    *AudioCrtlReg = (*AudioCrtlReg & 0xFF0F) | ((vol & 0x000F) << 4);
+};
+
+void flickBit(int bit){
+    *AudioCrtlReg ^= 0x1 << bit;
+};
+
 int main() {
 
   init_platform();
@@ -56,7 +69,6 @@ int main() {
 
   XBram_Config *ConfigPtr;
 
-  volatile unsigned int  *AudioCrtlReg = (unsigned int *) XPAR_AUDIO_CONTROL_GPIO_BASEADDR;
 
   int Status;
 
@@ -94,7 +106,9 @@ int main() {
 
   *AudioCrtlReg = 0xFFFF;
   xil_printf("reg is %d\n\r", *AudioCrtlReg);
+  uint8_t f = 0;
 
+  *AudioCrtlReg = 0x0000;
   while (1) {
 
     //XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, 0, loop_count++);
@@ -109,12 +123,21 @@ int main() {
       xil_printf("%d: %X\n\r", i, out_data);
     }
 
+    if (f == 8) {
+        f = 0;
+    } else {
+        f = f+1;
+    }
+ 
+    writeVol(f);
+    xil_printf("bit flicked: %d\n", f);
     //*AudioCrtlReg ^= (unsigned int) 0x0000;
-    //*AudioCrtlReg ^= (unsigned int) 0x8000;
+    //*AudioCrtlReg ^= 0xFFFF;
     xil_printf("reg is %d\n\r", *AudioCrtlReg);
-    sleep(10);
+    sleep(1);
   }
-
   cleanup_platform();
   return 0;
 }
+
+

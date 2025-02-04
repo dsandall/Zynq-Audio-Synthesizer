@@ -17,41 +17,250 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="4,840.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="8,140.001 ns"></ZoomEndTime>
-      <Cursor1Time time="5,390.000 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
+      <ZoomEndTime time="170.000001 us"></ZoomEndTime>
+      <Cursor1Time time="10.673600 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="149"></NameColumnWidth>
-      <ValueColumnWidth column_width="119"></ValueColumnWidth>
+      <NameColumnWidth column_width="337"></NameColumnWidth>
+      <ValueColumnWidth column_width="124"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="34" />
-   <wvobject type="group" fp_name="group76">
-      <obj_property name="label">top</obj_property>
+   <WVObjectSize size="4" />
+   <wvobject type="group" fp_name="group114">
+      <obj_property name="label">pain_i</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <wvobject type="logic" fp_name="/zynq_example_top/IIC_0_sda">
-         <obj_property name="ElementShortName">IIC_0_sda</obj_property>
-         <obj_property name="ObjectShortName">IIC_0_sda</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/zynq_example_top/IIC_0_scl">
-         <obj_property name="ElementShortName">IIC_0_scl</obj_property>
-         <obj_property name="ObjectShortName">IIC_0_scl</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/zynq_example_top/audio_cons_mclk">
-         <obj_property name="ElementShortName">audio_cons_mclk</obj_property>
-         <obj_property name="ObjectShortName">audio_cons_mclk</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/zynq_example_top/audio_I2S_bclk">
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="logic" fp_name="/zynq_example_top/pain_i/audio_I2S_bclk">
          <obj_property name="ElementShortName">audio_I2S_bclk</obj_property>
          <obj_property name="ObjectShortName">audio_I2S_bclk</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/zynq_example_top/audio_I2S_pbdat">
+      <wvobject type="logic" fp_name="/zynq_example_top/pain_i/audio_I2S_pbdat">
          <obj_property name="ElementShortName">audio_I2S_pbdat</obj_property>
          <obj_property name="ObjectShortName">audio_I2S_pbdat</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/zynq_example_top/audio_I2S_pblrc">
+      <wvobject type="logic" fp_name="/zynq_example_top/pain_i/audio_I2S_pblrc">
          <obj_property name="ElementShortName">audio_I2S_pblrc</obj_property>
          <obj_property name="ObjectShortName">audio_I2S_pblrc</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/pain_i/mclk">
+         <obj_property name="ElementShortName">mclk</obj_property>
+         <obj_property name="ObjectShortName">mclk</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/sample">
+         <obj_property name="ElementShortName">sample[0:255][15:0]</obj_property>
+         <obj_property name="ObjectShortName">sample[0:255][15:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume">
+         <obj_property name="ElementShortName">volume[3:0]</obj_property>
+         <obj_property name="ObjectShortName">volume[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/sample_index">
+         <obj_property name="ElementShortName">sample_index[7:0]</obj_property>
+         <obj_property name="ObjectShortName">sample_index[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/bclk_divider">
+         <obj_property name="ElementShortName">bclk_divider[31:0]</obj_property>
+         <obj_property name="ObjectShortName">bclk_divider[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/lr_divider">
+         <obj_property name="ElementShortName">lr_divider[31:0]</obj_property>
+         <obj_property name="ObjectShortName">lr_divider[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjusted_sample">
+         <obj_property name="ElementShortName">volume_adjusted_sample[15:0]</obj_property>
+         <obj_property name="ObjectShortName">volume_adjusted_sample[15:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/SAMPLE_BITS">
+         <obj_property name="ElementShortName">SAMPLE_BITS[31:0]</obj_property>
+         <obj_property name="ObjectShortName">SAMPLE_BITS[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/CLIP_LEN">
+         <obj_property name="ElementShortName">CLIP_LEN[31:0]</obj_property>
+         <obj_property name="ObjectShortName">CLIP_LEN[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/VOLUME_BITS">
+         <obj_property name="ElementShortName">VOLUME_BITS[31:0]</obj_property>
+         <obj_property name="ObjectShortName">VOLUME_BITS[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/MCLK_DIV">
+         <obj_property name="ElementShortName">MCLK_DIV[31:0]</obj_property>
+         <obj_property name="ObjectShortName">MCLK_DIV[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/BCLK_DIV">
+         <obj_property name="ElementShortName">BCLK_DIV[31:0]</obj_property>
+         <obj_property name="ObjectShortName">BCLK_DIV[31:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group380">
+      <obj_property name="label">Player_module</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="logic" fp_name="/zynq_example_top/player_module_i/mclk">
+         <obj_property name="ElementShortName">mclk</obj_property>
+         <obj_property name="ObjectShortName">mclk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/player_module_i/rst">
+         <obj_property name="ElementShortName">rst</obj_property>
+         <obj_property name="ObjectShortName">rst</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/player_module_i/m_sample_index">
+         <obj_property name="ElementShortName">m_sample_index[7:0]</obj_property>
+         <obj_property name="ObjectShortName">m_sample_index[7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/player_module_i/p_sample_buffer">
+         <obj_property name="ElementShortName">p_sample_buffer[15:0]</obj_property>
+         <obj_property name="ObjectShortName">p_sample_buffer[15:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/player_module_i/valid">
+         <obj_property name="ElementShortName">valid</obj_property>
+         <obj_property name="ObjectShortName">valid</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/player_module_i/volume">
+         <obj_property name="ElementShortName">volume[3:0]</obj_property>
+         <obj_property name="ObjectShortName">volume[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/player_module_i/SAMPLE_BITS">
+         <obj_property name="ElementShortName">SAMPLE_BITS[31:0]</obj_property>
+         <obj_property name="ObjectShortName">SAMPLE_BITS[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/player_module_i/CLIP_LEN">
+         <obj_property name="ElementShortName">CLIP_LEN[31:0]</obj_property>
+         <obj_property name="ObjectShortName">CLIP_LEN[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/player_module_i/VOLUME_BITS">
+         <obj_property name="ElementShortName">VOLUME_BITS[31:0]</obj_property>
+         <obj_property name="ObjectShortName">VOLUME_BITS[31:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider446" type="divider">
+      <obj_property name="label">top vvvv</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group438">
+      <obj_property name="label">top_module</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="group" fp_name="group439">
+         <wvobject type="array" fp_name="/zynq_example_top/DDR_addr">
+            <obj_property name="ElementShortName">DDR_addr[14:0]</obj_property>
+            <obj_property name="ObjectShortName">DDR_addr[14:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/DDR_ba">
+            <obj_property name="ElementShortName">DDR_ba[2:0]</obj_property>
+            <obj_property name="ObjectShortName">DDR_ba[2:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/DDR_cas_n">
+            <obj_property name="ElementShortName">DDR_cas_n</obj_property>
+            <obj_property name="ObjectShortName">DDR_cas_n</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/DDR_ck_n">
+            <obj_property name="ElementShortName">DDR_ck_n</obj_property>
+            <obj_property name="ObjectShortName">DDR_ck_n</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/DDR_ck_p">
+            <obj_property name="ElementShortName">DDR_ck_p</obj_property>
+            <obj_property name="ObjectShortName">DDR_ck_p</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/DDR_cke">
+            <obj_property name="ElementShortName">DDR_cke</obj_property>
+            <obj_property name="ObjectShortName">DDR_cke</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/DDR_cs_n">
+            <obj_property name="ElementShortName">DDR_cs_n</obj_property>
+            <obj_property name="ObjectShortName">DDR_cs_n</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/DDR_dm">
+            <obj_property name="ElementShortName">DDR_dm[3:0]</obj_property>
+            <obj_property name="ObjectShortName">DDR_dm[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/DDR_dq">
+            <obj_property name="ElementShortName">DDR_dq[31:0]</obj_property>
+            <obj_property name="ObjectShortName">DDR_dq[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/DDR_dqs_n">
+            <obj_property name="ElementShortName">DDR_dqs_n[3:0]</obj_property>
+            <obj_property name="ObjectShortName">DDR_dqs_n[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/DDR_dqs_p">
+            <obj_property name="ElementShortName">DDR_dqs_p[3:0]</obj_property>
+            <obj_property name="ObjectShortName">DDR_dqs_p[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/DDR_odt">
+            <obj_property name="ElementShortName">DDR_odt</obj_property>
+            <obj_property name="ObjectShortName">DDR_odt</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/DDR_ras_n">
+            <obj_property name="ElementShortName">DDR_ras_n</obj_property>
+            <obj_property name="ObjectShortName">DDR_ras_n</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/DDR_reset_n">
+            <obj_property name="ElementShortName">DDR_reset_n</obj_property>
+            <obj_property name="ObjectShortName">DDR_reset_n</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/DDR_we_n">
+            <obj_property name="ElementShortName">DDR_we_n</obj_property>
+            <obj_property name="ObjectShortName">DDR_we_n</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/FIXED_IO_ddr_vrn">
+            <obj_property name="ElementShortName">FIXED_IO_ddr_vrn</obj_property>
+            <obj_property name="ObjectShortName">FIXED_IO_ddr_vrn</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/FIXED_IO_ddr_vrp">
+            <obj_property name="ElementShortName">FIXED_IO_ddr_vrp</obj_property>
+            <obj_property name="ObjectShortName">FIXED_IO_ddr_vrp</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/FIXED_IO_mio">
+            <obj_property name="ElementShortName">FIXED_IO_mio[53:0]</obj_property>
+            <obj_property name="ObjectShortName">FIXED_IO_mio[53:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/FIXED_IO_ps_clk">
+            <obj_property name="ElementShortName">FIXED_IO_ps_clk</obj_property>
+            <obj_property name="ObjectShortName">FIXED_IO_ps_clk</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/FIXED_IO_ps_porb">
+            <obj_property name="ElementShortName">FIXED_IO_ps_porb</obj_property>
+            <obj_property name="ObjectShortName">FIXED_IO_ps_porb</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/FIXED_IO_ps_srstb">
+            <obj_property name="ElementShortName">FIXED_IO_ps_srstb</obj_property>
+            <obj_property name="ObjectShortName">FIXED_IO_ps_srstb</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/IIC_0_sda">
+            <obj_property name="ElementShortName">IIC_0_sda</obj_property>
+            <obj_property name="ObjectShortName">IIC_0_sda</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/IIC_0_scl">
+            <obj_property name="ElementShortName">IIC_0_scl</obj_property>
+            <obj_property name="ObjectShortName">IIC_0_scl</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/audio_cons_muten">
+            <obj_property name="ElementShortName">audio_cons_muten</obj_property>
+            <obj_property name="ObjectShortName">audio_cons_muten</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/audio_cons_mclk">
+            <obj_property name="ElementShortName">audio_cons_mclk</obj_property>
+            <obj_property name="ObjectShortName">audio_cons_mclk</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/audio_I2S_bclk">
+            <obj_property name="ElementShortName">audio_I2S_bclk</obj_property>
+            <obj_property name="ObjectShortName">audio_I2S_bclk</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/audio_I2S_pbdat">
+            <obj_property name="ElementShortName">audio_I2S_pbdat</obj_property>
+            <obj_property name="ObjectShortName">audio_I2S_pbdat</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/audio_I2S_pblrc">
+            <obj_property name="ElementShortName">audio_I2S_pblrc</obj_property>
+            <obj_property name="ObjectShortName">audio_I2S_pblrc</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/led">
+         <obj_property name="ElementShortName">led[3:0]</obj_property>
+         <obj_property name="ObjectShortName">led[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/sws_4bits_tri_i">
+         <obj_property name="ElementShortName">sws_4bits_tri_i[3:0]</obj_property>
+         <obj_property name="ObjectShortName">sws_4bits_tri_i[3:0]</obj_property>
       </wvobject>
       <wvobject type="logic" fp_name="/zynq_example_top/clk">
          <obj_property name="ElementShortName">clk</obj_property>
@@ -61,167 +270,109 @@
          <obj_property name="ElementShortName">rst</obj_property>
          <obj_property name="ObjectShortName">rst</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/zynq_example_top/BRAM_addr">
-         <obj_property name="ElementShortName">BRAM_addr[31:0]</obj_property>
-         <obj_property name="ObjectShortName">BRAM_addr[31:0]</obj_property>
+      <wvobject type="logic" fp_name="/zynq_example_top/rstn">
+         <obj_property name="ElementShortName">rstn</obj_property>
+         <obj_property name="ObjectShortName">rstn</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/zynq_example_top/BRAM_clk">
-         <obj_property name="ElementShortName">BRAM_clk</obj_property>
-         <obj_property name="ObjectShortName">BRAM_clk</obj_property>
+      <wvobject type="group" fp_name="group440">
+         <obj_property name="label">Block RAM</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject type="array" fp_name="/zynq_example_top/BRAM_addr">
+            <obj_property name="ElementShortName">BRAM_addr[31:0]</obj_property>
+            <obj_property name="ObjectShortName">BRAM_addr[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/BRAM_clk">
+            <obj_property name="ElementShortName">BRAM_clk</obj_property>
+            <obj_property name="ObjectShortName">BRAM_clk</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/BRAM_din">
+            <obj_property name="ElementShortName">BRAM_din[31:0]</obj_property>
+            <obj_property name="ObjectShortName">BRAM_din[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/BRAM_dout">
+            <obj_property name="ElementShortName">BRAM_dout[31:0]</obj_property>
+            <obj_property name="ObjectShortName">BRAM_dout[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/BRAM_en">
+            <obj_property name="ElementShortName">BRAM_en</obj_property>
+            <obj_property name="ObjectShortName">BRAM_en</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/BRAM_rst">
+            <obj_property name="ElementShortName">BRAM_rst</obj_property>
+            <obj_property name="ObjectShortName">BRAM_rst</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/BRAM_we">
+            <obj_property name="ElementShortName">BRAM_we[3:0]</obj_property>
+            <obj_property name="ObjectShortName">BRAM_we[3:0]</obj_property>
+         </wvobject>
       </wvobject>
-      <wvobject type="array" fp_name="/zynq_example_top/BRAM_din">
-         <obj_property name="ElementShortName">BRAM_din[31:0]</obj_property>
-         <obj_property name="ObjectShortName">BRAM_din[31:0]</obj_property>
+      <wvobject type="group" fp_name="group445">
+         <obj_property name="label">gpio Controls</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject type="array" fp_name="/zynq_example_top/gpio_ctrl_i_32b_tri_i">
+            <obj_property name="ElementShortName">gpio_ctrl_i_32b_tri_i[31:0]</obj_property>
+            <obj_property name="ObjectShortName">gpio_ctrl_i_32b_tri_i[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/gpio_ctrl_o_32b_tri_o">
+            <obj_property name="ElementShortName">gpio_ctrl_o_32b_tri_o[31:0]</obj_property>
+            <obj_property name="ObjectShortName">gpio_ctrl_o_32b_tri_o[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/frequency">
+            <obj_property name="ElementShortName">frequency[3:0]</obj_property>
+            <obj_property name="ObjectShortName">frequency[3:0]</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/zynq_example_top/refresh">
+            <obj_property name="ElementShortName">refresh</obj_property>
+            <obj_property name="ObjectShortName">refresh</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/zynq_example_top/volume_master">
+            <obj_property name="ElementShortName">volume_master[3:0]</obj_property>
+            <obj_property name="ObjectShortName">volume_master[3:0]</obj_property>
+         </wvobject>
       </wvobject>
-      <wvobject type="array" fp_name="/zynq_example_top/BRAM_dout">
-         <obj_property name="ElementShortName">BRAM_dout[31:0]</obj_property>
-         <obj_property name="ObjectShortName">BRAM_dout[31:0]</obj_property>
+      <wvobject type="array" fp_name="/zynq_example_top/m_sample_index">
+         <obj_property name="ElementShortName">m_sample_index[7:0]</obj_property>
+         <obj_property name="ObjectShortName">m_sample_index[7:0]</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/zynq_example_top/BRAM_en">
-         <obj_property name="ElementShortName">BRAM_en</obj_property>
-         <obj_property name="ObjectShortName">BRAM_en</obj_property>
+      <wvobject type="array" fp_name="/zynq_example_top/m_sample_buffer">
+         <obj_property name="ElementShortName">m_sample_buffer[0:255][15:0]</obj_property>
+         <obj_property name="ObjectShortName">m_sample_buffer[0:255][15:0]</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/zynq_example_top/BRAM_rst">
-         <obj_property name="ElementShortName">BRAM_rst</obj_property>
-         <obj_property name="ObjectShortName">BRAM_rst</obj_property>
+      <wvobject type="array" fp_name="/zynq_example_top/bram_data_buffer">
+         <obj_property name="ElementShortName">bram_data_buffer[0:255][31:0]</obj_property>
+         <obj_property name="ObjectShortName">bram_data_buffer[0:255][31:0]</obj_property>
       </wvobject>
-      <wvobject type="array" fp_name="/zynq_example_top/BRAM_we">
-         <obj_property name="ElementShortName">BRAM_we[3:0]</obj_property>
-         <obj_property name="ObjectShortName">BRAM_we[3:0]</obj_property>
+      <wvobject type="array" fp_name="/zynq_example_top/player_sample_buffer">
+         <obj_property name="ElementShortName">player_sample_buffer[15:0]</obj_property>
+         <obj_property name="ObjectShortName">player_sample_buffer[15:0]</obj_property>
       </wvobject>
-   </wvobject>
-   <wvobject type="group" fp_name="group75">
-      <obj_property name="label">I2S</obj_property>
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/clk">
-      <obj_property name="ElementShortName">clk</obj_property>
-      <obj_property name="ObjectShortName">clk</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/rst">
-      <obj_property name="ElementShortName">rst</obj_property>
-      <obj_property name="ObjectShortName">rst</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_addr">
-      <obj_property name="ElementShortName">BRAM_addr[31:0]</obj_property>
-      <obj_property name="ObjectShortName">BRAM_addr[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_clk">
-      <obj_property name="ElementShortName">BRAM_clk</obj_property>
-      <obj_property name="ObjectShortName">BRAM_clk</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_din">
-      <obj_property name="ElementShortName">BRAM_din[31:0]</obj_property>
-      <obj_property name="ObjectShortName">BRAM_din[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_dout">
-      <obj_property name="ElementShortName">BRAM_dout[31:0]</obj_property>
-      <obj_property name="ObjectShortName">BRAM_dout[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_en">
-      <obj_property name="ElementShortName">BRAM_en</obj_property>
-      <obj_property name="ObjectShortName">BRAM_en</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_rst">
-      <obj_property name="ElementShortName">BRAM_rst</obj_property>
-      <obj_property name="ObjectShortName">BRAM_rst</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_we">
-      <obj_property name="ElementShortName">BRAM_we[3:0]</obj_property>
-      <obj_property name="ObjectShortName">BRAM_we[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/switches">
-      <obj_property name="ElementShortName">switches[3:0]</obj_property>
-      <obj_property name="ObjectShortName">switches[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/gpio_ctrl_i_32b_tri_i">
-      <obj_property name="ElementShortName">gpio_ctrl_i_32b_tri_i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">gpio_ctrl_i_32b_tri_i[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/gpio_ctrl_o_32b_tri_o">
-      <obj_property name="ElementShortName">gpio_ctrl_o_32b_tri_o[31:0]</obj_property>
-      <obj_property name="ObjectShortName">gpio_ctrl_o_32b_tri_o[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/ip2intc_irpt_0">
-      <obj_property name="ElementShortName">ip2intc_irpt_0</obj_property>
-      <obj_property name="ObjectShortName">ip2intc_irpt_0</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/audio_I2S_bclk">
-      <obj_property name="ElementShortName">audio_I2S_bclk</obj_property>
-      <obj_property name="ObjectShortName">audio_I2S_bclk</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/audio_I2S_pbdat">
-      <obj_property name="ElementShortName">audio_I2S_pbdat</obj_property>
-      <obj_property name="ObjectShortName">audio_I2S_pbdat</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/audio_I2S_pblrc">
-      <obj_property name="ElementShortName">audio_I2S_pblrc</obj_property>
-      <obj_property name="ObjectShortName">audio_I2S_pblrc</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/mclk">
-      <obj_property name="ElementShortName">mclk</obj_property>
-      <obj_property name="ObjectShortName">mclk</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/sample">
-      <obj_property name="ElementShortName">sample[0:63][15:0]</obj_property>
-      <obj_property name="ObjectShortName">sample[0:63][15:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/frequency">
-      <obj_property name="ElementShortName">frequency[3:0]</obj_property>
-      <obj_property name="ObjectShortName">frequency[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/zynq_example_top/I2S_bram_DMA_i/refresh">
-      <obj_property name="ElementShortName">refresh</obj_property>
-      <obj_property name="ObjectShortName">refresh</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/volume">
-      <obj_property name="ElementShortName">volume[3:0]</obj_property>
-      <obj_property name="ObjectShortName">volume[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/state">
-      <obj_property name="ElementShortName">state[2:0]</obj_property>
-      <obj_property name="ObjectShortName">state[2:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/data_buffer">
-      <obj_property name="ElementShortName">data_buffer[0:63][31:0]</obj_property>
-      <obj_property name="ObjectShortName">data_buffer[0:63][31:0]</obj_property>
-      <obj_property name="isExpanded"></obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/index">
-      <obj_property name="ElementShortName">index[15:0]</obj_property>
-      <obj_property name="ObjectShortName">index[15:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/delay_bram">
-      <obj_property name="ElementShortName">delay_bram[31:0]</obj_property>
-      <obj_property name="ObjectShortName">delay_bram[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/SAMPLE_BITS">
-      <obj_property name="ElementShortName">SAMPLE_BITS[31:0]</obj_property>
-      <obj_property name="ObjectShortName">SAMPLE_BITS[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/CLIP_LEN">
-      <obj_property name="ElementShortName">CLIP_LEN[31:0]</obj_property>
-      <obj_property name="ObjectShortName">CLIP_LEN[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/FREQ_RES_BITS">
-      <obj_property name="ElementShortName">FREQ_RES_BITS[31:0]</obj_property>
-      <obj_property name="ObjectShortName">FREQ_RES_BITS[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/VOLUME_BITS">
-      <obj_property name="ElementShortName">VOLUME_BITS[31:0]</obj_property>
-      <obj_property name="ObjectShortName">VOLUME_BITS[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/NUM_WORDS">
-      <obj_property name="ElementShortName">NUM_WORDS[31:0]</obj_property>
-      <obj_property name="ObjectShortName">NUM_WORDS[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_DELAY">
-      <obj_property name="ElementShortName">BRAM_DELAY[31:0]</obj_property>
-      <obj_property name="ObjectShortName">BRAM_DELAY[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/I2S_bram_DMA_i/BRAM_ADDR_INCREMENT">
-      <obj_property name="ElementShortName">BRAM_ADDR_INCREMENT[31:0]</obj_property>
-      <obj_property name="ObjectShortName">BRAM_ADDR_INCREMENT[31:0]</obj_property>
+      <wvobject type="logic" fp_name="/zynq_example_top/player_valid">
+         <obj_property name="ElementShortName">player_valid</obj_property>
+         <obj_property name="ObjectShortName">player_valid</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/zynq_example_top/ip2intc_irpt_0">
+         <obj_property name="ElementShortName">ip2intc_irpt_0</obj_property>
+         <obj_property name="ObjectShortName">ip2intc_irpt_0</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/SAMPLE_BITS">
+         <obj_property name="ElementShortName">SAMPLE_BITS[31:0]</obj_property>
+         <obj_property name="ObjectShortName">SAMPLE_BITS[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/CLIP_LEN">
+         <obj_property name="ElementShortName">CLIP_LEN[31:0]</obj_property>
+         <obj_property name="ObjectShortName">CLIP_LEN[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/FREQ_RES_BITS">
+         <obj_property name="ElementShortName">FREQ_RES_BITS[31:0]</obj_property>
+         <obj_property name="ObjectShortName">FREQ_RES_BITS[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/VOLUME_BITS">
+         <obj_property name="ElementShortName">VOLUME_BITS[31:0]</obj_property>
+         <obj_property name="ObjectShortName">VOLUME_BITS[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/PLAYER_CLIP_LEN">
+         <obj_property name="ElementShortName">PLAYER_CLIP_LEN[31:0]</obj_property>
+         <obj_property name="ObjectShortName">PLAYER_CLIP_LEN[31:0]</obj_property>
+      </wvobject>
    </wvobject>
 </wave_config>

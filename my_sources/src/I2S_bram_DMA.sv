@@ -24,7 +24,9 @@
 
 
 
-module I2S_bram_DMA (
+module I2S_bram_DMA #(
+    parameter int NUM_WORDS
+) (
     input wire clk,  // Clock input
     input wire rst,  // Reset input
 
@@ -34,51 +36,37 @@ module I2S_bram_DMA (
     input  wire [31:0] BRAM_dout,  // Data read from BRAM
     output reg         BRAM_en,    // Enable BRAM
     output reg         BRAM_rst,   // Reset BRAM
-    output reg  [ 3:0] BRAM_we,    // Write enable for BRAM
+    output reg  [ 3:0] BRAM_we,    // Write enable for BRAM_we
 
-    //switches
-    input      [ 3:0] switches,
-    output     [31:0] gpio_ctrl_i_32b_tri_i,
-    input      [31:0] gpio_ctrl_o_32b_tri_o,
-    output            ip2intc_irpt_0,
-    // I2S
-    output reg        audio_I2S_bclk,         // Bit Clock
-    output reg        audio_I2S_pbdat,        // Playback Data
-    output reg        audio_I2S_pblrc,        // Word Select (LR Clock)
-    input             mclk                    // Master Clock (256x sample rate)
+    output reg [31:0] bram_data_buffer[0:NUM_WORDS-1],  // Buffer for data read from BRAM
+
+    input wire refresh
+
+    //    //switches
+    //    input      [ 3:0] switches,
+    //    output     [31:0] gpio_ctrl_i_32b_tri_i,
+    //    input      [31:0] gpio_ctrl_o_32b_tri_o,
+    //    output            ip2intc_irpt_0,
+    //    // I2S
+    //    output reg        audio_I2S_bclk,         // Bit Clock (32x the sample rate)
+    //    output reg        audio_I2S_pbdat,        // Playback Data
+    //    output reg        audio_I2S_pblrc,        // Word Select (LR Clock)
+    //    input             mclk                    // Master Clock (256x sample rate) 12.346 MHz
+
 );
 
-  localparam int SAMPLE_BITS = 16;
-  localparam int CLIP_LEN = 64;
-  localparam int FREQ_RES_BITS = 4;
-  localparam int VOLUME_BITS = 4;
-
-  reg [SAMPLE_BITS-1:0] sample[CLIP_LEN];
-
-  wire [FREQ_RES_BITS -1:0] frequency = gpio_ctrl_o_32b_tri_o[FREQ_RES_BITS-1:0];
-  wire refresh = gpio_ctrl_o_32b_tri_o[31];
-  //wire [VOLUME_BITS-1: 0] volume = gpio_ctrl_o_32b_tri_o [(VOLUME_BITS-1 + FREQ_RES_BITS) : (0 + FREQ_RES_BITS)];
-  wire [VOLUME_BITS-1:0] volume = switches;
 
 
-  pain_and_suffering #(
-      .CLIP_LEN(CLIP_LEN),
-      .SAMPLE_BITS(SAMPLE_BITS),
-      .FREQ_RES_BITS(FREQ_RES_BITS),
-      .VOLUME_BITS(VOLUME_BITS)
-  ) pain_i (
-      .audio_I2S_bclk(audio_I2S_bclk),
-      .audio_I2S_pblrc(audio_I2S_pblrc),
-      .audio_I2S_pbdat(audio_I2S_pbdat),
-      .mclk(mclk),
 
-      .frequency(frequency),
-      .volume(volume),
 
-      .sample(sample)
-  );
 
+
+
+
+  ////
   // BRAM
+  ////
+
   // State encoding
   typedef enum logic [2:0] {
     IDLE,
@@ -93,26 +81,11 @@ module I2S_bram_DMA (
   // Connect BRAM clock to the system clock
   assign BRAM_clk = clk;
 
-  localparam NUM_WORDS = (CLIP_LEN);  // Number of words to process
   localparam BRAM_DELAY = 2;  // bram read delay
   localparam BRAM_ADDR_INCREMENT = 4;
 
-  reg [31:0] data_buffer[0:NUM_WORDS-1];  // Buffer for data read from BRAM
 
-  genvar i;
-  generate
-    for (i = 0; i < CLIP_LEN; i = i + 1) begin
-      assign sample[i] = data_buffer[i][SAMPLE_BITS-1:0];
-      // WARN: this is currently innefficient, as the bram reads in chunks of
-      // 32, but the samples are stored in only the first 16 bits. If this
-      // becomes a constraint, pack the samples into words, or increase the
-      // frequency.
-    end
-  endgenerate
-
-
-  reg [15:0] index;  // Index for accessing data_buffer
-  int        delay_bram;
+  reg [15:0] index;  // Index for accessing bram_data_buffer
 
   // Control logic for BRAM operations
   always_ff @(posedge clk or posedge rst) begin
@@ -156,7 +129,9 @@ module I2S_bram_DMA (
             // Store data in buffer, at correct index
             // also recall the bram is 32 bits, with samples stored in first
             // 16 bits of each word
-            data_buffer[index-BRAM_DELAY] <= (BRAM_dout >> volume);
+
+            //bram_data_buffer[index-BRAM_DELAY] <= (BRAM_dout >> volume);
+            bram_data_buffer[index-BRAM_DELAY] <= BRAM_dout;
           end
 
           if (index == (NUM_WORDS + BRAM_DELAY)) begin
@@ -168,7 +143,7 @@ module I2S_bram_DMA (
         DONE: begin
           BRAM_en <= 0;
           BRAM_we <= 0;
-          if (1) begin
+          if (refresh) begin
             state <= IDLE;
           end
 
@@ -180,7 +155,4 @@ module I2S_bram_DMA (
       endcase
     end
   end
-
-
-
 endmodule
