@@ -53,7 +53,7 @@ module pain_and_suffering #(
     audio_I2S_pbdat = 0;
   end
 
-  volume_shift volume_shift_i (
+  volume_adjust volume_adjust_i (
       .sample_in(sample[sample_index]),
       .sample_out(volume_adjusted_sample),
       .volume(volume)
@@ -102,34 +102,4 @@ module pain_and_suffering #(
 
   end
 
-endmodule
-
-module volume_shift (
-    input  logic signed [15:0] sample_in,  // 16-bit audio sample
-    input  logic        [ 7:0] volume,     // 8-bit volume (0 to 255)
-    output logic signed [15:0] sample_out  // Scaled 16-bit sample
-);
-
-  logic signed [15:0] temp;
-  always_comb begin
-    case (volume[7:5])  // Use upper 3 bits for coarse scaling
-      3'b000: temp = sample_in >>> 8;  // ~ 0.0039 (1/256)
-      3'b001: temp = (sample_in >>> 7) + (sample_in >>> 8);  // ~ 0.0117 (3/256)
-      3'b010: temp = sample_in >>> 6;  // ~ 0.0156 (4/256)
-      3'b011: temp = (sample_in >>> 5) + (sample_in >>> 7);  // ~ 0.0468 (12/256)
-      3'b100: temp = sample_in >>> 4;  // ~ 0.0625 (16/256)
-      3'b101: temp = (sample_in >>> 3) + (sample_in >>> 5);  // ~ 0.1406 (36/256)
-      3'b110: temp = sample_in >>> 2;  // ~ 0.25 (64/256)
-      3'b111: temp = (sample_in >>> 1) + (sample_in >>> 3);  // ~ 0.625 (160/256)
-    endcase
-
-    // Fine adjustment using lower bits
-    if (volume[4]) temp = temp + (temp >>> 3);  // Adjust for midpoints
-    if (volume[3]) temp = temp + (temp >>> 4);
-    if (volume[2]) temp = temp + (temp >>> 5);
-    if (volume[1]) temp = temp + (temp >>> 6);
-    if (volume[0]) temp = temp + (temp >>> 7);
-  end
-
-  assign sample_out = temp;
 endmodule

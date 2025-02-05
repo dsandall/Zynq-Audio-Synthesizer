@@ -1,4 +1,3 @@
-`timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company:
 // Engineer: 
@@ -45,6 +44,8 @@ module I2S_bram_DMA #(
     input [VOLUME_BITS-1 : 0] volume,
     input [FREQ_RES_BITS-1 : 0] p_frequency,
 
+    output valid,
+
     output shortint current_sample,
     output shortint current_sample_novol
 );
@@ -56,38 +57,30 @@ module I2S_bram_DMA #(
   reg [31:0] bram_data_buffer[0:NUM_WORDS -1];  // Buffer for data read from BRAM
 
   logic [$clog2(CLIP_LEN)-1:0] player_sample_index;
-  shortint current_sample_novol;
+
+  player_module #(
+      .CLIP_LEN(CLIP_LEN),
+      .FREQ_RES_BITS(FREQ_RES_BITS),
+      .FREQ_PRESCALE(32)
+  ) player_module_i (
+      .mclk(mclk),
+      .rst(rst),
+      .valid(valid),
+      .p_frequency(p_frequency),
+      .player_sample_index(player_sample_index)
+  );
+
   assign current_sample_novol = bram_data_buffer[player_sample_index][15:0]; //index into array, and cast as signed shortint
 
+
   // assign the output
-  volume_shift volume_shift_i (
+  volume_adjust volume_adjust_i (
       .sample_in(current_sample_novol),
       .sample_out(current_sample),
       .volume(volume)
   );
 
-  // playing the sample
-  // mclk only (no rotating writes yet)
-  int freq_counter;
-  always @(negedge mclk or posedge rst) begin
 
-    if (rst) begin
-      player_sample_index = 0;
-      freq_counter = 0;
-    end else begin
-
-      // increment the player index
-      if (freq_counter == 0) begin
-        freq_counter <= (256 * (p_frequency));
-        player_sample_index <= player_sample_index + 1;
-
-      end else begin
-        freq_counter <= freq_counter - 1;
-      end
-
-    end
-
-  end
 
   //
   // end of player

@@ -81,39 +81,17 @@ module zynq_example_top (
   //// assign the bits to the associated controls
   // From Arm Cores
   wire [FREQ_RES_BITS -1:0] player_source_freq = gpio_ctrl_o_32b_tri_o[FREQ_RES_BITS-1:0];
-
   wire [FREQ_RES_BITS -1:0] bram_source_freq = gpio_ctrl_o_32b_tri_o[(FREQ_RES_BITS-1)+4:4];
-  //wire refresh = gpio_ctrl_o_32b_tri_o[4];
-  wire refresh;
-  assign refresh = 1;
 
-  logic [VOLUME_BITS-1:0] volume_master = gpio_ctrl_o_32b_tri_o[15 : 8];
+  wire refresh = 1;
+
+  //logic [VOLUME_BITS-1:0] volume_master = gpio_ctrl_o_32b_tri_o[15 : 8];
   logic [VOLUME_BITS-1:0] player_source_vol = gpio_ctrl_o_32b_tri_o[23 : 16];
   logic [VOLUME_BITS-1:0] bram_source_vol = gpio_ctrl_o_32b_tri_o[31 : 24];
+  wire [VOLUME_BITS-1:0] volume_master = sws_4bits_tri_i;  // volume == switches
 
-
-  // From Board
-  //wire [VOLUME_BITS-1:0] volume_master = sws_4bits_tri_i;  // volume == switches
-  // To Arm Cores
-  // To Board
-
-  //   logic [31:0]	BRAM_SynthBuffer_addr;
-  //   logic	BRAM_SynthBuffer_clk;
-  //   logic [31:0]	BRAM_SynthBuffer_din;
-  //   logic [31:0]	BRAM_SynthBuffer_dout;
-  //   logic	BRAM_SynthBuffer_en;
-  //   logic	BRAM_SynthBuffer_rst;
-  //   logic [3:0]	BRAM_SynthBuffer_we;
-
-  //assign led[0] = audio_I2S_pblrc;
-  //assign led[1] = audio_I2S_pbdat;
-  //assign audio_cons_muten = 1'b1;
-
-  shortint m_sample_buffer[M_BUF_LEN];
   logic [7:0] m_sample_index;
-
-  // for viewing in simulation
-
+  shortint m_sample_buffer[M_BUF_LEN];
   pain_and_suffering #(
       .SAMPLE_BITS(SAMPLE_BITS),
       .CLIP_LEN(M_BUF_LEN),
@@ -132,7 +110,7 @@ module zynq_example_top (
 
   shortint bram_sample_buffer;  // Buffer for data read from BRAM
   shortint bram_sample_buffer_novol;  // Buffer for data read from BRAM
-
+  wire bram_source_valid;
   I2S_bram_DMA #(
       .NUM_WORDS(BRAM_CLIP_LEN),
       .VOLUME_BITS(VOLUME_BITS),
@@ -155,42 +133,31 @@ module zynq_example_top (
       // Player connections
       .mclk(audio_cons_mclk),
 
+      .valid(bram_source_valid),
+
       .current_sample(bram_sample_buffer),
       .current_sample_novol(bram_sample_buffer_novol),
-      //.valid(),
 
       .volume(bram_source_vol),
       .p_frequency(bram_source_freq)
 
-      //// control sources
-      //.switches(sws_4bits_tri_i),
-      //
-      //.gpio_ctrl_i_32b_tri_i(gpio_ctrl_i_32b_tri_i),
-      //.gpio_ctrl_o_32b_tri_o(gpio_ctrl_o_32b_tri_o),
-      //.ip2intc_irpt_0(ip2intc_irpt_0),
-      //
-      //// audio output bus
-      //.audio_I2S_bclk(audio_I2S_bclk),
-      //.audio_I2S_pblrc(audio_I2S_pblrc),
-      //.audio_I2S_pbdat(audio_I2S_pbdat),
-      //.mclk(audio_cons_mclk)
   );
 
 
   //TODO:
   localparam PLAYER_CLIP_LEN = 32;
   shortint player_sample_buffer;  // Buffer for data read from BRAM
-
-  player_module #(
+  wire player_source_valid;
+  src_triangle #(
       .CLIP_LEN(PLAYER_CLIP_LEN),
+      .VOLUME_BITS(VOLUME_BITS),
       .FREQ_RES_BITS(FREQ_RES_BITS)
-  ) player_module_i (
+  ) src_triangle_i (
       .mclk(audio_cons_mclk),
       .rst (rst),
 
-      .m_sample_index(m_sample_index),
       .p_sample_buffer(player_sample_buffer),
-      .valid(player_valid),
+      .valid(player_source_valid),
 
       .volume(player_source_vol),
       .p_frequency(player_source_freq)
@@ -200,8 +167,8 @@ module zynq_example_top (
   // Audio Combinator prototype
   // Bram data buffer at set frequency matching the m sample buffer
 
-  int before_index;
 
+  int before_index;
   always_ff @(m_sample_index) begin
 
     if (m_sample_index < 10) begin
