@@ -5,7 +5,6 @@
 // Additional Comments: // I2S Transciever
 //////////////////////////////////////////////////////////////////////////////////
 
-
 module pain_and_suffering #(
     parameter int SAMPLE_BITS,
     parameter int CLIP_LEN,
@@ -37,6 +36,8 @@ module pain_and_suffering #(
   int bclk_divider = 0;  // Toggles to generate BCLK
   int lr_divider = 0;  // Toggles to generate LRCLK
   shortint volume_adjusted_sample;
+  shortint novol_sample;
+  assign novol_sample = sample[sample_index];
 
 
   ////TODO: calculate sine frequency based on divider, clip length, mclk
@@ -84,11 +85,13 @@ module pain_and_suffering #(
 
 
     // manage the sample data
-    audio_I2S_pbdat <= volume_adjusted_sample[(SAMPLE_BITS-1)-lr_divider];
+    //audio_I2S_pbdat <= volume_adjusted_sample[(SAMPLE_BITS-1)-lr_divider];
+    audio_I2S_pbdat <= novol_sample[(SAMPLE_BITS-1)-lr_divider];
   end
 
-
-
+  ////// negedge PBLRC
+  // increment sample index on start of each left sample transmission (or
+  // right, i dont remember at the moment, check the spec)
   always @(negedge audio_I2S_pblrc) begin
 
     if (sample_index == 0) begin

@@ -2,7 +2,7 @@
 //Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
-//Date        : Mon Feb  3 14:46:28 2025
+//Date        : Tue Feb  4 21:45:57 2025
 //Host        : ice-cubed running 64-bit EndeavourOS Linux
 //Command     : generate_target design_1_wrapper.bd
 //Design      : design_1_wrapper
@@ -46,6 +46,7 @@ module design_1_wrapper
     ip2intc_irpt_0,
     leds_4bits_tri_o,
     peripheral_aresetn_0,
+    slowest_sync_clk_0,
     sws_4bits_tri_i);
   input [31:0]BRAM_PORTB_0_addr;
   input BRAM_PORTB_0_clk;
@@ -82,6 +83,7 @@ module design_1_wrapper
   output ip2intc_irpt_0;
   output [3:0]leds_4bits_tri_o;
   output [0:0]peripheral_aresetn_0;
+  input slowest_sync_clk_0;
   input [3:0]sws_4bits_tri_i;
 
   wire [31:0]BRAM_PORTB_0_addr;
@@ -119,6 +121,7 @@ module design_1_wrapper
   wire ip2intc_irpt_0;
   wire [3:0]leds_4bits_tri_o;
   wire [0:0]peripheral_aresetn_0;
+  wire slowest_sync_clk_0;
   wire [3:0]sws_4bits_tri_i;
 
   design_1 design_1_i
@@ -157,5 +160,6 @@ module design_1_wrapper
         .ip2intc_irpt_0(ip2intc_irpt_0),
         .leds_4bits_tri_o(leds_4bits_tri_o),
         .peripheral_aresetn_0(peripheral_aresetn_0),
+        .slowest_sync_clk_0(slowest_sync_clk_0),
         .sws_4bits_tri_i(sws_4bits_tri_i));
 endmodule

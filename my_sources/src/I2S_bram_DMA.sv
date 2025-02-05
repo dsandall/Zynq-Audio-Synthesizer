@@ -20,12 +20,11 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
 module I2S_bram_DMA #(
-    parameter int NUM_WORDS
+    parameter int NUM_WORDS = 256,
+    parameter int CLIP_LEN = NUM_WORDS,
+    parameter int VOLUME_BITS = 8,
+    parameter int FREQ_RES_BITS = 4
 ) (
     input wire clk,  // Clock input
     input wire rst,  // Reset input
@@ -38,34 +37,75 @@ module I2S_bram_DMA #(
     output reg         BRAM_rst,   // Reset BRAM
     output reg  [ 3:0] BRAM_we,    // Write enable for BRAM_we
 
-    output reg [31:0] bram_data_buffer[0:NUM_WORDS-1],  // Buffer for data read from BRAM
+    input wire refresh,
 
-    input wire refresh
+    ////////////
 
-    //    //switches
-    //    input      [ 3:0] switches,
-    //    output     [31:0] gpio_ctrl_i_32b_tri_i,
-    //    input      [31:0] gpio_ctrl_o_32b_tri_o,
-    //    output            ip2intc_irpt_0,
-    //    // I2S
-    //    output reg        audio_I2S_bclk,         // Bit Clock (32x the sample rate)
-    //    output reg        audio_I2S_pbdat,        // Playback Data
-    //    output reg        audio_I2S_pblrc,        // Word Select (LR Clock)
-    //    input             mclk                    // Master Clock (256x sample rate) 12.346 MHz
+    input wire mclk,  // mclk input
+    input [VOLUME_BITS-1 : 0] volume,
+    input [FREQ_RES_BITS-1 : 0] p_frequency,
 
+    output shortint current_sample,
+    output shortint current_sample_novol
 );
 
+  //
+  // for the purposes of the player, we assume the BRAM to be static. (for
+  // now!)
+  //
+  reg [31:0] bram_data_buffer[0:NUM_WORDS -1];  // Buffer for data read from BRAM
+
+  logic [$clog2(CLIP_LEN)-1:0] player_sample_index;
+  shortint current_sample_novol;
+  assign current_sample_novol = bram_data_buffer[player_sample_index][15:0]; //index into array, and cast as signed shortint
+
+  // assign the output
+  volume_shift volume_shift_i (
+      .sample_in(current_sample_novol),
+      .sample_out(current_sample),
+      .volume(volume)
+  );
+
+  // playing the sample
+  // mclk only (no rotating writes yet)
+  int freq_counter;
+  always @(negedge mclk or posedge rst) begin
+
+    if (rst) begin
+      player_sample_index = 0;
+      freq_counter = 0;
+    end else begin
+
+      // increment the player index
+      if (freq_counter == 0) begin
+        freq_counter <= (256 * (p_frequency));
+        player_sample_index <= player_sample_index + 1;
+
+      end else begin
+        freq_counter <= freq_counter - 1;
+      end
+
+    end
+
+  end
+
+  //
+  // end of player
+  //
 
 
 
 
 
-
-
-
+  //
+  //
+  //
   ////
   // BRAM
   ////
+  //
+  //
+
 
   // State encoding
   typedef enum logic [2:0] {

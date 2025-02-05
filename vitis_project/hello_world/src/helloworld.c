@@ -62,12 +62,15 @@ void writePlayerFreq(uint8_t freq){
     *AudioCrtlReg = (*AudioCrtlReg & 0xFFF0) | (freq & 0x000F);
 };
 
+void writeBramFreq(uint8_t freq){
+    *AudioCrtlReg = (*AudioCrtlReg & 0xFF0F) | (freq & 0x000F) << 4;
+};
 void writeRefresh(uint8_t bool){
-  if (bool){
-    *AudioCrtlReg = (*AudioCrtlReg & 0xFFEF) | (0x1 << 4);
-  } else {
-    *AudioCrtlReg = (*AudioCrtlReg & 0xFFEF);
-  }
+ // if (bool){
+ //   *AudioCrtlReg = (*AudioCrtlReg & 0xFFEF) | (0x1 << 4);
+ // } else {
+ //   *AudioCrtlReg = (*AudioCrtlReg & 0xFFEF);
+ // }
 };
 
 void writeMasterVol(uint8_t vol){
@@ -75,11 +78,11 @@ void writeMasterVol(uint8_t vol){
 };
 
 void writePlayerVol(uint8_t vol){
-  *(AudioCrtlReg ) = (*(AudioCrtlReg)  & 0xFF00FFFF) | ((vol & 0x00FF) << 16);
+  *(AudioCrtlReg) = (*(AudioCrtlReg)  & 0xFF00FFFF) | ((vol & 0x00FF) << 16);
 };
 
 void writeBramVol(uint8_t vol){
-  *(AudioCrtlReg ) = (*(AudioCrtlReg)  & 0x00FFFFFF) | ((vol & 0x00FF) << 24);
+  *(AudioCrtlReg) = (*(AudioCrtlReg)  & 0x00FFFFFF) | ((vol & 0x00FF) << 24);
 };
 
 void flickBit(int bit){
@@ -130,11 +133,11 @@ int main() {
   int loop_count = 0;
 
 
-  *AudioCrtlReg = 0xFFFF;
+  *AudioCrtlReg = 0xFFFFFFFF;
   xil_printf("reg is %d\n\r", *AudioCrtlReg);
   uint8_t f = 0;
 
-  *AudioCrtlReg = 0x0000;
+  *AudioCrtlReg = 0x00000000;
   while (1) {
 
     //XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, 0, loop_count++);
@@ -149,17 +152,19 @@ int main() {
       xil_printf("%d: %X\n\r", i, out_data);
     }
 
-    if (f == 8) {
+    if (f == 15) {
         f = 0;
     } else {
         f = f+1;
     }
 
     xil_printf("sizof int %d\n", sizeof(unsigned int));
-    writePlayerVol(0x00);
-    writeBramVol(3);
-    writeMasterVol(0xFF);
-    writePlayerFreq(f);
+    writeMasterVol(0x0F);
+
+    writePlayerVol(0);
+    writePlayerFreq(1);
+    writeBramVol(0);
+    writeBramFreq(f);
 
     //writeRefresh();
     xil_printf("bit flicked: %d\n", f);

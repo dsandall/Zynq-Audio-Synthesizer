@@ -54,7 +54,8 @@ module zynq_example_top (
 
 );
   localparam int SAMPLE_BITS = 16;
-  localparam int CLIP_LEN = 256;
+  localparam int BRAM_CLIP_LEN = 256;
+  localparam int M_BUF_LEN = 32;
   localparam int FREQ_RES_BITS = 4;
   localparam int VOLUME_BITS = 8;
 
@@ -80,12 +81,15 @@ module zynq_example_top (
   //// assign the bits to the associated controls
   // From Arm Cores
   wire [FREQ_RES_BITS -1:0] player_source_freq = gpio_ctrl_o_32b_tri_o[FREQ_RES_BITS-1:0];
-  wire refresh = gpio_ctrl_o_32b_tri_o[4];
-  wire [VOLUME_BITS-1:0] volume_master = gpio_ctrl_o_32b_tri_o[15 : 8];
 
+  wire [FREQ_RES_BITS -1:0] bram_source_freq = gpio_ctrl_o_32b_tri_o[(FREQ_RES_BITS-1)+4:4];
+  //wire refresh = gpio_ctrl_o_32b_tri_o[4];
+  wire refresh;
+  assign refresh = 1;
+
+  logic [VOLUME_BITS-1:0] volume_master = gpio_ctrl_o_32b_tri_o[15 : 8];
   logic [VOLUME_BITS-1:0] player_source_vol = gpio_ctrl_o_32b_tri_o[23 : 16];
   logic [VOLUME_BITS-1:0] bram_source_vol = gpio_ctrl_o_32b_tri_o[31 : 24];
-
 
 
   // From Board
@@ -105,14 +109,14 @@ module zynq_example_top (
   //assign led[1] = audio_I2S_pbdat;
   //assign audio_cons_muten = 1'b1;
 
-  shortint m_sample_buffer[CLIP_LEN];
+  shortint m_sample_buffer[M_BUF_LEN];
   logic [7:0] m_sample_index;
 
   // for viewing in simulation
 
   pain_and_suffering #(
       .SAMPLE_BITS(SAMPLE_BITS),
-      .CLIP_LEN(CLIP_LEN),
+      .CLIP_LEN(M_BUF_LEN),
       .VOLUME_BITS(VOLUME_BITS)
   ) pain_i (
       .audio_I2S_bclk(audio_I2S_bclk),
@@ -126,10 +130,13 @@ module zynq_example_top (
       .sample_index(m_sample_index)
   );
 
-  wire [31:0] bram_data_buffer[0:CLIP_LEN -1];  // Buffer for data read from BRAM
+  shortint bram_sample_buffer;  // Buffer for data read from BRAM
+  shortint bram_sample_buffer_novol;  // Buffer for data read from BRAM
 
   I2S_bram_DMA #(
-      .NUM_WORDS(CLIP_LEN)
+      .NUM_WORDS(BRAM_CLIP_LEN),
+      .VOLUME_BITS(VOLUME_BITS),
+      .FREQ_RES_BITS(FREQ_RES_BITS)
   ) I2S_bram_DMA_i (
       .clk(clk),  // System clock
       .rst(rst),  // System reset
@@ -142,8 +149,18 @@ module zynq_example_top (
       .BRAM_rst (BRAM_rst),   // BRAM reset
       .BRAM_we  (BRAM_we),    // BRAM write enable
 
-      .bram_data_buffer(bram_data_buffer),
-      .refresh(refresh)
+      //.bram_data_buffer(bram_data_buffer),
+      .refresh(refresh),
+
+      // Player connections
+      .mclk(audio_cons_mclk),
+
+      .current_sample(bram_sample_buffer),
+      .current_sample_novol(bram_sample_buffer_novol),
+      //.valid(),
+
+      .volume(bram_source_vol),
+      .p_frequency(bram_source_freq)
 
       //// control sources
       //.switches(sws_4bits_tri_i),
@@ -159,12 +176,12 @@ module zynq_example_top (
       //.mclk(audio_cons_mclk)
   );
 
+
   //TODO:
   localparam PLAYER_CLIP_LEN = 32;
   shortint player_sample_buffer;  // Buffer for data read from BRAM
 
   player_module #(
-      .SAMPLE_BITS(SAMPLE_BITS),
       .CLIP_LEN(PLAYER_CLIP_LEN),
       .FREQ_RES_BITS(FREQ_RES_BITS)
   ) player_module_i (
@@ -182,26 +199,30 @@ module zynq_example_top (
 
   // Audio Combinator prototype
   // Bram data buffer at set frequency matching the m sample buffer
-  // player
 
-  shortint bram_sample_buffer[CLIP_LEN];
+  int before_index;
 
-  genvar i;
-  generate
-    for (i = 0; i < CLIP_LEN; i = i + 1) begin
-      assign bram_sample_buffer[i] = bram_data_buffer[i][SAMPLE_BITS-1:0]; //WARN: TEMPORARY GAIN SHIFT FOR BRAM SOURCE
-      // WARN: this is currently inefficient, as the bram reads in chunks of
-      // 32, but the samples are stored in only the first 16 bits. If this
-      // becomes a constraint, pack the samples into words, or increase the
-      // frequency.
+  always_ff @(m_sample_index) begin
+
+    if (m_sample_index < 10) begin
+      before_index = (m_sample_index + M_BUF_LEN) - 10;  // arbitrary lag amount
+    end else begin
+      before_index = m_sample_index - 10;
     end
-  endgenerate
 
-  always_ff @(posedge audio_cons_mclk) begin
-    for (int i = 0; i < CLIP_LEN; i = i + 1) begin
-      m_sample_buffer[i] <= (bram_sample_buffer[i] >>> bram_source_vol) + (player_sample_buffer);  // Store in buffer
-    end
+    m_sample_buffer[before_index] <= player_sample_buffer + bram_sample_buffer;  // Store in buffer
+
   end
+
+  //assign bram_sample_buffer[i] = bram_data_buffer[i][SAMPLE_BITS-1:0]; //WARN: TEMPORARY GAIN SHIFT FOR BRAM SOURCE
+  //assign m_sample_buffer[i] = (bram_sample_buffer[i] >>> bram_source_vol) + (player_sample_buffer);  // Store in buffer
+
+
+  // WARN: this is currently inefficient, as the bram reads in chunks of
+  // 32, but the samples are stored in only the first 16 bits. If this
+  // becomes a constraint, pack the samples into words, or increase the
+  // frequency.
+
 
   //------------------
 
@@ -245,7 +266,9 @@ module zynq_example_top (
       .gpio_ctrl_o_32b_tri_o(gpio_ctrl_o_32b_tri_o),
       .ip2intc_irpt_0(ip2intc_irpt_0),  // and interrupt
 
-      .MCLK(audio_cons_mclk),  //WARN: this is a terrible name, very easily confused with the master clock
+      .MCLK(audio_cons_mclk),
+
+      .slowest_sync_clk_0(audio_I2S_pblrc),  // WARN: be careful with this one
 
       // internal (stays within the FPGA chip, to let the ARM core IP communicate with the soft logic)
       .BRAM_PORTB_0_addr(BRAM_addr),

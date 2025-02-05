@@ -15,8 +15,24 @@
 //      .volume(player_vol)
 //  );
 
+module triangle_lut #(
+    parameter int LUT_SIZE = 32
+) (
+    output shortint lut[0:LUT_SIZE-1]
+);
+
+  // 16-bit signed triangle wave LUT
+  localparam int M = 65536 / LUT_SIZE;
+  localparam int B = -32768;
+  // Generate the LUT values
+  initial begin
+    for (int i = 0; i < LUT_SIZE; i++) begin
+      lut[i] = (i) * M + B;
+    end
+  end
+endmodule
+
 module player_module #(
-    parameter int SAMPLE_BITS = 16,
     parameter int CLIP_LEN = 32,
     parameter int VOLUME_BITS = 8,
     parameter int FREQ_RES_BITS = 4
@@ -33,26 +49,14 @@ module player_module #(
     input [FREQ_RES_BITS-1 : 0] p_frequency
 );
 
-  logic [5-1:0] player_sample_index;
+  shortint triangle_lut[0:31];
+  triangle_lut triangle_lut_mod_inst (.lut(triangle_lut));
 
-  // 16-bit signed triangle wave LUT
-  localparam int LUT_SIZE = 32;
-  localparam int M = 65536 / LUT_SIZE;
-  localparam int B = -32768;
-  shortint triangle_lut[0:LUT_SIZE-1];
-  // Generate the LUT values
-  initial begin
-    for (int i = 0; i < LUT_SIZE; i++) begin
-      triangle_lut[i] = (i) * M + B;
-    end
-  end
-
-
-
+  logic [$clog2(CLIP_LEN)-1:0] player_sample_index;
   shortint current_sample_novol;
   assign current_sample_novol = triangle_lut[player_sample_index];
+
   // assign the output
-  //assign p_sample_buffer = triangle_lut[player_sample_index] <<< volume;
   volume_shift volume_shift_i (
       .sample_in(current_sample_novol),
       .sample_out(p_sample_buffer),
@@ -62,7 +66,7 @@ module player_module #(
   // playing the sample
   // mclk only (no rotating writes yet)
   int freq_counter;
-  always @(negedge mclk) begin
+  always @(negedge mclk or posedge rst) begin
 
     if (rst) begin
       player_sample_index = 0;
