@@ -136,7 +136,6 @@ int main() {
   *AudioCrtlReg = 0xFFFFFFFF;
   xil_printf("reg is %d\n\r", *AudioCrtlReg);
   uint8_t f = 0;
-
   *AudioCrtlReg = 0x00000000;
   while (1) {
 
@@ -159,12 +158,12 @@ int main() {
     }
 
     xil_printf("sizof int %d\n", sizeof(unsigned int));
-    writeMasterVol(0x0F);
+    writeMasterVol(0xFF);
 
-    writePlayerVol(0);
-    writePlayerFreq(1);
-    writeBramVol(0);
-    writeBramFreq(f);
+    writePlayerVol(0xFF);
+    writePlayerFreq(f); // samples 
+    writeBramVol(0x00);
+    writeBramFreq(3);
 
     //writeRefresh();
     xil_printf("bit flicked: %d\n", f);
