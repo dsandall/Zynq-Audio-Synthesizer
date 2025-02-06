@@ -17,12 +17,12 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="3.369244362 ms"></ZoomStartTime>
-      <ZoomEndTime time="18.769244363 ms"></ZoomEndTime>
-      <Cursor1Time time="18.493812334 ms"></Cursor1Time>
+      <ZoomStartTime time="0.070876000 ms"></ZoomStartTime>
+      <ZoomEndTime time="221.270876001 ms"></ZoomEndTime>
+      <Cursor1Time time="8.458911000 ms"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="257"></NameColumnWidth>
+      <NameColumnWidth column_width="253"></NameColumnWidth>
       <ValueColumnWidth column_width="60"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="10" />
@@ -103,7 +103,6 @@
    <wvobject type="group" fp_name="group110">
       <obj_property name="label">BRAM module</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject type="group" fp_name="group111">
          <obj_property name="label">bram</obj_property>
          <obj_property name="DisplayName">label</obj_property>
@@ -204,6 +203,7 @@
    <wvobject type="group" fp_name="group209">
       <obj_property name="label">triangle module</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject type="array" fp_name="/zynq_example_top/src_triangle_i/p_sample_buffer">
          <obj_property name="ElementShortName">p_sample_buffer[15:0]</obj_property>
          <obj_property name="ObjectShortName">p_sample_buffer[15:0]</obj_property>
@@ -223,6 +223,19 @@
       <wvobject type="array" fp_name="/zynq_example_top/src_triangle_i/current_sample_novol">
          <obj_property name="ElementShortName">current_sample_novol[15:0]</obj_property>
          <obj_property name="ObjectShortName">current_sample_novol[15:0]</obj_property>
+         <obj_property name="WaveformStyle">STYLE_ANALOG</obj_property>
+         <obj_property name="CellHeight">100</obj_property>
+         <obj_property name="AnalogYRangeType">ANALOG_YRANGETYPE_AUTO</obj_property>
+         <obj_property name="AnalogYRangeMin">0.000000</obj_property>
+         <obj_property name="AnalogYRRangeMax">0.000000</obj_property>
+         <obj_property name="AnalogInterpolation">ANALOG_INTERPOLATION_HOLD</obj_property>
+         <obj_property name="AnalogOffscale">ANALOG_OFFSCALE_CLIP</obj_property>
+         <obj_property name="AnalogHorizLine">0.000000</obj_property>
+         <obj_property name="Radix">REALRADIX</obj_property>
+         <obj_property name="radix_realType">SIGNEDFIXEDPOINTRADIX</obj_property>
+         <obj_property name="radix_fractionWidth">8</obj_property>
+         <obj_property name="radix_otherWidth">0</obj_property>
+         <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/src_triangle_i/player_sample_index">
          <obj_property name="ElementShortName">player_sample_index[4:0]</obj_property>
@@ -521,7 +534,6 @@
       <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjust_i/sample_in">
          <obj_property name="ElementShortName">sample_in[15:0]</obj_property>
          <obj_property name="ObjectShortName">sample_in[15:0]</obj_property>
-         <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjust_i/volume">
          <obj_property name="ElementShortName">volume[3:0]</obj_property>
@@ -530,7 +542,6 @@
       <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjust_i/sample_out">
          <obj_property name="ElementShortName">sample_out[15:0]</obj_property>
          <obj_property name="ObjectShortName">sample_out[15:0]</obj_property>
-         <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjust_i/extended_sample">
          <obj_property name="ElementShortName">extended_sample[19:0]</obj_property>

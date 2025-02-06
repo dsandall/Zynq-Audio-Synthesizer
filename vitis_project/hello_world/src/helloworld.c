@@ -160,11 +160,11 @@ int main() {
     xil_printf("sizof int %d\n", sizeof(unsigned int));
     //writeMasterVol(0xF);
     
-    writePlayerVol(0x1);
+    writePlayerVol(0x2);
     writePlayerFreq(f); // samples 
     
     writeBramVol(0x0);
-    writeBramFreq(15); //9, 12, 15 introduce glitching (but only at some vols) (and other freqs glitch at other vols..)
+    writeBramFreq(f); //9, 12, 15 introduce glitching (but only at some vols) (and other freqs glitch at other vols..)
     //writeRefresh();
 
     xil_printf("bit flicked: %d\n", f);

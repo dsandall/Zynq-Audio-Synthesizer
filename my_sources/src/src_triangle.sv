@@ -74,15 +74,11 @@ module src_triangle #(
       .VOLUME_BITS(4)
   ) volume_adjust_tri (
       .sample_in(current_sample_novol),
-      .sample_out(current_sample_vol),
+      .sample_out(p_sample_buffer),
       .volume(volume[3:0])
   );
 
-  fir_filter fir_filter_i (
-      .clk(player_sample_index[0]),
-      .rst(rst),
-      .sample_in(current_sample_vol),
-      .sample_out(p_sample_buffer)
-  );
+
 
 endmodule
+

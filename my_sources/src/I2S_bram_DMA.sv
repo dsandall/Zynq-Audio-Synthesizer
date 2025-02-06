@@ -74,7 +74,6 @@ module I2S_bram_DMA #(
 
   assign current_sample_novol = bram_data_buffer[player_sample_index][15:0]; //index into array, and cast as signed shortint
 
-
   // assign the output
   volume_adjust #(
       .VOLUME_BITS(4)
@@ -83,7 +82,6 @@ module I2S_bram_DMA #(
       .sample_out(current_sample),
       .volume(volume[3:0])
   );
-
 
 
   //
