@@ -17,15 +17,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
-      <ZoomEndTime time="11.640000001 ms"></ZoomEndTime>
-      <Cursor1Time time="0.000000000 ms"></Cursor1Time>
+      <ZoomStartTime time="3.369244362 ms"></ZoomStartTime>
+      <ZoomEndTime time="18.769244363 ms"></ZoomEndTime>
+      <Cursor1Time time="18.493812334 ms"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="208"></NameColumnWidth>
+      <NameColumnWidth column_width="257"></NameColumnWidth>
       <ValueColumnWidth column_width="60"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="11" />
+   <WVObjectSize size="10" />
    <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjusted_sample">
       <obj_property name="ElementShortName">volume_adjusted_sample[15:0]</obj_property>
       <obj_property name="ObjectShortName">volume_adjusted_sample[15:0]</obj_property>
@@ -204,11 +204,6 @@
    <wvobject type="group" fp_name="group209">
       <obj_property name="label">triangle module</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
-      <wvobject type="array" fp_name="/zynq_example_top/src_triangle_i/m_sample_index">
-         <obj_property name="ElementShortName">m_sample_index[7:0]</obj_property>
-         <obj_property name="ObjectShortName">m_sample_index[7:0]</obj_property>
-      </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/src_triangle_i/p_sample_buffer">
          <obj_property name="ElementShortName">p_sample_buffer[15:0]</obj_property>
          <obj_property name="ObjectShortName">p_sample_buffer[15:0]</obj_property>
@@ -237,6 +232,7 @@
    <wvobject type="group" fp_name="group114">
       <obj_property name="label">pain_i</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject type="logic" fp_name="/zynq_example_top/pain_i/audio_I2S_bclk">
          <obj_property name="ElementShortName">audio_I2S_bclk</obj_property>
          <obj_property name="ObjectShortName">audio_I2S_bclk</obj_property>
@@ -253,6 +249,10 @@
          <obj_property name="ElementShortName">mclk</obj_property>
          <obj_property name="ObjectShortName">mclk</obj_property>
       </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/lr_divider">
+         <obj_property name="ElementShortName">lr_divider[31:0]</obj_property>
+         <obj_property name="ObjectShortName">lr_divider[31:0]</obj_property>
+      </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/pain_i/sample">
          <obj_property name="ElementShortName">sample[0:31][15:0]</obj_property>
          <obj_property name="ObjectShortName">sample[0:31][15:0]</obj_property>
@@ -268,10 +268,6 @@
       <wvobject type="array" fp_name="/zynq_example_top/pain_i/bclk_divider">
          <obj_property name="ElementShortName">bclk_divider[31:0]</obj_property>
          <obj_property name="ObjectShortName">bclk_divider[31:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/zynq_example_top/pain_i/lr_divider">
-         <obj_property name="ElementShortName">lr_divider[31:0]</obj_property>
-         <obj_property name="ObjectShortName">lr_divider[31:0]</obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjusted_sample">
          <obj_property name="ElementShortName">volume_adjusted_sample[15:0]</obj_property>
@@ -518,12 +514,35 @@
          <obj_property name="ObjectShortName">player_sample_buffer[15:0]</obj_property>
       </wvobject>
    </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/bram_source_freq">
-      <obj_property name="ElementShortName">bram_source_freq[3:0]</obj_property>
-      <obj_property name="ObjectShortName">bram_source_freq[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/zynq_example_top/bram_source_freq">
-      <obj_property name="ElementShortName">bram_source_freq[3:0]</obj_property>
-      <obj_property name="ObjectShortName">bram_source_freq[3:0]</obj_property>
+   <wvobject type="group" fp_name="group875">
+      <obj_property name="label">New Group 50</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjust_i/sample_in">
+         <obj_property name="ElementShortName">sample_in[15:0]</obj_property>
+         <obj_property name="ObjectShortName">sample_in[15:0]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjust_i/volume">
+         <obj_property name="ElementShortName">volume[3:0]</obj_property>
+         <obj_property name="ObjectShortName">volume[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjust_i/sample_out">
+         <obj_property name="ElementShortName">sample_out[15:0]</obj_property>
+         <obj_property name="ObjectShortName">sample_out[15:0]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjust_i/extended_sample">
+         <obj_property name="ElementShortName">extended_sample[19:0]</obj_property>
+         <obj_property name="ObjectShortName">extended_sample[19:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjust_i/scaled_sample">
+         <obj_property name="ElementShortName">scaled_sample[19:0]</obj_property>
+         <obj_property name="ObjectShortName">scaled_sample[19:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/zynq_example_top/pain_i/volume_adjust_i/VOLUME_BITS">
+         <obj_property name="ElementShortName">VOLUME_BITS[31:0]</obj_property>
+         <obj_property name="ObjectShortName">VOLUME_BITS[31:0]</obj_property>
+      </wvobject>
    </wvobject>
 </wave_config>

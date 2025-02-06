@@ -53,10 +53,12 @@ module pain_and_suffering #(
     audio_I2S_pbdat = 0;
   end
 
-  volume_adjust volume_adjust_i (
+  volume_adjust #(
+      .VOLUME_BITS(4)
+  ) volume_adjust_i (
       .sample_in(sample[sample_index]),
       .sample_out(volume_adjusted_sample),
-      .volume(volume)
+      .volume(volume[3:0])
   );
 
   ////// MCLK
@@ -83,10 +85,9 @@ module pain_and_suffering #(
       audio_I2S_pblrc <= ~audio_I2S_pblrc;
     end
 
-
     // manage the sample data
-    //audio_I2S_pbdat <= volume_adjusted_sample[(SAMPLE_BITS-1)-lr_divider];
-    audio_I2S_pbdat <= novol_sample[(SAMPLE_BITS-1)-lr_divider];
+    audio_I2S_pbdat <= volume_adjusted_sample[(SAMPLE_BITS-1)-lr_divider];
+    //audio_I2S_pbdat <= novol_sample[(SAMPLE_BITS-1)-lr_divider];
   end
 
   ////// negedge PBLRC
@@ -95,9 +96,9 @@ module pain_and_suffering #(
   always @(negedge audio_I2S_pblrc) begin
 
     if (sample_index == 0) begin
-      sample_index = (CLIP_LEN - 1);
+      sample_index <= (CLIP_LEN - 1);
     end else begin
-      sample_index--;
+      sample_index <= sample_index - 1;
     end
 
   end

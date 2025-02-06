@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 //////////////////////////////////////////////////////////////////////////////////
 // Company:
 // Engineer: 
@@ -74,10 +76,12 @@ module I2S_bram_DMA #(
 
 
   // assign the output
-  volume_adjust volume_adjust_i (
+  volume_adjust #(
+      .VOLUME_BITS(4)
+  ) volume_adjust_i (
       .sample_in(current_sample_novol),
       .sample_out(current_sample),
-      .volume(volume)
+      .volume(volume[3:0])
   );
 
 

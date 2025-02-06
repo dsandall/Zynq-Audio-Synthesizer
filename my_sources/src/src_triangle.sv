@@ -66,13 +66,23 @@ module src_triangle #(
   );
 
   shortint current_sample_novol;
+  shortint current_sample_vol;
   assign current_sample_novol = triangle_lut[player_sample_index];
 
   // assign the output
-  volume_adjust volume_adjust_tri (
+  volume_adjust #(
+      .VOLUME_BITS(4)
+  ) volume_adjust_tri (
       .sample_in(current_sample_novol),
-      .sample_out(p_sample_buffer),
-      .volume(volume)
+      .sample_out(current_sample_vol),
+      .volume(volume[3:0])
+  );
+
+  fir_filter fir_filter_i (
+      .clk(player_sample_index[0]),
+      .rst(rst),
+      .sample_in(current_sample_vol),
+      .sample_out(p_sample_buffer)
   );
 
 endmodule
