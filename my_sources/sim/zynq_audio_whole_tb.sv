@@ -1,12 +1,21 @@
-/* module zynq_audio_whole_tb (
+
+
+module zynq_audio_whole_tb (
     output reg a
 );
 
+  reg [3:0] master_vol = 4'h7;
 
-  zynq_example_top zynq_example_top_i ();
+  //reg [31:0] audio_ctrl_reg = 32'h0;
+  zynq_example_top zynq_example_top_i (.sws_4bits_tri_i(master_vol));
 
+
+  initial begin
+    #2000;
+  end
 endmodule
 
+/*
 module zynq_example_top (
     inout [14:0] DDR_addr,
     inout [2:0] DDR_ba,

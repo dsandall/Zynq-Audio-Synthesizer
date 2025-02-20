@@ -87,7 +87,7 @@ module pain_and_suffering #(
 
     // manage the sample data
     audio_I2S_pbdat <= volume_adjusted_sample[(SAMPLE_BITS-1)-lr_divider];
-    //audio_I2S_pbdat <= novol_sample[(SAMPLE_BITS-1)-lr_divider];
+    //audio_I2S_pbdat <= novol_sample[(SAMPLE_BITS-1)-lr_divider];  //WARN: NOVOL used
   end
 
   ////// negedge PBLRC
@@ -95,10 +95,10 @@ module pain_and_suffering #(
   // right, i dont remember at the moment, check the spec)
   always @(negedge audio_I2S_pblrc) begin
 
-    if (sample_index == 0) begin
-      sample_index <= (CLIP_LEN - 1);
+    if (sample_index == (CLIP_LEN - 1)) begin
+      sample_index <= 0;
     end else begin
-      sample_index <= sample_index - 1;
+      sample_index <= sample_index + 1;
     end
 
   end

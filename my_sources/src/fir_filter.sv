@@ -111,3 +111,66 @@ module fir_filter_adjustable (
   end
 
 endmodule
+
+module fir_lowpass #(
+    parameter N = 16  // Number of filter taps (Adjust as needed)
+) (
+    input                    clk,  // 256× Clock B
+    input                    rst,  // Reset
+    input  signed     [15:0] din,  // Input sample
+    output reg signed [15:0] dout  // Filtered output
+);
+
+  // FIR Filter Coefficients (Placeholder values, replace with actual LPF coefficients)
+  reg signed [15:0] coeffs[0:15] = '{
+      -79,
+      -136,
+      312,
+      654,
+      -1244,
+      -2280,
+      4501,
+      14655,
+      14655,
+      4501,
+      -2280,
+      -1244,
+      654,
+      312,
+      -136,
+      -79
+  };
+
+  // Shift Register for storing past inputs
+  reg signed [15:0] shift_reg[0:N-1];
+
+  // Multiply-Accumulate (MAC) Output
+  reg signed [31:0] mac_result;
+
+  integer i;
+
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      // Reset shift registers and output
+      for (i = 0; i < N; i = i + 1) begin
+        shift_reg[i] <= 16'd0;
+      end
+      dout <= 16'd0;
+    end else begin
+      // Shift in new sample
+      for (i = N - 1; i > 0; i = i - 1) begin
+        shift_reg[i] <= shift_reg[i-1];
+      end
+      shift_reg[0] <= din;
+
+      // FIR Convolution (MAC Operation)
+      mac_result = 32'd0;
+      for (i = 0; i < N; i = i + 1) begin
+        mac_result = mac_result + (shift_reg[i] * coeffs[i]);
+      end
+
+      // Output result (truncated to 16-bit)
+      dout <= mac_result >>> 8;  // Adjust bit shift based on coefficient scaling
+    end
+  end
+endmodule

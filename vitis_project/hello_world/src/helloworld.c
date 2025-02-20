@@ -41,6 +41,7 @@
 #include <xil_types.h>
 #include "xbram.h"
 #include "xgpio.h"
+#include "xsdps.h" // SD card library
 
 #define LED_CHANNEL 1
 #define SWITCH_CHANNEL 2
@@ -66,17 +67,15 @@ void writeBramFreq(uint8_t freq){
     *AudioCrtlReg = (*AudioCrtlReg & 0xFFFFFF0F) | (freq & 0x000F) << 4;
 };
 void writeRefresh(uint8_t bool){
- // if (bool){
- //   *AudioCrtlReg = (*AudioCrtlReg & 0xFFEF) | (0x1 << 4);
- // } else {
- //   *AudioCrtlReg = (*AudioCrtlReg & 0xFFEF);
- // }
+    *AudioCrtlReg = (*AudioCrtlReg & 0xFFFF00FF) | ((bool & 0x00FF) << 8);
+    // bit 0 of the second byte in the reg.
 };
 
+/*
 void writeMasterVol(uint8_t vol){
     *AudioCrtlReg = (*AudioCrtlReg & 0xFFFF00FF) | ((vol & 0x00FF) << 8);
 };
-
+*/
 void writePlayerVol(uint8_t vol){
   *(AudioCrtlReg) = (*(AudioCrtlReg) & 0xFF00FFFF) | ((vol & 0x00FF) << 16);
 };
@@ -137,6 +136,9 @@ int main() {
   xil_printf("reg is %d\n\r", *AudioCrtlReg);
   uint8_t f = 0;
   *AudioCrtlReg = 0x00000000;
+  uint8_t refresh_en = 1;
+  writeRefresh(refresh_en);
+
   while (1) {
 
     //XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, 0, loop_count++);
@@ -151,26 +153,40 @@ int main() {
       xil_printf("%d: %X\n\r", i, out_data);
     }
 
-    if (f == 15) {
-        f = 0;
-    } else {
-        f = f+1;
-    }
 
     xil_printf("sizof int %d\n", sizeof(unsigned int));
-    //writeMasterVol(0xF);
     
-    writePlayerVol(0x2);
+    writePlayerVol(0x0);
     writePlayerFreq(f); // samples 
     
-    writeBramVol(0x0);
+    writeBramVol(0x7);
     writeBramFreq(f); //9, 12, 15 introduce glitching (but only at some vols) (and other freqs glitch at other vols..)
-    //writeRefresh();
 
     xil_printf("bit flicked: %d\n", f);
     xil_printf("reg is 0x%08X\n\r", *AudioCrtlReg);
-    //xil_printf("reg is %x\n\r", *(AudioCrtlReg+sizeof(uint32_t)));
+
+    char c = inbyte();
+    if (c == '\r') {
+
+        refresh_en = refresh_en ? 0 : 1; 
+        xil_printf("refresh is %d\n", refresh_en);
+        writeRefresh(refresh_en);
+    } else {
+
+        if (f == 15) {
+            f = 0;
+        } else {
+            f = f+1;
+        }
+    }
+
+    //writeRefresh(0);
+    //sleep(2);
+/*    writeRefresh(1);
     sleep(1);
+    writeRefresh(0);
+    sleep(1);
+ */
   }
   
   cleanup_platform();

@@ -55,7 +55,7 @@ module zynq_example_top (
 );
   localparam int SAMPLE_BITS = 16;
   localparam int BRAM_CLIP_LEN = 256;
-  localparam int M_BUF_LEN = 32;
+  localparam int M_BUF_LEN = 256;
   localparam int FREQ_RES_BITS = 4;
   localparam int VOLUME_BITS = 8;
 
@@ -83,8 +83,8 @@ module zynq_example_top (
   wire [FREQ_RES_BITS -1:0] player_source_freq = gpio_ctrl_o_32b_tri_o[FREQ_RES_BITS-1:0];
   wire [FREQ_RES_BITS -1:0] bram_source_freq = gpio_ctrl_o_32b_tri_o[(FREQ_RES_BITS-1)+4:4];
 
-  wire refresh = 1;
-
+  wire refresh = gpio_ctrl_o_32b_tri_o[8];
+  wire refresh_bram = gpio_ctrl_o_32b_tri_o[9];
   //logic [VOLUME_BITS-1:0] volume_master = gpio_ctrl_o_32b_tri_o[15 : 8];
   logic [VOLUME_BITS-1:0] player_source_vol = gpio_ctrl_o_32b_tri_o[23 : 16];
   logic [VOLUME_BITS-1:0] bram_source_vol = gpio_ctrl_o_32b_tri_o[31 : 24];
@@ -92,6 +92,7 @@ module zynq_example_top (
 
   logic [7:0] m_sample_index;
   shortint m_sample_buffer[M_BUF_LEN];
+
   pain_and_suffering #(
       .SAMPLE_BITS(SAMPLE_BITS),
       .CLIP_LEN(M_BUF_LEN),
@@ -109,7 +110,6 @@ module zynq_example_top (
   );
 
   shortint bram_sample_buffer;  // Buffer for data read from BRAM
-  shortint bram_sample_buffer_novol;  // Buffer for data read from BRAM
   wire bram_source_valid;
   I2S_bram_DMA #(
       .NUM_WORDS(BRAM_CLIP_LEN),
@@ -128,26 +128,21 @@ module zynq_example_top (
       .BRAM_we  (BRAM_we),    // BRAM write enable
 
       //.bram_data_buffer(bram_data_buffer),
-      .refresh(refresh),
+      .refresh(refresh_bram),
 
       // Player connections
       .mclk(audio_cons_mclk),
+      .volume(bram_source_vol),
+      .p_frequency(bram_source_freq),
 
       .valid(bram_source_valid),
-
-      .current_sample(bram_sample_buffer),
-      .current_sample_novol(bram_sample_buffer_novol),
-
-      .volume(bram_source_vol),
-      .p_frequency(bram_source_freq)
+      .current_sample(bram_sample_buffer)
 
   );
-
 
   //TODO:
   localparam PLAYER_CLIP_LEN = 32;
   shortint player_sample_buffer;  // Buffer for data read from BRAM
-  wire player_source_valid;
   src_triangle #(
       .CLIP_LEN(PLAYER_CLIP_LEN),
       .VOLUME_BITS(VOLUME_BITS),
@@ -157,38 +152,43 @@ module zynq_example_top (
       .rst (rst),
 
       .p_sample_buffer(player_sample_buffer),
-      .valid(player_source_valid),
 
       .volume(player_source_vol),
       .p_frequency(player_source_freq)
   );
 
-
   // Audio Combinator prototype
   // Bram data buffer at set frequency matching the m sample buffer
-
-
+  shortint output_filtered, output_filter_input;
   int before_index;
-  always_ff @(m_sample_index) begin
 
-    if (m_sample_index < 10) begin
-      before_index = (m_sample_index + M_BUF_LEN) - 10;  // arbitrary lag amount
-    end else begin
-      before_index = m_sample_index - 10;
+  always_ff @(negedge audio_I2S_pblrc) begin
+
+    if (refresh) begin
+      if (m_sample_index < 1) begin
+        before_index = (M_BUF_LEN - 1);  // arbitrary lag amount
+      end else begin
+        before_index = m_sample_index - 1;
+      end
+
+      //output_filter_input <= bram_sample_buffer + player_sample_buffer;  // Store in buffer
+      //m_sample_buffer[before_index] <= output_filtered;
+      m_sample_buffer[before_index] <= bram_sample_buffer + player_sample_buffer;
     end
-
-    m_sample_buffer[before_index] <= player_sample_buffer + bram_sample_buffer;  // Store in buffer
 
   end
 
+  /*
+  fir_lowpass #() lp_filter (
+      .clk (m_sample_index),
+      .rst (rst),
+      .din (output_filter_input),
+      .dout(output_filtered)
+  );
+*/
+
   //assign bram_sample_buffer[i] = bram_data_buffer[i][SAMPLE_BITS-1:0]; //WARN: TEMPORARY GAIN SHIFT FOR BRAM SOURCE
   //assign m_sample_buffer[i] = (bram_sample_buffer[i] >>> bram_source_vol) + (player_sample_buffer);  // Store in buffer
-
-
-  // WARN: this is currently inefficient, as the bram reads in chunks of
-  // 32, but the samples are stored in only the first 16 bits. If this
-  // becomes a constraint, pack the samples into words, or increase the
-  // frequency.
 
 
   //------------------

@@ -21,6 +21,11 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+// WARN: this is currently inefficient, as the bram reads in chunks of
+// 32, but the samples are stored in only the first 16 bits. If this
+// becomes a constraint, pack the samples into words, or increase the
+// frequency.
+
 module I2S_bram_DMA #(
     parameter int NUM_WORDS = 256,
     parameter int CLIP_LEN = NUM_WORDS,
@@ -47,38 +52,44 @@ module I2S_bram_DMA #(
     input [FREQ_RES_BITS-1 : 0] p_frequency,
 
     output valid,
-
-    output shortint current_sample,
-    output shortint current_sample_novol
+    output shortint current_sample
 );
 
   //
   // for the purposes of the player, we assume the BRAM to be static. (for
   // now!)
   //
+
   reg [31:0] bram_data_buffer[0:NUM_WORDS -1];  // Buffer for data read from BRAM
+  shortint shortint_buffer[0:NUM_WORDS - 1];
 
-  logic [$clog2(CLIP_LEN)-1:0] player_sample_index;
+  // Assign the lower 16 bits of each entry from bram_data_buffer to shortint_buffer
+  integer i;
+  always @* begin
+    for (i = 0; i < NUM_WORDS; i = i + 1) begin
+      shortint_buffer[i] = bram_data_buffer[i][15:0];  // Assign lower 16 bits
+    end
+  end
 
+  shortint player_out;
   player_module #(
       .CLIP_LEN(CLIP_LEN),
       .FREQ_RES_BITS(FREQ_RES_BITS),
-      .FREQ_PRESCALE(32)
+      .FREQ_PRESCALE(256)
   ) player_module_i (
       .mclk(mclk),
       .rst(rst),
-      .valid(valid),
       .p_frequency(p_frequency),
-      .player_sample_index(player_sample_index)
+      .data_buffer(shortint_buffer),
+      .player_sample(player_out),
+      .valid(valid)
   );
-
-  assign current_sample_novol = bram_data_buffer[player_sample_index][15:0]; //index into array, and cast as signed shortint
 
   // assign the output
   volume_adjust #(
       .VOLUME_BITS(4)
   ) volume_adjust_i (
-      .sample_in(current_sample_novol),
+      .sample_in(player_out),
       .sample_out(current_sample),
       .volume(volume[3:0])
   );
