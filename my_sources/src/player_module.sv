@@ -22,8 +22,7 @@ module player_module #(
   int freq_counter;
   int freq_counter_reload;
   assign freq_counter_reload = (FREQ_PRESCALE * (p_frequency + 1));
-  assign and_a_bit = freq_counter / freq_counter_reload;
-  always @(negedge mclk or posedge rst) begin
+  always @(posedge mclk or posedge rst) begin
 
     if (rst) begin
       player_sample_index = 0;
@@ -41,7 +40,8 @@ module player_module #(
     end
 
   end
-
+  /*
+  ///// Linear interpolation!
   shortint raw_sample;
   assign raw_sample = data_buffer[player_sample_index];
   shortint raw_next_sample;
@@ -53,6 +53,10 @@ module player_module #(
   assign next_sample = (raw_next_sample * freq_counter) / freq_counter_reload;
 
   assign player_sample = this_sample + next_sample;
+*/
+
+  // alternatively, use no linear interpolation: 
+  assign player_sample = data_buffer[player_sample_index];
 
   assign valid = 1;
 endmodule

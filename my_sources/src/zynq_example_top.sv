@@ -166,9 +166,9 @@ module zynq_example_top (
 
     if (refresh) begin
       if (m_sample_index < 1) begin
-        before_index = (M_BUF_LEN - 1);  // arbitrary lag amount
+        before_index <= (M_BUF_LEN - 1);  // arbitrary lag amount
       end else begin
-        before_index = m_sample_index - 1;
+        before_index <= m_sample_index - 1;
       end
 
       //output_filter_input <= bram_sample_buffer + player_sample_buffer;  // Store in buffer

@@ -60,8 +60,9 @@ module I2S_bram_DMA #(
   // now!)
   //
 
-  reg [31:0] bram_data_buffer[0:NUM_WORDS -1];  // Buffer for data read from BRAM
   shortint shortint_buffer[0:NUM_WORDS - 1];
+  /*
+  reg [31:0] bram_data_buffer[0:NUM_WORDS -1];  // Buffer for data read from BRAM
 
   // Assign the lower 16 bits of each entry from bram_data_buffer to shortint_buffer
   integer i;
@@ -70,7 +71,7 @@ module I2S_bram_DMA #(
       shortint_buffer[i] = bram_data_buffer[i][15:0];  // Assign lower 16 bits
     end
   end
-
+*/
   shortint player_out;
   player_module #(
       .CLIP_LEN(CLIP_LEN),
@@ -134,7 +135,7 @@ module I2S_bram_DMA #(
   reg [15:0] index;  // Index for accessing bram_data_buffer
 
   // Control logic for BRAM operations
-  always_ff @(posedge clk or posedge rst) begin
+  always_ff @(posedge clk) begin
 
     if (rst) begin
       BRAM_addr <= 0;
@@ -176,8 +177,8 @@ module I2S_bram_DMA #(
             // also recall the bram is 32 bits, with samples stored in first
             // 16 bits of each word
 
-            //bram_data_buffer[index-BRAM_DELAY] <= (BRAM_dout >>> volume);
-            bram_data_buffer[index-BRAM_DELAY] <= BRAM_dout;
+            //bram_data_buffer[index-BRAM_DELAY] <= BRAM_dout;
+            shortint_buffer[index-BRAM_DELAY] <= BRAM_dout[15:0]; // only using bottom 2 bytes of BRAM words
           end
 
           if (index == (NUM_WORDS + BRAM_DELAY)) begin

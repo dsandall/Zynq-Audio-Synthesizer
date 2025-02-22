@@ -63,7 +63,7 @@ module pain_and_suffering #(
 
   ////// MCLK
   //clock divider to create BCLK
-  always @(negedge mclk) begin
+  always_ff @(negedge mclk) begin
     bclk_divider <= bclk_divider + 1;
 
     if (bclk_divider >= (MCLK_DIV / BCLK_DIV) - 1) begin
@@ -75,7 +75,7 @@ module pain_and_suffering #(
   /////// BCLK
   // generate pblrclk
   // generate pbdata
-  always @(negedge audio_I2S_bclk) begin
+  always_ff @(negedge audio_I2S_bclk) begin
 
     // clock divide PBLRC from BCLK (this denotes the begin and end of
     // a sample, offset by one bit. refer to I2S spec)
@@ -93,7 +93,7 @@ module pain_and_suffering #(
   ////// negedge PBLRC
   // increment sample index on start of each left sample transmission (or
   // right, i dont remember at the moment, check the spec)
-  always @(negedge audio_I2S_pblrc) begin
+  always_ff @(negedge audio_I2S_pblrc) begin
 
     if (sample_index == (CLIP_LEN - 1)) begin
       sample_index <= 0;

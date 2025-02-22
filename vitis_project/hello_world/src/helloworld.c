@@ -66,16 +66,21 @@ void writePlayerFreq(uint8_t freq){
 void writeBramFreq(uint8_t freq){
     *AudioCrtlReg = (*AudioCrtlReg & 0xFFFFFF0F) | (freq & 0x000F) << 4;
 };
+
 void writeRefresh(uint8_t bool){
-    *AudioCrtlReg = (*AudioCrtlReg & 0xFFFF00FF) | ((bool & 0x00FF) << 8);
+    *AudioCrtlReg = (*AudioCrtlReg & 0xFFFFFEFF) | ((bool & 0x0001) << 8);
     // bit 0 of the second byte in the reg.
 };
-
+void writeReg_RefreshBram(uint8_t bool){
+    *AudioCrtlReg = (*AudioCrtlReg & 0xFFFFFDFF) | ((bool & 0x0001) << 9);
+    // bit 0 of the second byte in the reg.
+};
 /*
 void writeMasterVol(uint8_t vol){
     *AudioCrtlReg = (*AudioCrtlReg & 0xFFFF00FF) | ((vol & 0x00FF) << 8);
 };
 */
+
 void writePlayerVol(uint8_t vol){
   *(AudioCrtlReg) = (*(AudioCrtlReg) & 0xFF00FFFF) | ((vol & 0x00FF) << 16);
 };
@@ -138,6 +143,8 @@ int main() {
   *AudioCrtlReg = 0x00000000;
   uint8_t refresh_en = 1;
   writeRefresh(refresh_en);
+  uint8_t refresh_bram = 1;
+  writeReg_RefreshBram(refresh_bram);
 
   while (1) {
 
@@ -169,8 +176,12 @@ int main() {
     if (c == '\r') {
 
         refresh_en = refresh_en ? 0 : 1; 
-        xil_printf("refresh is %d\n", refresh_en);
+        xil_printf("refresh_main_buffer is %d\n", refresh_en);
         writeRefresh(refresh_en);
+    } else if (c == 'x') {
+        refresh_bram = refresh_bram ? 0 : 1;
+        xil_printf("refresh_bram is %d\n", refresh_bram);
+        writeReg_RefreshBram(refresh_bram);  
     } else {
 
         if (f == 15) {
