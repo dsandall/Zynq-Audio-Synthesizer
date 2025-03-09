@@ -26,6 +26,7 @@ module pain_and_suffering #(
     // pointer to the current audio buffer
 );
 
+
   ////// I2C Begin
   // Parameters
   // localparam int SAMPLE_RATE = 44100;  // Sample rate in Hz

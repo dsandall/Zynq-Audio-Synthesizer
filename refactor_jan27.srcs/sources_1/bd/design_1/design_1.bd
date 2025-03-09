@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0xCB24C41FDFE470BB",
+      "boundary_crc": "0xB8EBD581D7CA0F82",
       "device": "xc7z020clg400-1",
       "gen_directory": "../../../../refactor_jan27.gen/sources_1/bd/design_1",
       "name": "design_1",
@@ -45,15 +45,15 @@
           }
         }
       },
-      "sws_4bits": {
+      "GPIO_In_32bits": {
         "mode": "Master",
         "vlnv_bus_definition": "xilinx.com:interface:gpio:1.0",
         "vlnv": "xilinx.com:interface:gpio_rtl:1.0",
         "port_maps": {
           "TRI_I": {
-            "physical_name": "sws_4bits_tri_i",
+            "physical_name": "GPIO_In_32bits_tri_i",
             "direction": "I",
-            "left": "3",
+            "left": "31",
             "right": "0"
           }
         }
@@ -2262,8 +2262,14 @@
         "xci_path": "ip/design_1_axi_gpio_0_0/design_1_axi_gpio_0_0.xci",
         "inst_hier_path": "zybo_board_gpio",
         "parameters": {
+          "C_GPIO2_WIDTH": {
+            "value": "32"
+          },
+          "C_INTERRUPT_PRESENT": {
+            "value": "1"
+          },
           "GPIO2_BOARD_INTERFACE": {
-            "value": "sws_4bits"
+            "value": "Custom"
           },
           "GPIO_BOARD_INTERFACE": {
             "value": "leds_4bits"
@@ -2380,7 +2386,7 @@
       },
       "axi_gpio_0_GPIO2": {
         "interface_ports": [
-          "sws_4bits",
+          "GPIO_In_32bits",
           "zybo_board_gpio/GPIO2"
         ]
       },

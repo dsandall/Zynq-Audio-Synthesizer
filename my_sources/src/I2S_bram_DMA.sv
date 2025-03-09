@@ -2,23 +2,23 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 // Company:
-// Engineer: 
-// 
-// Create Date: 
-// Design Name: 
+// Engineer:
+//
+// Create Date:
+// Design Name:
 // Module Name: bram_general_interface
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
+// Project Name:
+// Target Devices:
+// Tool Versions:
 // Description: Generalized BRAM Interface Template
 //              Reads the first 5 words from BRAM and writes them back in reverse.
-// 
-// Dependencies: 
-// 
+//
+// Dependencies:
+//
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
-// 
+//
 //////////////////////////////////////////////////////////////////////////////////
 
 // WARN: this is currently inefficient, as the bram reads in chunks of
@@ -30,7 +30,7 @@ module I2S_bram_DMA #(
     parameter int NUM_WORDS = 256,
     parameter int CLIP_LEN = NUM_WORDS,
     parameter int VOLUME_BITS = 8,
-    parameter int FREQ_RES_BITS = 4
+    parameter int FREQ_RES_BITS = 8
 ) (
     input wire clk,  // Clock input
     input wire rst,  // Reset input
@@ -60,7 +60,7 @@ module I2S_bram_DMA #(
   // now!)
   //
 
-  shortint shortint_buffer[0:NUM_WORDS - 1];
+  shortint shortint_buffer[NUM_WORDS];
   /*
   reg [31:0] bram_data_buffer[0:NUM_WORDS -1];  // Buffer for data read from BRAM
 
@@ -88,11 +88,11 @@ module I2S_bram_DMA #(
 
   // assign the output
   volume_adjust #(
-      .VOLUME_BITS(4)
+      .VOLUME_BITS(8)
   ) volume_adjust_i (
       .sample_in(player_out),
       .sample_out(current_sample),
-      .volume(volume[3:0])
+      .volume(volume)
   );
 
 
@@ -128,8 +128,8 @@ module I2S_bram_DMA #(
   // Connect BRAM clock to the system clock
   assign BRAM_clk = clk;
 
-  localparam BRAM_DELAY = 2;  // bram read delay
-  localparam BRAM_ADDR_INCREMENT = 4;
+  localparam int BRAM_DELAY = 2;  // bram read delay
+  localparam int BRAM_ADDR_INCREMENT = 4;
 
 
   reg [15:0] index;  // Index for accessing bram_data_buffer

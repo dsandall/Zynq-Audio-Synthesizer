@@ -7,7 +7,7 @@ module zynq_audio_whole_tb (
   reg [3:0] master_vol = 4'h7;
 
   //reg [31:0] audio_ctrl_reg = 32'h0;
-  zynq_example_top zynq_example_top_i (.sws_4bits_tri_i(master_vol));
+  zynq_example_top zynq_example_top_i (.sw(master_vol));
 
 
   initial begin

@@ -2,7 +2,7 @@
 //Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
-//Date        : Tue Feb  4 21:45:57 2025
+//Date        : Sat Feb 22 17:15:11 2025
 //Host        : ice-cubed running 64-bit EndeavourOS Linux
 //Command     : generate_target design_1_wrapper.bd
 //Design      : design_1_wrapper
@@ -40,14 +40,14 @@ module design_1_wrapper
     FIXED_IO_ps_clk,
     FIXED_IO_ps_porb,
     FIXED_IO_ps_srstb,
+    GPIO_In_32bits_tri_i,
     MCLK,
     gpio_ctrl_i_32b_tri_i,
     gpio_ctrl_o_32b_tri_o,
     ip2intc_irpt_0,
     leds_4bits_tri_o,
     peripheral_aresetn_0,
-    slowest_sync_clk_0,
-    sws_4bits_tri_i);
+    slowest_sync_clk_0);
   input [31:0]BRAM_PORTB_0_addr;
   input BRAM_PORTB_0_clk;
   input [31:0]BRAM_PORTB_0_din;
@@ -77,6 +77,7 @@ module design_1_wrapper
   inout FIXED_IO_ps_clk;
   inout FIXED_IO_ps_porb;
   inout FIXED_IO_ps_srstb;
+  input [31:0]GPIO_In_32bits_tri_i;
   output MCLK;
   input [31:0]gpio_ctrl_i_32b_tri_i;
   output [31:0]gpio_ctrl_o_32b_tri_o;
@@ -84,7 +85,6 @@ module design_1_wrapper
   output [3:0]leds_4bits_tri_o;
   output [0:0]peripheral_aresetn_0;
   input slowest_sync_clk_0;
-  input [3:0]sws_4bits_tri_i;
 
   wire [31:0]BRAM_PORTB_0_addr;
   wire BRAM_PORTB_0_clk;
@@ -115,6 +115,7 @@ module design_1_wrapper
   wire FIXED_IO_ps_clk;
   wire FIXED_IO_ps_porb;
   wire FIXED_IO_ps_srstb;
+  wire [31:0]GPIO_In_32bits_tri_i;
   wire MCLK;
   wire [31:0]gpio_ctrl_i_32b_tri_i;
   wire [31:0]gpio_ctrl_o_32b_tri_o;
@@ -122,7 +123,6 @@ module design_1_wrapper
   wire [3:0]leds_4bits_tri_o;
   wire [0:0]peripheral_aresetn_0;
   wire slowest_sync_clk_0;
-  wire [3:0]sws_4bits_tri_i;
 
   design_1 design_1_i
        (.BRAM_PORTB_0_addr(BRAM_PORTB_0_addr),
@@ -154,12 +154,12 @@ module design_1_wrapper
         .FIXED_IO_ps_clk(FIXED_IO_ps_clk),
         .FIXED_IO_ps_porb(FIXED_IO_ps_porb),
         .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb),
+        .GPIO_In_32bits_tri_i(GPIO_In_32bits_tri_i),
         .MCLK(MCLK),
         .gpio_ctrl_i_32b_tri_i(gpio_ctrl_i_32b_tri_i),
         .gpio_ctrl_o_32b_tri_o(gpio_ctrl_o_32b_tri_o),
         .ip2intc_irpt_0(ip2intc_irpt_0),
         .leds_4bits_tri_o(leds_4bits_tri_o),
         .peripheral_aresetn_0(peripheral_aresetn_0),
-        .slowest_sync_clk_0(slowest_sync_clk_0),
-        .sws_4bits_tri_i(sws_4bits_tri_i));
+        .slowest_sync_clk_0(slowest_sync_clk_0));
 endmodule

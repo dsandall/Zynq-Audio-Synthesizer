@@ -6,3 +6,4 @@
 #include "xplatform_info.h"
 
 int FfsSdPolledExample(void);
+int dostuff(FIL* fil);

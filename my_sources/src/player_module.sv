@@ -61,7 +61,12 @@ module player_module #(
   assign valid = 1;
 endmodule
 
-//WARN: not done
+
+// WARN:
+// this is a player that has a set pattern with delays, that tweaks the
+// frequency and volume envelope of the player as time goes on. 
+//
+// it is activated by a trigger, and should be able to interrupt itself
 module once_player_module #(
     parameter int CLIP_LEN,
     parameter int FREQ_RES_BITS,
