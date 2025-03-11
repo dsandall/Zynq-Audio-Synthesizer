@@ -15,8 +15,9 @@
 //      .volume(player_vol)
 //  );
 
-parameter int LUT_SIZE = 32;
-module triangle_lut (
+module triangle_lut #(
+    parameter int LUT_SIZE = 64
+) (
     output shortint lut[LUT_SIZE]
 );
 
@@ -34,7 +35,7 @@ endmodule
 ////////
 //
 module src_triangle #(
-    parameter int CLIP_LEN = 32,
+    parameter int CLIP_LEN = 64,
     parameter int VOLUME_BITS,
     parameter int FREQ_RES_BITS
 ) (
@@ -49,8 +50,8 @@ module src_triangle #(
     input [FREQ_RES_BITS-1 : 0] p_frequency
 );
 
-  shortint triangle_lut[32];
-  triangle_lut triangle_lut_mod_inst (.lut(triangle_lut));
+  shortint triangle_lut[CLIP_LEN];
+  triangle_lut #(.LUT_SIZE(CLIP_LEN)) triangle_lut_mod_inst (.lut(triangle_lut));
 
   shortint current_sample_novol;
   player_module #(
@@ -75,14 +76,15 @@ module src_triangle #(
       .sample_out(current_sample_nofilt),
       .volume(volume)
   );
-
+  /*
   fir_lowpass #() lp_filter (
       .clk (mclk),
       .rst (rst),
       .din (current_sample_nofilt),
       .dout(p_sample_buffer)
   );
-
+*/
+  assign p_sample_buffer = current_sample_nofilt;
 endmodule
 
 
@@ -107,15 +109,15 @@ module button_debouncer_fsm (
   } state_t;
   state_t state = IDLE;
 
-  parameter integer DEBOUNCE_COUNT = 50_000;  // Adjust as needed
+  parameter integer DEBOUNCE_COUNT = 500;  // Adjust as needed
   logic [$clog2(DEBOUNCE_COUNT)-1:0] counter = 0;
 
   always_ff @(posedge clk) begin
     case (state)
       IDLE:   if (btn_raw) state <= WAIT;  // Detect button press
-      WAIT: begin
+      WAIT: begin  // wait for set period to let the bouncing finish
         if (counter < DEBOUNCE_COUNT) counter <= counter + 1;
-        else state <= STABLE;  // Confirm stable button press
+        else state <= STABLE;
       end
       STABLE: if (!btn_raw) state <= IDLE;  // Wait for release
     endcase

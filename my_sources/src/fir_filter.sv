@@ -113,16 +113,16 @@ module fir_filter_adjustable (
 endmodule
 
 module fir_lowpass #(
-    parameter N = 16  // Number of filter taps (Adjust as needed)
+    parameter int N = 16  // Number of filter taps (Adjust as needed)
 ) (
-    input                    clk,  // 256× Clock B
-    input                    rst,  // Reset
-    input  signed     [15:0] din,  // Input sample
-    output reg signed [15:0] dout  // Filtered output
+    input           clk,  // 256× Clock B
+    input           rst,  // Reset
+    input  shortint din,  // Input sample
+    output shortint dout  // Filtered output
 );
 
   // FIR Filter Coefficients (Placeholder values, replace with actual LPF coefficients)
-  reg signed [15:0] coeffs[0:15] = '{
+  shortint coeffs[N] = '{
       -79,
       -136,
       312,
@@ -142,7 +142,7 @@ module fir_lowpass #(
   };
 
   // Shift Register for storing past inputs
-  reg signed [15:0] shift_reg[0:N-1];
+  shortint shift_reg[N];
 
   // Multiply-Accumulate (MAC) Output
   reg signed [31:0] mac_result;

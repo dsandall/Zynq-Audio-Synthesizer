@@ -97,7 +97,7 @@ module zynq_example_top (
   wire [31:0] PS_32b_AudioControlReg_In;
   wire [31:0] PS_32b_AudioControlReg_Out;
 
-  // and the general board gpio
+  // and the general board inputs can be accessed by the arm cores
   wire [31:0] PS_32bIn_AxiReg;
   assign PS_32bIn_AxiReg[3:0] = sw;
   assign PS_32bIn_AxiReg[7:4] = btn;
@@ -193,10 +193,9 @@ module zynq_example_top (
 
   );
 
-  localparam int PLAYER_CLIP_LEN = 32;
   shortint triangle_sample_buffer;  // Buffer for data read from BRAM
   src_triangle #(
-      .CLIP_LEN(PLAYER_CLIP_LEN),
+      .CLIP_LEN(64),
       .VOLUME_BITS(VOLUME_BITS),
       .FREQ_RES_BITS(FREQ_RES_BITS)
   ) src_triangle_i (
@@ -211,24 +210,27 @@ module zynq_example_top (
       .p_frequency(player.freq)
   );
 
-  //
-  // END OF SOURCES
-  //
-  /////////////
-
   /*
-  logic [3:0] button_volume;
-  button_activated_attack_release #() button_activated_i (
-      .mclk(mclk),
-      .rst(rst),
-      .button_raw(btn[0]),
-      .volume(button_volume)
+  // button debouncer module test
+  //  (debouncer not working yet)
+  logic stab;
+  logic flip;
+  assign led[0] = flip;
+  button_debouncer_fsm instreanstrd (
+      .clk(mclk),
+      .btn_raw(btn[0]),
+      .btn_stable(stab)
   );
-  */
+  always_ff @(posedge stab) begin
+    flip <= ~flip;
+  end
+
+  assign led[1] = ~flip;
+  assign led[2] = 0;
+  assign led[3] = btn[1] | btn[2];
+*/
 
   /*
-  // WARN: Not done
-
   localparam ONESHOT_CLIP_LEN = 32;
   shortint oneshot_sample_buffer;  // Buffer for data read from BRAM
   src_oneshot_808 #(
@@ -246,7 +248,21 @@ module zynq_example_top (
       //.p_frequency(player_source_freq)
   );
 */
+  //
+  // END OF SOURCES
+  //
+  /////////////
 
+  /*
+  logic [3:0] button_volume;
+  button_activated_attack_release #() button_activated_i (
+      .mclk(mclk),
+      .rst(rst),
+      .button_ra
+      w(btn[0]),
+      .volume(button_volume)
+  );
+  */
   /////////////
   //
   // Audio Combinator prototype

@@ -109,7 +109,7 @@ void playBass(uint8_t freq) {
   // low pitch for remainder
   // long fadeout
   //
-  
+
   writePlayerVol(0);
   writePlayerFreq(freq);
   writePlayerVol(7);
@@ -143,34 +143,71 @@ void playBass(uint8_t freq) {
 };
 
 void playKick(uint8_t freq_add) {
-  int scale = 5000;
+  int scale = 2500;
   int pitchFall_delay = 3;
-  int volumeFall_delay = 9;
+  const int pitchRise = 8;
+  int volumeFall_delay = 8;
   // high pitch for a sec
   // low pitch for remainder
   // long fadeout
+
+  // hw implementations:
+  // oneshot triggering (register write 1, becomes 0 when "handled", can be
+  // interrupted)
   //
-  writeBramVol(7);
-  writeBramFreq(1 + freq_add);
-  usleep(pitchFall_delay * scale);
-  writeBramFreq(2 + freq_add);
-  usleep(pitchFall_delay * scale);
-  writeBramFreq(3 + freq_add);
-  usleep(pitchFall_delay * scale);
-  writeBramFreq(4 + freq_add);
-  usleep(pitchFall_delay * scale);
-  writeBramVol(6);
-  usleep(volumeFall_delay * scale);
-  writeBramVol(5);
-  usleep(volumeFall_delay * scale);
-  writeBramVol(4);
-  usleep(volumeFall_delay * scale);
-  writeBramVol(3);
-  usleep(volumeFall_delay * scale);
-  writeBramVol(2);
-  usleep(volumeFall_delay * scale);
+  // simple time controllers for linear/constant freq and volume changes
+  //
+  // filters with coefficients that make sense
+  //
+
+  // jungle drum loop
+  // https://youtu.be/Hal5TuhjNDE
+
+  // TODO: use this to create hihat - feed in high passed noise, and make
+  // no attack with fast decay
+  // https://www.youtube.com/watch?v=lycuJKFHJFw&pp=ygUqaG93IHRvIG1ha2Ugc3ludGhlc2l6ZXIgaGloYXQgZnJvbSBzY3JhdGNo
+
+  // TODO: make snare - start with kick drum, but high-low pitch at begin, and
+  // add white noise spike/fade at begin https://youtu.be/Ky3yg8ghpo8
+
+  const uint8_t volStart = 64;
+
+  writeBramVol(volStart);
+
+  for (uint8_t f = freq_add; f < freq_add + pitchRise; f++) {
+    writeBramFreq(f);
+    usleep(pitchFall_delay * scale);
+  }
+
+  for (uint8_t v = volStart; v > 0; v--) {
+    writeBramVol(v);
+    usleep(volumeFall_delay * scale);
+  }
+
   writeBramVol(0);
   writeBramFreq(0);
+
+  //   writeBramVol(7);
+  //   writeBramFreq(1 + freq_add);
+  //   usleep(pitchFall_delay * scale);
+  //   writeBramFreq(2 + freq_add);
+  //   usleep(pitchFall_delay * scale);
+  //   writeBramFreq(3 + freq_add);
+  //   usleep(pitchFall_delay * scale);
+  //   writeBramFreq(4 + freq_add);
+  //   usleep(pitchFall_delay * scale);
+  //   writeBramVol(6);
+  //   usleep(volumeFall_delay * scale);
+  //   writeBramVol(5);
+  //   usleep(volumeFall_delay * scale);
+  //   writeBramVol(4);
+  //   usleep(volumeFall_delay * scale);
+  //   writeBramVol(3);
+  //   usleep(volumeFall_delay * scale);
+  //   writeBramVol(2);
+  //   usleep(volumeFall_delay * scale);
+  //   writeBramVol(0);
+  //   writeBramFreq(0);
 };
 
 int my_init() {
@@ -221,20 +258,17 @@ int main() {
   //   }
 
   *AudioCrtlReg = 0x00000000;
-  //uint8_t refresh_en = 1;
-  //writeRefresh(refresh_en);
-  //uint8_t refresh_bram = 1;
-  //writeReg_RefreshBram(refresh_bram);
-  writePlayerVol(0x0);
-  writeBramVol(0x7);
+  // uint8_t refresh_en = 1;
+  // writeRefresh(refresh_en);
+  // uint8_t refresh_bram = 1;
+  // writeReg_RefreshBram(refresh_bram);
+  writePlayerVol(0);
+  writeBramVol(0);
   writePlayerFreq(0); // samples
   writeBramFreq(0);   // 9, 12, 15 introduce glitching (but only at some vols)
-                    // (and other freqs glitch at other vols..)
-
-  FIL fil;
+                      // (and other freqs glitch at other vols..)
 
   while (1) {
-
 
     // // write loop iteration to bram
     // XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, 0, loop_count++);
@@ -257,72 +291,73 @@ int main() {
     */
     // xil_printf("f is: %d\n", f);
 
-    /*
-        // interface with SD card
-            int Status;
-            xil_printf("SD Polled File System Example Test \r\n");
-
-            Status = FfsSdPolledExample();
-            if (Status != XST_SUCCESS) {
-                    xil_printf("SD Polled File System Example Test failed
-       \r\n"); return XST_FAILURE;
-            }
-            xil_printf("Successfully ran SD Polled File System Example Test
-       \r\n");
-
-
-            // Status = dostuff(&fil);
-            // if (Status != XST_SUCCESS) {
-            // 	xil_printf("SD Polled File System Example Test failed \r\n");
-            // 	return XST_FAILURE;
-            // }
-            // xil_printf("Successfully ran SD Polled File System Example Test
-       \r\n");
-    */
-
-    xil_printf("reg is 0x%08X\n\r", *AudioCrtlReg);
-
     char c = inbyte();
 
     static uint8_t f = 0;
-    static int player_v = 0;
+    static uint8_t player_v = 0;
 
     if (c == '\r') {
-      
+
       writePlayerVol(player_v++);
 
-      if (player_v > 4){
-        player_v = 0;
-      }
-//      refresh_en = refresh_en ? 0 : 1;
-//      xil_printf("refresh_main_buffer is %d\n", refresh_en);
-//      writeRefresh(refresh_en);
-//
-//    } else if (c == 'x') {
-//      refresh_bram = refresh_bram ? 0 : 1;
-//      xil_printf("refresh_bram is %d\n", refresh_bram);
-//      writeReg_RefreshBram(refresh_bram);
+      //      refresh_en = refresh_en ? 0 : 1;
+      //      xil_printf("refresh_main_buffer is %d\n", refresh_en);
+      //      writeRefresh(refresh_en);
+      //
+      //    } else if (c == 'x') {
+      //      refresh_bram = refresh_bram ? 0 : 1;
+      //      xil_printf("refresh_bram is %d\n", refresh_bram);
+      //      writeReg_RefreshBram(refresh_bram);
 
     } else if (c == '+') {
-        f++;
-        writePlayerFreq(f);
+      f++;
+      writePlayerFreq(f);
 
     } else if (c == '-') {
-        f--;
-        writePlayerFreq(f);
+      f--;
+      writePlayerFreq(f);
 
     } else if (c == ' ') {
-      xil_printf("%d\n",f);
-      //writePlayerFreq(f);
-      //playBass(f);
+      xil_printf("%d\n", f);
+      // writePlayerFreq(f);
+      // playBass(f);
 
     } else {
-      xil_printf("%d\n",c);
+      xil_printf("%d\n", c);
       playKick(c % 8);
-
     }
+
+    const int tri_octave = f / 12;
+    const int tri_semitone = f % 12;
+
+    xil_printf("triangle octave %d, semitone %d\n\r", tri_octave, tri_semitone);
+    xil_printf("reg is 0x%08X\n\r", *AudioCrtlReg);
   }
 
   cleanup_platform();
   return 0;
 }
+
+/*
+FIL fil;
+    // interface with SD card
+        int Status;
+        xil_printf("SD Polled File System Example Test \r\n");
+
+        Status = FfsSdPolledExample();
+        if (Status != XST_SUCCESS) {
+                xil_printf("SD Polled File System Example Test failed
+   \r\n"); return XST_FAILURE;
+        }
+        xil_printf("Successfully ran SD Polled File System Example Test
+   \r\n");
+
+
+        // Status = dostuff(&fil);
+        // if (Status != XST_SUCCESS) {
+        // 	xil_printf("SD Polled File System Example Test failed \r\n");
+        // 	return XST_FAILURE;
+        // }
+        // xil_printf("Successfully ran SD Polled File System Example Test
+   \r\n");
+*/

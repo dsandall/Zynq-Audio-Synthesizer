@@ -14,6 +14,10 @@ module player_module #(
     output valid
 );
 
+  // TODO: relate freq_prescale to clip_len?
+  // this would... normalize each clip to be the same period? that would be good
+  // for playing consistent frequencies across sources
+
   // playing the sample
   // mclk only (no rotating writes yet)
 
@@ -21,7 +25,21 @@ module player_module #(
 
   int freq_counter;
   int freq_counter_reload;
-  assign freq_counter_reload = (FREQ_PRESCALE * (p_frequency + 1));
+
+
+  //assign freq_counter_reload = (FREQ_PRESCALE * (p_frequency + 1));
+  int semi_mult;
+  pitch_shift_lut pitch_i (
+      .n(semitone),
+      .period_mult(semi_mult)
+  );
+  int oct = p_frequency / 12;
+  int semitone = p_frequency % 12;
+  localparam int base_p = 10;
+  localparam int highest_oct = 10;
+  assign freq_counter_reload = base_p * semi_mult << (highest_oct - oct) >> 16;
+  // 2^(8-oct) * 2^(-n/12) * base_p = new_p
+
   always @(posedge mclk or posedge rst) begin
 
     if (rst) begin
@@ -55,7 +73,7 @@ module player_module #(
   assign player_sample = this_sample + next_sample;
 */
 
-  // alternatively, use no linear interpolation: 
+  // alternatively, use no linear interpolation:
   assign player_sample = data_buffer[player_sample_index];
 
   assign valid = 1;
