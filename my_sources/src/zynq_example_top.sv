@@ -221,7 +221,7 @@ module zynq_example_top (
 
       .p_sample_buffer(oneshot_sample_buffer),
 
-      .enable(sw[0])  // WARN: Fuck it no debouncer, it might work anyway
+      .trig(sw[0])  // WARN: Fuck it no debouncer, it might work anyway
   );
 
   // button debouncer module test
