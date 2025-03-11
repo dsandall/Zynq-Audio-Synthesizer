@@ -324,7 +324,7 @@ int main() {
 
     } else {
       xil_printf("%d\n", c);
-      playKick(c % 8);
+      playKick((c % 8) * 12);
     }
 
     const int tri_octave = f / 12;

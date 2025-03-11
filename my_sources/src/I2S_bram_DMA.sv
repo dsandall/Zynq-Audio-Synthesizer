@@ -75,8 +75,7 @@ module I2S_bram_DMA #(
   shortint player_out;
   player_module #(
       .CLIP_LEN(CLIP_LEN),
-      .FREQ_RES_BITS(FREQ_RES_BITS),
-      .FREQ_PRESCALE(256)
+      .FREQ_RES_BITS(FREQ_RES_BITS)
   ) player_module_i (
       .mclk(mclk),
       .rst(rst),

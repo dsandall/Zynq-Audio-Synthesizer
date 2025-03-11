@@ -1,20 +1,19 @@
 module player_module #(
     parameter int CLIP_LEN,
-    parameter int FREQ_RES_BITS,
-    parameter int FREQ_PRESCALE
+    parameter int FREQ_RES_BITS
     // 256: update after 256 mclks (1 to 1 samples)
     // higher: lower frequencies
 ) (
 
     input mclk,  // Master Clock (256x sample rate)
     input rst,
-    input [FREQ_RES_BITS-1 : 0] p_frequency,
-    input shortint data_buffer[0:CLIP_LEN-1],
+    input [FREQ_RES_BITS-1:0] p_frequency,
+    input shortint data_buffer[CLIP_LEN],
     output shortint player_sample,  // the linearly interpolated sample
     output valid
 );
 
-  // TODO: relate freq_prescale to clip_len?
+  // TODO: relate freq prescale to clip_len?
   // this would... normalize each clip to be the same period? that would be good
   // for playing consistent frequencies across sources
 
@@ -35,9 +34,11 @@ module player_module #(
   );
   int oct = p_frequency / 12;
   int semitone = p_frequency % 12;
-  localparam int base_p = 10;
+  localparam int base_p = 10 * 61;
   localparam int highest_oct = 10;
-  assign freq_counter_reload = base_p * semi_mult << (highest_oct - oct) >> 16;
+  assign freq_counter_reload = base_p * semi_mult << (highest_oct - oct) >> (16 + $clog2(
+          CLIP_LEN
+      ));  // thats a mouthful
   // 2^(8-oct) * 2^(-n/12) * base_p = new_p
 
   always @(posedge mclk or posedge rst) begin
@@ -46,7 +47,6 @@ module player_module #(
       player_sample_index = 0;
       freq_counter = 0;
     end else begin
-
       // increment the player index
       if (freq_counter >= freq_counter_reload) begin
         freq_counter <= 0;
@@ -54,7 +54,6 @@ module player_module #(
       end else begin
         freq_counter++;
       end
-
     end
 
   end
@@ -77,32 +76,4 @@ module player_module #(
   assign player_sample = data_buffer[player_sample_index];
 
   assign valid = 1;
-endmodule
-
-
-// WARN:
-// this is a player that has a set pattern with delays, that tweaks the
-// frequency and volume envelope of the player as time goes on. 
-//
-// it is activated by a trigger, and should be able to interrupt itself
-module once_player_module #(
-    parameter int CLIP_LEN,
-    parameter int FREQ_RES_BITS,
-    parameter int FREQ_PRESCALE
-    // 256: update after 256 mclks (1 to 1 samples)
-    // higher: lower frequencies
-) (
-
-    input mclk,  // Master Clock (256x sample rate)
-    input rst,
-    output valid,
-    input [FREQ_RES_BITS-1 : 0] p_frequency,
-    output reg [$clog2(CLIP_LEN)-1:0] player_sample_index,
-
-    // new for once player
-    input shortint duration
-);
-
-
-
 endmodule

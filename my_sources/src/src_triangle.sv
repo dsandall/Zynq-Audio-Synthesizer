@@ -56,8 +56,7 @@ module src_triangle #(
   shortint current_sample_novol;
   player_module #(
       .CLIP_LEN(CLIP_LEN),
-      .FREQ_RES_BITS(FREQ_RES_BITS),
-      .FREQ_PRESCALE(512)
+      .FREQ_RES_BITS(FREQ_RES_BITS)
   ) player_module_i (
       .mclk(mclk),
       .rst(rst),
@@ -113,11 +112,15 @@ module button_debouncer_fsm (
   logic [$clog2(DEBOUNCE_COUNT)-1:0] counter = 0;
 
   always_ff @(posedge clk) begin
-    case (state)
+    unique case (state)
       IDLE:   if (btn_raw) state <= WAIT;  // Detect button press
-      WAIT: begin  // wait for set period to let the bouncing finish
+      WAIT: begin
+        // wait for set period to let the bouncing finish
         if (counter < DEBOUNCE_COUNT) counter <= counter + 1;
-        else state <= STABLE;
+        else begin
+          state   <= STABLE;
+          counter <= 0;
+        end
       end
       STABLE: if (!btn_raw) state <= IDLE;  // Wait for release
     endcase
@@ -129,13 +132,15 @@ endmodule
 
 
 
-
+//
+// button activated volume envelope with attack and release
+//
 module button_activated_attack_release #(
     parameter int CLIP_LEN = 32,
-    parameter int VOLUME_BITS = 4,  // Volume range: 0 to 7 (3-bit value)
-    parameter int FREQ_RES_BITS = 4  // Frequency resolution bits
+    parameter int VOLUME_BITS = 8,
+    parameter int FREQ_RES_BITS = 8
 ) (
-    input logic mclk,  // Master Clock (256x sample rate)
+    input logic mclk,
     input logic rst,
 
     input logic button_raw,
@@ -160,8 +165,6 @@ module button_activated_attack_release #(
   } state_t;
   state_t state = IDLE;
 
-
-
   // Volume ramp control
   logic [$clog2(600_000)-1:0] attack_counter = 0;  // ~50ms at high freq
   logic [$clog2(6_000_000)-1:0] release_counter = 0;  // ~500ms
@@ -171,7 +174,7 @@ module button_activated_attack_release #(
       state  <= IDLE;
       volume <= 0;
     end else begin
-      case (state)
+      unique case (state)
         // Wait for button press, keep volume at 0
         IDLE: begin
           volume <= 0;

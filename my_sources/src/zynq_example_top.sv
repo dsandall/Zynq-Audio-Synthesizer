@@ -210,7 +210,20 @@ module zynq_example_top (
       .p_frequency(player.freq)
   );
 
-  /*
+  shortint oneshot_sample_buffer;  // Buffer for data read from BRAM
+  src_oneshot_808 #(
+      .CLIP_LEN(64),
+      .VOLUME_BITS(VOLUME_BITS),
+      .FREQ_RES_BITS(FREQ_RES_BITS)
+  ) src_oneshot_808_i (
+      .mclk(audio_cons_mclk),
+      .rst (rst),
+
+      .p_sample_buffer(oneshot_sample_buffer),
+
+      .enable(sw[0])  // WARN: Fuck it no debouncer, it might work anyway
+  );
+
   // button debouncer module test
   //  (debouncer not working yet)
   logic stab;
@@ -218,7 +231,7 @@ module zynq_example_top (
   assign led[0] = flip;
   button_debouncer_fsm instreanstrd (
       .clk(mclk),
-      .btn_raw(btn[0]),
+      .btn_raw(sw[1]),
       .btn_stable(stab)
   );
   always_ff @(posedge stab) begin
@@ -228,26 +241,7 @@ module zynq_example_top (
   assign led[1] = ~flip;
   assign led[2] = 0;
   assign led[3] = btn[1] | btn[2];
-*/
 
-  /*
-  localparam ONESHOT_CLIP_LEN = 32;
-  shortint oneshot_sample_buffer;  // Buffer for data read from BRAM
-  src_oneshot_808 #(
-      .CLIP_LEN(ONESHOT_CLIP_LEN),
-      .VOLUME_BITS(VOLUME_BITS),
-      .FREQ_RES_BITS(FREQ_RES_BITS)
-  ) src_oneshot_808_i (
-      .mclk(audio_cons_mclk),
-      .rst (rst),
-
-      .p_sample_buffer(oneshot_sample_buffer),
-
-      .enable(btn[0])
-      //.volume(player_source_vol),
-      //.p_frequency(player_source_freq)
-  );
-*/
   //
   // END OF SOURCES
   //
@@ -263,6 +257,7 @@ module zynq_example_top (
       .volume(button_volume)
   );
   */
+
   /////////////
   //
   // Audio Combinator prototype
@@ -284,7 +279,7 @@ module zynq_example_top (
 
       //output_filter_input <= bram_sample_buffer + triangle_sample_buffer;  // Store in buffer
       //m_sample_buffer[before_index] <= output_filtered;
-      m_sample_buffer[before_index] <= bram_sample_buffer + triangle_sample_buffer;
+      m_sample_buffer[before_index] <= bram_sample_buffer + triangle_sample_buffer + oneshot_sample_buffer;
     end
 
   end
