@@ -10,10 +10,9 @@ module src_oneshot_808 #(
     output shortint p_sample_buffer,
     input trig
 );
-  // WARN:
-  // TODO:
-  shortint triangle_lut[CLIP_LEN];
-  triangle_lut #(.LUT_SIZE(CLIP_LEN)) triangle_lut_mod_inst (.lut(triangle_lut));
+
+  shortint sine_lut[CLIP_LEN];
+  sine_lut #(.LUT_SIZE(CLIP_LEN)) sine_lut_i (.lut(sine_lut));
 
   logic [VOLUME_BITS-1:0] volume_env;
   oneshot_enveloper envelope_i (
@@ -23,7 +22,7 @@ module src_oneshot_808 #(
       .volume_out(volume_env)
   );
 
-  static reg [FREQ_RES_BITS-1:0] freq = 12 * 4;  // WARN: middle C
+  static reg [FREQ_RES_BITS-1:0] freq = 12 * 1;
   shortint current_sample_novol;
   player_module #(
       .CLIP_LEN(CLIP_LEN),
@@ -31,7 +30,7 @@ module src_oneshot_808 #(
   ) player_module_i (
       .mclk(mclk),
       .rst(rst),
-      .data_buffer(triangle_lut),
+      .data_buffer(sine_lut),
       .p_frequency(freq),
       .player_sample(current_sample_novol),
       .valid()
@@ -44,7 +43,7 @@ module src_oneshot_808 #(
   ) volume_adjust_tri (
       .sample_in(current_sample_novol),
       .sample_out(p_sample_buffer),
-      .volume(volume_env)  // WARN: sloppy volume scalar
+      .volume(volume_env)
   );
 
 endmodule
@@ -75,8 +74,6 @@ module oneshot_enveloper #(
     SUSTAIN,
     RELEASE
   } state_t;
-
-
 
   state_t state = IDLE;
 

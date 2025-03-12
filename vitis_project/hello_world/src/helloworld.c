@@ -294,11 +294,11 @@ int main() {
     char c = inbyte();
 
     static uint8_t f = 0;
-    static uint8_t player_v = 0;
+    static uint8_t v = 0;
 
     if (c == '\r') {
 
-      writePlayerVol(player_v++);
+      // writePlayerVol(player_v++);
 
       //      refresh_en = refresh_en ? 0 : 1;
       //      xil_printf("refresh_main_buffer is %d\n", refresh_en);
@@ -310,17 +310,28 @@ int main() {
       //      writeReg_RefreshBram(refresh_bram);
 
     } else if (c == '+') {
-      f++;
-      writePlayerFreq(f);
+      v++;
 
     } else if (c == '-') {
-      f--;
-      writePlayerFreq(f);
+      v--;
 
-    } else if (c == ' ') {
-      xil_printf("%d\n", f);
-      // writePlayerFreq(f);
-      // playBass(f);
+    } else if (c == 'y') {
+      // freq up
+      f++;
+
+    } else if (c == 'w') {
+      // freq down
+      f--;
+
+    } else if (c == 'v') {
+      // apply to sine
+      writeBramVol(v);
+      writeBramFreq(f);
+
+    } else if (c == 'm') {
+      // apply to triangle
+      writePlayerVol(v);
+      writePlayerFreq(f);
 
     } else {
       xil_printf("%d\n", c);

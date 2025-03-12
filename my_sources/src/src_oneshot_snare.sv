@@ -21,11 +21,10 @@ module src_oneshot_snare #(
     output shortint p_sample_buffer,
     input trig
 );
-  // WARN:
-  // TODO:
-  shortint triangle_lut[CLIP_LEN];
-  triangle_lut #(.LUT_SIZE(CLIP_LEN)) triangle_lut_mod_inst (.lut(triangle_lut));
+  shortint sine_lut[CLIP_LEN];
+  sine_lut #(.LUT_SIZE(CLIP_LEN)) sine_lut_mod_inst (.lut(sine_lut));
 
+  // WARN: same as the 808 vol env right now
   logic [VOLUME_BITS-1:0] volume_env;
   oneshot_enveloper envelope_i (
       .mclk(mclk),
@@ -42,7 +41,7 @@ module src_oneshot_snare #(
   ) player_module_i (
       .mclk(mclk),
       .rst(rst),
-      .data_buffer(triangle_lut),
+      .data_buffer(sine_lut),
       .p_frequency(freq),
       .player_sample(current_sample_novol),
       .valid()
@@ -55,7 +54,7 @@ module src_oneshot_snare #(
   ) volume_adjust_tri (
       .sample_in(current_sample_novol),
       .sample_out(p_sample_buffer),
-      .volume(volume_env)  // WARN: sloppy volume scalar
+      .volume(volume_env)
   );
 
 endmodule
@@ -63,7 +62,7 @@ endmodule
 
 
 
-
+//// TEST:
 // WARN: From Chat
 module my_module (
     input  logic       clk,               // Clock input

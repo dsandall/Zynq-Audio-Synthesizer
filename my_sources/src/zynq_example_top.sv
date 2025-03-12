@@ -20,26 +20,20 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Define a struct to group related audio control signals
 
-localparam int SAMPLE_BITS = 16;
 localparam int M_BUF_LEN = 256;
-localparam int FREQ_RES_BITS = 8;
+localparam int FREQ_BITS = 8;
 localparam int VOLUME_BITS = 8;
 
 // 16 bits
 typedef struct {
-  logic [FREQ_RES_BITS-1:0] freq;
-  logic [VOLUME_BITS-1:0]   vol;
+  logic [FREQ_BITS-1:0]   freq;
+  logic [VOLUME_BITS-1:0] vol;
 } SourceControlReg_t;
 
-
-//typedef struct {
-//  logic [3:0]             player_source_freq;  // Player frequency
-//  logic [3:0]             bram_source_freq;    // BRAM frequency
-//  logic                   refresh;             // Refresh signal
-//  logic                   refresh_bram;        // Refresh signal for BRAM
-//  logic [VOLUME_BITS-1:0] player_source_vol;   // Player volume
-//  logic [VOLUME_BITS-1:0] bram_source_vol;     // BRAM volume
-//} AudioControlReg_t;
+typedef struct {
+  SourceControlReg_t bram;
+  SourceControlReg_t triangle_player;
+} AudioControlReg_t;
 
 
 module zynq_example_top (
@@ -124,13 +118,19 @@ module zynq_example_top (
   //always_comb begin
   //end
 
+
+  //WARN:
+  //TEST:
+  AudioControlReg_t  skibidi;
+  //assign skibidi = PS_32b_AudioControlReg_Out[31:0];
+
   assign player.freq = PS_32b_AudioControlReg_Out[7:0];
   assign bram.freq = PS_32b_AudioControlReg_Out[15:8];
   assign player.vol = PS_32b_AudioControlReg_Out[23:16];
   assign bram.vol = PS_32b_AudioControlReg_Out[31:24];
 
-  //assign player.refresh = PS_32b_AudioControlReg_Out[8]; // TODO: map this to something not in this struct
-  //assign bram.refresh = PS_32b_AudioControlReg_Out[9];
+  //----------------------------------------------------------
+
 
   /////////////
   //
@@ -141,7 +141,7 @@ module zynq_example_top (
   shortint m_sample_buffer[M_BUF_LEN];
 
   pain_and_suffering #(
-      .SAMPLE_BITS(SAMPLE_BITS),
+      .SAMPLE_BITS(16),
       .CLIP_LEN(M_BUF_LEN),
       .VOLUME_BITS(VOLUME_BITS)
   ) pain_i (
@@ -156,18 +156,20 @@ module zynq_example_top (
       .sample_index(m_sample_index)
   );
 
+
+  //----------------------------------------------------------
+
+
   /////////////
   //
   // AUDIO SOURCES
   //
 
-  localparam int BRAM_CLIP_LEN = 256;
   shortint bram_sample_buffer;  // Buffer for data read from BRAM
-  wire bram_source_valid;
   I2S_bram_DMA #(
-      .NUM_WORDS(BRAM_CLIP_LEN),
+      .NUM_WORDS(256),
       .VOLUME_BITS(VOLUME_BITS),
-      .FREQ_RES_BITS(FREQ_RES_BITS)
+      .FREQ_RES_BITS(FREQ_BITS)
   ) I2S_bram_DMA_i (
       .clk(clk),  // System clock
       .rst(rst),  // System reset
@@ -181,14 +183,14 @@ module zynq_example_top (
       .BRAM_we  (BRAM_we),    // BRAM write enable
 
       //.bram_data_buffer(bram_data_buffer),
-      .refresh(1),
+      .refresh(1),  // TODO:
 
       // Player connections
       .mclk(audio_cons_mclk),
-      .volume(bram.vol),
-      .p_frequency(bram.freq),
+      .volume(0),  // WARN:
+      .p_frequency(0),  // WARN:
 
-      .valid(bram_source_valid),
+      .valid(),
       .current_sample(bram_sample_buffer)
 
   );
@@ -197,33 +199,60 @@ module zynq_example_top (
   src_triangle #(
       .CLIP_LEN(64),
       .VOLUME_BITS(VOLUME_BITS),
-      .FREQ_RES_BITS(FREQ_RES_BITS)
+      .FREQ_RES_BITS(FREQ_BITS)
   ) src_triangle_i (
       .mclk(audio_cons_mclk),
-      .rst (rst),
-
-      .valid(),
-
+      .rst(rst),
       .p_sample_buffer(triangle_sample_buffer),
-
+      .valid(),
       .volume(player.vol),
       .p_frequency(player.freq)
   );
 
-  shortint oneshot_sample_buffer;  // Buffer for data read from BRAM
+  shortint sine_sample_buffer;
+  src_sine #(
+      .CLIP_LEN(64),
+      .VOLUME_BITS(VOLUME_BITS),
+      .FREQ_RES_BITS(FREQ_BITS)
+  ) src_sine_i (
+      .mclk(audio_cons_mclk),
+      .rst(rst),
+      .p_sample_buffer(sine_sample_buffer),
+      .valid(),
+      .volume(bram.vol),
+      .p_frequency(bram.freq)
+  );
+
+  shortint oneshot_808_sample_buffer;  // Buffer for data read from BRAM
   src_oneshot_808 #(
       .CLIP_LEN(64),
       .VOLUME_BITS(VOLUME_BITS),
-      .FREQ_RES_BITS(FREQ_RES_BITS)
+      .FREQ_RES_BITS(FREQ_BITS)
   ) src_oneshot_808_i (
       .mclk(audio_cons_mclk),
       .rst (rst),
 
-      .p_sample_buffer(oneshot_sample_buffer),
+      .p_sample_buffer(oneshot_808_sample_buffer),
 
-      .trig(sw[0])  // WARN: Fuck it no debouncer, it might work anyway
+      .trig(btn[0])  // WARN: Fuck it no debouncer, it might work anyway
   );
 
+
+  shortint oneshot_snare_sample_buffer;  // Buffer for data read from BRAM
+  src_oneshot_snare #(
+      .CLIP_LEN(64),
+      .VOLUME_BITS(VOLUME_BITS),
+      .FREQ_RES_BITS(FREQ_BITS)
+  ) src_oneshot_snare_i (
+      .mclk(audio_cons_mclk),
+      .rst (rst),
+
+      .p_sample_buffer(oneshot_snare_sample_buffer),
+
+      .trig(btn[1])  // WARN: Fuck it no debouncer, it might work anyway
+  );
+
+  /*
   // button debouncer module test
   //  (debouncer not working yet)
   logic stab;
@@ -241,6 +270,7 @@ module zynq_example_top (
   assign led[1] = ~flip;
   assign led[2] = 0;
   assign led[3] = btn[1] | btn[2];
+  */
 
   //
   // END OF SOURCES
@@ -258,6 +288,10 @@ module zynq_example_top (
   );
   */
 
+
+  //----------------------------------------------------------
+
+
   /////////////
   //
   // Audio Combinator prototype
@@ -267,20 +301,22 @@ module zynq_example_top (
   shortint output_filtered, output_filter_input;
   int before_index;
 
-  int refresh = 1;
   always_ff @(negedge audio_I2S_pblrc) begin
 
-    if (refresh) begin
-      if (m_sample_index < 1) begin
-        before_index <= (M_BUF_LEN - 1);  // arbitrary lag amount
-      end else begin
-        before_index <= m_sample_index - 1;
-      end
-
-      //output_filter_input <= bram_sample_buffer + triangle_sample_buffer;  // Store in buffer
-      //m_sample_buffer[before_index] <= output_filtered;
-      m_sample_buffer[before_index] <= bram_sample_buffer + triangle_sample_buffer + oneshot_sample_buffer;
+    if (m_sample_index < 1) begin
+      before_index <= (M_BUF_LEN - 1);  // arbitrary lag amount
+    end else begin
+      before_index <= m_sample_index - 1;
     end
+
+    //output_filter_input <= bram_sample_buffer + triangle_sample_buffer;  // Store in buffer
+    //m_sample_buffer[before_index] <= output_filtered;
+    m_sample_buffer[before_index] <=
+      bram_sample_buffer +
+      triangle_sample_buffer +
+      sine_sample_buffer +
+      oneshot_snare_sample_buffer +
+      oneshot_808_sample_buffer;
 
   end
 
@@ -293,11 +329,9 @@ module zynq_example_top (
   );
   */
 
-  //assign bram_sample_buffer[i] = bram_data_buffer[i][SAMPLE_BITS-1:0]; //WARN: TEMPORARY GAIN SHIFT FOR BRAM SOURCE
-  //assign m_sample_buffer[i] = (bram_sample_buffer[i] >>> bram_source_vol) + (player_sample_buffer);  // Store in buffer
 
+  //----------------------------------------------------------
 
-  //------------------
 
   /////////////
   //
