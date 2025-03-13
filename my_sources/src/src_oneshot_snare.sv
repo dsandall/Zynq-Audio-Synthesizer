@@ -10,7 +10,7 @@
 
 
 module src_oneshot_snare #(
-    parameter int CLIP_LEN = 32,
+    parameter int CLIP_LEN = 64,
     parameter int VOLUME_BITS = 8,
     parameter int FREQ_RES_BITS = 8
 ) (
@@ -56,6 +56,37 @@ module src_oneshot_snare #(
       .sample_out(p_sample_buffer),
       .volume(volume_env)
   );
+
+endmodule
+
+
+// TODO: another option for producing random samples, could be lighter on hardware
+module lfsr_random_noise (
+    input             clk,       // Clock signal
+    input             rst,       // Reset signal
+    output reg [15:0] noise_out  // 16-bit signed random noise output
+);
+
+  // LFSR state register (16-bit)
+  reg [15:0] lfsr_reg;
+
+  // Define the feedback polynomial: x^16 + x^14 + x^13 + x^11 + 1
+  wire feedback = lfsr_reg[15] ^ lfsr_reg[13] ^ lfsr_reg[12] ^ lfsr_reg[10];
+
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      // Reset the LFSR to a non-zero value (you can choose any non-zero value)
+      lfsr_reg  <= 16'hACE1;  // Some non-zero value
+      noise_out <= 16'sd0;  // Reset the output to zero
+    end else begin
+      // Shift the LFSR and apply feedback
+      lfsr_reg <= {lfsr_reg[14:0], feedback};
+
+      // Convert the LFSR value to signed 16-bit noise (signed interpretation)
+      // Assuming that the most significant bit is the sign bit
+      noise_out <= (lfsr_reg[15]) ? -lfsr_reg : lfsr_reg;  // Apply 2's complement for signed output
+    end
+  end
 
 endmodule
 

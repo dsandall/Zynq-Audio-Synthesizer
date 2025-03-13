@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Define a struct to group related audio control signals
 
-localparam int M_BUF_LEN = 256;
+localparam int M_BUF_LEN = 32;
 localparam int FREQ_BITS = 8;
 localparam int VOLUME_BITS = 8;
 
@@ -140,11 +140,10 @@ module zynq_example_top (
       .audio_I2S_pblrc(audio_I2S_pblrc),
       .audio_I2S_pbdat(audio_I2S_pbdat),
       .mclk(audio_cons_mclk),
-      .volume({sw[3:1], 1'b1}),  // master vol = switches
+      .volume(4'b1111),
       .sample(m_sample_buffer),
       .sample_index(m_sample_index)
   );
-
 
   //----------------------------------------------------------
 
@@ -155,6 +154,10 @@ module zynq_example_top (
   //
 
   shortint bram_sample_buffer;  // Buffer for data read from BRAM
+  shortint triangle_sample_buffer;
+  shortint sine_sample_buffer;
+
+  /*
   I2S_bram_DMA #(
       .NUM_WORDS(256),
       .VOLUME_BITS(VOLUME_BITS),
@@ -182,64 +185,43 @@ module zynq_example_top (
       .valid(),
       .current_sample(bram_sample_buffer)
   );
+*/
 
-  shortint triangle_sample_buffer;
   src_triangle #(
-      .CLIP_LEN(64),
+      .CLIP_LEN(256),
       .VOLUME_BITS(VOLUME_BITS),
       .FREQ_RES_BITS(FREQ_BITS)
   ) src_triangle_i (
       .mclk(audio_cons_mclk),
+      .pblrc(audio_I2S_pblrc),
       .rst(rst),
       .p_sample_buffer(triangle_sample_buffer),
       .valid(),
       .volume(player.vol),
-      .p_frequency(player.freq)
+      .p_frequency(player.freq),
+      .sw(sw[0])
   );
 
-  shortint sine_sample_buffer;
   src_sine #(
-      .CLIP_LEN(64),
+      .CLIP_LEN(256),
       .VOLUME_BITS(VOLUME_BITS),
       .FREQ_RES_BITS(FREQ_BITS)
   ) src_sine_i (
       .mclk(audio_cons_mclk),
+      .pblrc(audio_I2S_pblrc),
       .rst(rst),
       .p_sample_buffer(sine_sample_buffer),
       .valid(),
       .volume(bram.vol),
-      .p_frequency(bram.freq)
+      .p_frequency(bram.freq),
+      .sw(sw[0])
   );
-
-  // filters
-  //
-
-  /*
-  //WARN: bypassed
-  //
-  shortint triangle_filtered_buffer;
-  fir_highpass fir_tri_i (
-      .sample_in(triangle_sample_buffer),
-      .sample_out(triangle_filtered_buffer),
-      .clk(audio_I2S_pblrc),
-      .rst(rst)
-  );
-  */
-  shortint sine_filtered_buffer;
-  fir_highpass fir_sine_i (
-      .sample_in(sine_sample_buffer),
-      .sample_out(sine_filtered_buffer),
-      .clk(audio_I2S_pblrc),
-      .rst(rst)
-  );
-
 
   shortint triangle_final;
-  //assign triangle_final = sw[0] ? triangle_filtered_buffer : triangle_sample_buffer;
   assign triangle_final = triangle_sample_buffer;
 
   shortint sine_final;
-  assign sine_final = sw[0] ? sine_filtered_buffer : sine_sample_buffer;
+  assign sine_final = sine_sample_buffer;
 
   /////////////
   //
@@ -247,8 +229,11 @@ module zynq_example_top (
   //
 
   shortint oneshot_808_sample_buffer;
+  shortint oneshot_snare_sample_buffer;
+  shortint oneshot_hihat_sample_buffer;
+  /*
   src_oneshot_808 #(
-      .CLIP_LEN(64),
+      .CLIP_LEN(256),
       .VOLUME_BITS(VOLUME_BITS),
       .FREQ_RES_BITS(FREQ_BITS)
   ) src_oneshot_808_i (
@@ -258,9 +243,8 @@ module zynq_example_top (
       .trig(btn[0])  // WARN: Fuck it no debouncer, it might work anyway
   );
 
-  shortint oneshot_snare_sample_buffer;
   src_oneshot_snare #(
-      .CLIP_LEN(64),
+      .CLIP_LEN(256),
       .VOLUME_BITS(VOLUME_BITS),
       .FREQ_RES_BITS(FREQ_BITS)
   ) src_oneshot_snare_i (
@@ -269,77 +253,24 @@ module zynq_example_top (
       .p_sample_buffer(oneshot_snare_sample_buffer),
       .trig(btn[1])  // WARN: Fuck it no debouncer, it might work anyway
   );
-
-
-  shortint oneshot_hihat_sample_buffer;
+*/
   src_oneshot_hihat #(
-      .CLIP_LEN(256)
+      .CLIP_LEN(256),
+      .VOLUME_BITS(VOLUME_BITS),
+      .FREQ_RES_BITS(FREQ_BITS)
   ) hihat_i (
       .mclk(audio_cons_mclk),
+      .pblrc(audio_I2S_pblrc),
       .rst(rst),
       .p_sample_buffer(oneshot_hihat_sample_buffer),
-      .trig(btn[2])
+      .trig(btn[2]),
+      .sw(sw[1])
   );
-
-  // filters
-  //
-  shortint hihat_filtered_buffer;
-  fir_highpass fir_hihat_i (
-      .sample_in(oneshot_hihat_sample_buffer),
-      .sample_out(hihat_filtered_buffer),
-      .clk(audio_I2S_pblrc),
-      .rst(rst)
-  );
-
-  shortint snare_filtered_buffer;
-  fir_highpass fir_snare_i (
-      .sample_in(oneshot_snare_sample_buffer),
-      .sample_out(snare_filtered_buffer),
-      .clk(audio_I2S_pblrc),
-      .rst(rst)
-  );
-
-  shortint hihat_final;
-  assign hihat_final = sw[0] ? hihat_filtered_buffer : oneshot_hihat_sample_buffer;
-
-  shortint snare_final;
-  assign snare_final = sw[0] ? snare_filtered_buffer : oneshot_snare_sample_buffer;
-
-  /*
-  // button debouncer module test
-  //  (debouncer not working yet)
-  logic stab;
-  logic flip;
-  assign led[0] = flip;
-  button_debouncer_fsm instreanstrd (
-      .clk(mclk),
-      .btn_raw(sw[1]),
-      .btn_stable(stab)
-  );
-  always_ff @(posedge stab) begin
-    flip <= ~flip;
-  end
-
-  assign led[1] = ~flip;
-  assign led[2] = 0;
-  assign led[3] = btn[1] | btn[2];
-  */
 
   //
   // END OF SOURCES
   //
   /////////////
-
-  /*
-  logic [3:0] button_volume;
-  button_activated_attack_release #() button_activated_i (
-      .mclk(mclk),
-      .rst(rst),
-      .button_ra
-      w(btn[0]),
-      .volume(button_volume)
-  );
-  */
 
 
   //----------------------------------------------------------
@@ -365,12 +296,12 @@ module zynq_example_top (
     //output_filter_input <= bram_sample_buffer + triangle_sample_buffer;  // Store in buffer
     //m_sample_buffer[before_index] <= output_filtered;
     m_sample_buffer[before_index] <=
-      hihat_final +
-      snare_final +
+      oneshot_hihat_sample_buffer +
+      oneshot_snare_sample_buffer +
       oneshot_808_sample_buffer +
 
-      sine_final +
-      triangle_final +
+      sine_sample_buffer +
+      triangle_sample_buffer +
       bram_sample_buffer;
   end
 

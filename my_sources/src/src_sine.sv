@@ -27,14 +27,17 @@ module src_sine #(
     parameter int FREQ_RES_BITS
 ) (
 
-    input mclk,  // Master Clock (256x sample rate)
+    input mclk,   // Master Clock (256x sample rate)
+    input pblrc,  // sample rate
     input rst,
+
 
     output shortint p_sample_buffer,
     output valid,
 
-    input [  VOLUME_BITS-1 : 0] volume,
-    input [FREQ_RES_BITS-1 : 0] p_frequency
+    input [VOLUME_BITS-1 : 0] volume,
+    input [FREQ_RES_BITS-1 : 0] p_frequency,
+    input sw
 );
 
   shortint sine_lut[CLIP_LEN];
@@ -63,14 +66,15 @@ module src_sine #(
       .volume(volume)
   );
 
-  /*
+  shortint current_sample_filt;
   fir_lowpass #() lp_filter (
-      .clk (mclk),
-      .rst (rst),
-      .din (current_sample_nofilt),
-      .dout(p_sample_buffer)
+      .clk(pblrc),
+      .rst(rst),
+      .sample_in(current_sample_nofilt),
+      .sample_out(current_sample_filt)
   );
-*/
-  assign p_sample_buffer = current_sample_nofilt;
+
+  assign p_sample_buffer = sw ? current_sample_filt : current_sample_nofilt;
+
 endmodule
 

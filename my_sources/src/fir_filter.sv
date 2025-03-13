@@ -1,3 +1,4 @@
+/*
 module fir_filter (
     input  logic    clk,        // Clock signal
     input  logic    rst,        // Reset signal
@@ -44,6 +45,7 @@ module fir_filter (
   end
 
 endmodule
+*/
 
 /*
 module fir_filter_adjustable (
@@ -112,7 +114,9 @@ module fir_filter_adjustable (
   end
 
 endmodule
+*/
 
+/*
 module fir_lowpass #(
     parameter int N = 16  // Number of filter taps (Adjust as needed)
 ) (
@@ -227,43 +231,23 @@ module fir_highpass (
       -46
   };
 
-  // Define the shift register for the FIR filter
-  shortint x[NUM_COEF];  // Input shift register (delay line)
-  int accumulator;  // To hold the intermediate results
-
-  always_ff @(posedge clk or posedge rst) begin
-    if (rst) begin
-      // Reset the shift register and accumulator
-      x <= '{default: 16'sd0};
-      accumulator <= 32'sd0;
-      sample_out <= 16'sd0;
-    end else begin
-
-      // Shift the input values into the delay line
-      x[0] <= sample_in;  // New sample enters the shift register
-      for (int i = 1; i < NUM_COEF; i++) begin
-        x[i] <= x[i-1];  // Shift all previous samples
-      end
-
-      // Apply the FIR filter: accumulator = sum of h[i] * x[i]
-      accumulator = 32'sd0;  // Reset accumulator for each new sample
-      for (int i = 0; i < NUM_COEF; i++) begin
-        accumulator = accumulator + (h[i] * x[i]);
-      end
-
-      sample_out <= accumulator >>> 15;
-    end
-  end
+  generic_fir_filter #(
+      .NUM_COEF(NUM_COEF)
+  ) fir_highpass_i (
+      .sample_in(sample_in),
+      .sample_out(sample_out),
+      .clk(clk),
+      .rst(rst),
+      .coef(h)
+  );
 
 endmodule
-
-
 
 
 // the newest one
 
 // assumes 48khz sample rate
-// 21khz lp filter
+// 10khz lp filter
 module fir_lowpass (
     input  shortint sample_in,   // 16-bit signed input sample
     output shortint sample_out,  // 16-bit signed output sample
@@ -271,59 +255,44 @@ module fir_lowpass (
     input  logic    rst          // Reset signal
 );
 
-  localparam int NUM_COEF = 32;
+  localparam int NUM_COEF = 24;
 
-  // coefficients for a 1000hz hp filter
   shortint h[NUM_COEF] = '{
-      -53,
-      55,
-      -54,
-      32,
-      33,
-      -156,
-      341,
-      -564,
-      773,
-      -887,
-      803,
-      -398,
-      -490,
-      2162,
-      -5651,
-      20439,
-      20439,
-      -5651,
-      2162,
-      -490,
-      -398,
-      803,
-      -887,
-      773,
-      -564,
-      341,
-      -156,
-      33,
-      32,
-      -54,
-      55,
-      -53
+      44,
+      89,
+      -21,
+      -274,
+      -174,
+      567,
+      857,
+      -614,
+      -2372,
+      -487,
+      6162,
+      12608,
+      12608,
+      6162,
+      -487,
+      -2372,
+      -614,
+      857,
+      567,
+      -174,
+      -274,
+      -21,
+      89,
+      44
   };
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // WARN: 
-  // generic_fir_filter fir_lowpass
+
+  generic_fir_filter #(
+      .NUM_COEF(NUM_COEF)
+  ) fir_lowpass_i (
+      .sample_in(sample_in),
+      .sample_out(sample_out),
+      .clk(clk),
+      .rst(rst),
+      .coef(h)
+  );
 
 endmodule
 
