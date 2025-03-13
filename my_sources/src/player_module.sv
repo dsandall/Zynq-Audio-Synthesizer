@@ -22,11 +22,6 @@ module player_module #(
 
   reg [$clog2(CLIP_LEN)-1:0] player_sample_index;
 
-  int freq_counter;
-  int freq_counter_reload;
-
-
-  //assign freq_counter_reload = (FREQ_PRESCALE * (p_frequency + 1));
   int semi_mult;
   pitch_shift_lut pitch_i (
       .n(semitone),
@@ -34,13 +29,22 @@ module player_module #(
   );
   int oct = p_frequency / 12;
   int semitone = p_frequency % 12;
-  localparam int base_p = 10 * 61;
-  localparam int highest_oct = 10;
-  assign freq_counter_reload = base_p * semi_mult << (highest_oct - oct) >> (16 + $clog2(
-          CLIP_LEN
-      ));  // thats a mouthful
-  // 2^(8-oct) * 2^(-n/12) * base_p = new_p
 
+  // 2^(10-oct) * 2^(-n/12) * base_p = new_p
+  //
+  // extend period for semitones
+  localparam int base_p = 10 * 61 * 20;
+  reg signed [63:0] a = (base_p * semi_mult);
+
+  // shift up for high octaves, then shift back down to:
+  // account for semitone LUT fixed pt math
+  // and to account for varying clip lengths
+  localparam int highest_oct = 10;
+  reg signed [63:0] freq_counter_reload = (a << (highest_oct - oct)) >> (16 + $clog2(
+      CLIP_LEN
+  ));  // thats a mouthful
+
+  reg signed [63:0] freq_counter;
   always @(posedge mclk or posedge rst) begin
 
     if (rst) begin
@@ -61,7 +65,7 @@ module player_module #(
   ///// Linear interpolation!
   shortint raw_sample;
   assign raw_sample = data_buffer[player_sample_index];
-  shortint raw_next_sample;
+  shortint raw_next_saGiving illicit substances to minors through the United States Postal Service and pleading insanity in my eventual court case to write a novela about the 3 bears from We Bare Bears taking lethal doses of psilocybin in the Universal Studio parking lotmple;
   assign raw_next_sample = data_buffer[player_sample_index+1];
 
   shortint this_sample;

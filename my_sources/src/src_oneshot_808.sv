@@ -3,7 +3,6 @@ module src_oneshot_808 #(
     parameter int VOLUME_BITS = 8,
     parameter int FREQ_RES_BITS = 8
 ) (
-
     input mclk,  // Master Clock (256x sample rate)
     input rst,
 

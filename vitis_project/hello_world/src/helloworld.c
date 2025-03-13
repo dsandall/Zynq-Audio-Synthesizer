@@ -18,15 +18,12 @@
 // //  *   uartlite    Configurable only in HW design
 // //  *   ps7_uart    115200 (configured by bootrom/bsp)
 // //  */
-
 // // #include <stdio.h>
 // // #include "platform.h"
 // // #include "xil_printf.h"
-
 // // int main()
 // // {
 // //     init_platform();
-
 // //     print("Hello World\n\r");
 // //     print("Successfully ran Hello World application");
 // //     cleanup_platform();
@@ -328,21 +325,23 @@ int main() {
       writeBramVol(v);
       writeBramFreq(f);
 
+      xil_printf("wrote to bram (sine player)\n\r");
     } else if (c == 'm') {
       // apply to triangle
       writePlayerVol(v);
       writePlayerFreq(f);
 
+      xil_printf("wrote to player\n\r");
     } else {
-      xil_printf("%d\n", c);
-      playKick((c % 8) * 12);
+      // playKick((c % 8) * 12);
     }
 
     const int tri_octave = f / 12;
     const int tri_semitone = f % 12;
 
-    xil_printf("triangle octave %d, semitone %d\n\r", tri_octave, tri_semitone);
-    xil_printf("reg is 0x%08X\n\r", *AudioCrtlReg);
+    xil_printf("f: %d, v: %d\n\r", f, v);
+    xil_printf("octave %d, semitone %d\n\r", tri_octave, tri_semitone);
+    // xil_printf("reg is 0x%08X\n\r", *AudioCrtlReg);
   }
 
   cleanup_platform();

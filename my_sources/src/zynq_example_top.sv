@@ -35,7 +35,6 @@ typedef struct {
   SourceControlReg_t triangle_player;
 } AudioControlReg_t;
 
-
 module zynq_example_top (
     inout [14:0] DDR_addr,
     inout [2:0] DDR_ba,
@@ -70,7 +69,6 @@ module zynq_example_top (
     audio_I2S_pbdat,
     audio_I2S_pblrc
 );
-
 
   // instantiate clock and reset
   logic clk;
@@ -108,7 +106,6 @@ module zynq_example_top (
   //  logic [VOLUME_BITS-1:0] bram_source_vol = PS_32b_AudioControlReg_Out[31 : 24];
 
   ////////////////
-
   // audio control
 
   // Declare an instance of the struct
@@ -117,12 +114,6 @@ module zynq_example_top (
   // Assign values to the struct fields
   //always_comb begin
   //end
-
-
-  //WARN:
-  //TEST:
-  AudioControlReg_t  skibidi;
-  //assign skibidi = PS_32b_AudioControlReg_Out[31:0];
 
   assign player.freq = PS_32b_AudioControlReg_Out[7:0];
   assign bram.freq = PS_32b_AudioControlReg_Out[15:8];
@@ -149,9 +140,7 @@ module zynq_example_top (
       .audio_I2S_pblrc(audio_I2S_pblrc),
       .audio_I2S_pbdat(audio_I2S_pbdat),
       .mclk(audio_cons_mclk),
-
-      .volume(sw),  // master vol = switches
-
+      .volume({sw[3:1], 1'b1}),  // master vol = switches
       .sample(m_sample_buffer),
       .sample_index(m_sample_index)
   );
@@ -192,10 +181,9 @@ module zynq_example_top (
 
       .valid(),
       .current_sample(bram_sample_buffer)
-
   );
 
-  shortint triangle_sample_buffer;  // Buffer for data read from BRAM
+  shortint triangle_sample_buffer;
   src_triangle #(
       .CLIP_LEN(64),
       .VOLUME_BITS(VOLUME_BITS),
@@ -223,34 +211,99 @@ module zynq_example_top (
       .p_frequency(bram.freq)
   );
 
-  shortint oneshot_808_sample_buffer;  // Buffer for data read from BRAM
+  // filters
+  //
+
+  /*
+  //WARN: bypassed
+  //
+  shortint triangle_filtered_buffer;
+  fir_highpass fir_tri_i (
+      .sample_in(triangle_sample_buffer),
+      .sample_out(triangle_filtered_buffer),
+      .clk(audio_I2S_pblrc),
+      .rst(rst)
+  );
+  */
+  shortint sine_filtered_buffer;
+  fir_highpass fir_sine_i (
+      .sample_in(sine_sample_buffer),
+      .sample_out(sine_filtered_buffer),
+      .clk(audio_I2S_pblrc),
+      .rst(rst)
+  );
+
+
+  shortint triangle_final;
+  //assign triangle_final = sw[0] ? triangle_filtered_buffer : triangle_sample_buffer;
+  assign triangle_final = triangle_sample_buffer;
+
+  shortint sine_final;
+  assign sine_final = sw[0] ? sine_filtered_buffer : sine_sample_buffer;
+
+  /////////////
+  //
+  // ONESHOT SOURCES
+  //
+
+  shortint oneshot_808_sample_buffer;
   src_oneshot_808 #(
       .CLIP_LEN(64),
       .VOLUME_BITS(VOLUME_BITS),
       .FREQ_RES_BITS(FREQ_BITS)
   ) src_oneshot_808_i (
       .mclk(audio_cons_mclk),
-      .rst (rst),
-
+      .rst(rst),
       .p_sample_buffer(oneshot_808_sample_buffer),
-
       .trig(btn[0])  // WARN: Fuck it no debouncer, it might work anyway
   );
 
-
-  shortint oneshot_snare_sample_buffer;  // Buffer for data read from BRAM
+  shortint oneshot_snare_sample_buffer;
   src_oneshot_snare #(
       .CLIP_LEN(64),
       .VOLUME_BITS(VOLUME_BITS),
       .FREQ_RES_BITS(FREQ_BITS)
   ) src_oneshot_snare_i (
       .mclk(audio_cons_mclk),
-      .rst (rst),
-
+      .rst(rst),
       .p_sample_buffer(oneshot_snare_sample_buffer),
-
       .trig(btn[1])  // WARN: Fuck it no debouncer, it might work anyway
   );
+
+
+  shortint oneshot_hihat_sample_buffer;
+  src_oneshot_hihat #(
+      .CLIP_LEN(256)
+  ) hihat_i (
+      .mclk(audio_cons_mclk),
+      .rst(rst),
+      .p_sample_buffer(oneshot_hihat_sample_buffer),
+      .trig(btn[2])
+  );
+
+  // filters
+  //
+  shortint hihat_filtered_buffer;
+  fir_highpass fir_hihat_i (
+      .sample_in(oneshot_hihat_sample_buffer),
+      .sample_out(hihat_filtered_buffer),
+      .clk(audio_I2S_pblrc),
+      .rst(rst)
+  );
+
+  shortint snare_filtered_buffer;
+  fir_highpass fir_snare_i (
+      .sample_in(oneshot_snare_sample_buffer),
+      .sample_out(snare_filtered_buffer),
+      .clk(audio_I2S_pblrc),
+      .rst(rst)
+  );
+
+  shortint hihat_final;
+  assign hihat_final = sw[0] ? hihat_filtered_buffer : oneshot_hihat_sample_buffer;
+
+  shortint snare_final;
+  assign snare_final = sw[0] ? snare_filtered_buffer : oneshot_snare_sample_buffer;
 
   /*
   // button debouncer module test
@@ -312,12 +365,13 @@ module zynq_example_top (
     //output_filter_input <= bram_sample_buffer + triangle_sample_buffer;  // Store in buffer
     //m_sample_buffer[before_index] <= output_filtered;
     m_sample_buffer[before_index] <=
-      bram_sample_buffer +
-      triangle_sample_buffer +
-      sine_sample_buffer +
-      oneshot_snare_sample_buffer +
-      oneshot_808_sample_buffer;
+      hihat_final +
+      snare_final +
+      oneshot_808_sample_buffer +
 
+      sine_final +
+      triangle_final +
+      bram_sample_buffer;
   end
 
   /*
