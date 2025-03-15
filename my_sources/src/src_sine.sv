@@ -23,8 +23,8 @@ endmodule
 //
 module src_sine #(
     parameter int CLIP_LEN = 64,
-    parameter int VOLUME_BITS,
-    parameter int FREQ_RES_BITS
+    parameter int VOLUME_BITS = 8,
+    parameter int FREQ_RES_BITS = 8
 ) (
 
     input mclk,   // Master Clock (256x sample rate)
@@ -68,8 +68,9 @@ module src_sine #(
 
   shortint current_sample_filt;
   fir_lowpass #() lp_filter (
-      .clk(pblrc),
+      .sample_clk(pblrc),
       .rst(rst),
+      .mclk(mclk),
       .sample_in(current_sample_nofilt),
       .sample_out(current_sample_filt)
   );

@@ -44,10 +44,9 @@
 #define SWITCH_CHANNEL 2
 #define LEDS_MASK 0x0F     // 4 leds
 #define SWITCHES_MASK 0x0F // 4 switches
+
 #include "xparameters.h"
-
 #include "sleep.h"
-
 #include "sd_card.h"
 
 volatile uint32_t *AudioCrtlReg = (uint32_t *)XPAR_AUDIO_CONTROL_GPIO_BASEADDR;
@@ -60,7 +59,7 @@ volatile uint32_t *AudioCrtlReg = (uint32_t *)XPAR_AUDIO_CONTROL_GPIO_BASEADDR;
 
 // logic [VOLUME_BITS-1:0] player_source_vol = gpio_ctrl_o_32b_tri_o[23 : 16];
 // logic [VOLUME_BITS-1:0] bram_source_vol = gpio_ctrl_o_32b_tri_o[31 : 24];
-//
+
 void writePlayerFreq(uint8_t freq) {
   //*AudioCrtlReg = (*AudioCrtlReg & 0xFFFFFFF0) | (freq & 0x000F);
   *AudioCrtlReg = (*AudioCrtlReg & 0xFFFFFF00) | (freq & 0x00FF);
@@ -97,6 +96,173 @@ void writeBramVol(uint8_t vol) {
 };
 
 void flickBit(int bit) { *AudioCrtlReg ^= 0x1 << bit; };
+
+int my_init() {
+
+  init_platform();
+
+  XGpio Gpio; /* The Instance of the GPIO Driver */
+  XBram Bram; /* The Instance of the BRAM Driver */
+  XBram_Config *ConfigPtr;
+
+  int Status;
+
+  /* Initialize the GPIO driver */
+  Status = XGpio_Initialize(&Gpio, XPAR_ZYBO_BOARD_GPIO_BASEADDR);
+  if (Status != XST_SUCCESS) {
+    xil_printf("Gpio Initialization Failed\r\n");
+    return XST_FAILURE;
+  }
+
+  ConfigPtr = XBram_LookupConfig(XPAR_AXI_BRAM_CTRL_0_BASEADDR);
+  if (ConfigPtr == (XBram_Config *)NULL) {
+    return XST_FAILURE;
+  }
+
+  Status = XBram_CfgInitialize(&Bram, ConfigPtr, ConfigPtr->CtrlBaseAddress);
+  if (Status != XST_SUCCESS) {
+    return XST_FAILURE;
+  }
+
+  /* Set the direction for all signals  */
+  XGpio_SetDataDirection(&Gpio, LED_CHANNEL, ~LEDS_MASK);       // output
+  XGpio_SetDataDirection(&Gpio, SWITCH_CHANNEL, SWITCHES_MASK); // input
+
+  return XST_SUCCESS;
+}
+
+int main() {
+
+  if (my_init() == XST_SUCCESS) {
+    print("Hello World\n\r");
+  } else {
+    return XST_FAILURE;
+  }
+
+  //  // write to the bram
+  //   for (int i = 0; i < 16 * 4; i = i + 4) {
+  //     XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, i, i);
+  //   }
+
+  *AudioCrtlReg = 0x00000000;
+  // uint8_t refresh_en = 1;
+  // writeRefresh(refresh_en);
+  // uint8_t refresh_bram = 1;
+  // writeReg_RefreshBram(refresh_bram);
+  writePlayerVol(0);
+  writeBramVol(0);
+  writePlayerFreq(0); // samples
+  writeBramFreq(0);   // 9, 12, 15 introduce glitching (but only at some vols)
+                      // (and other freqs glitch at other vols..)
+
+  while (1) {
+
+    // // write loop iteration to bram
+    // XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, 0, loop_count++);
+
+    /*
+        // Read gpio switches
+        u32 switches = XGpio_DiscreteRead(&Gpio, SWITCH_CHANNEL);
+        XGpio_DiscreteWrite(&Gpio, LED_CHANNEL, switches);
+        xil_printf("checkeddddd! %x\n\r", switches);
+    */
+    /*
+        // read bram contents
+        for (int i = 0; i < 16 * 4; i = i + 4) {
+          int out_data;
+          out_data = *(volatile u32 *) ((XPAR_AXI_BRAM_CTRL_0_BASEADDR) + (i));
+
+          xil_printf("%d: %X\n\r", i, out_data);
+        }
+    */
+    // xil_printf("f is: %d\n", f);
+
+    char c = inbyte();
+
+    static uint8_t f = 0;
+    static uint8_t v = 0;
+
+    if (c == '\r') {
+
+      // writePlayerVol(player_v++);
+
+      //      refresh_en = refresh_en ? 0 : 1;
+      //      xil_printf("refresh_main_buffer is %d\n", refresh_en);
+      //      writeRefresh(refresh_en);
+      //
+      //    } else if (c == 'x') {
+      //      refresh_bram = refresh_bram ? 0 : 1;
+      //      xil_printf("refresh_bram is %d\n", refresh_bram);
+      //      writeReg_RefreshBram(refresh_bram);
+
+    } else if (c == '+') {
+      v++;
+
+    } else if (c == '-') {
+      v--;
+
+    } else if (c == 'y') {
+      // freq up
+      f++;
+
+    } else if (c == 'w') {
+      // freq down
+      f--;
+
+    } else if (c == 'v') {
+      // apply to sine
+      writeBramVol(v);
+      writeBramFreq(f);
+
+      xil_printf("wrote to bram (sine player)\n\r");
+    } else if (c == 'm') {
+      // apply to triangle
+      writePlayerVol(v);
+      writePlayerFreq(f);
+
+      xil_printf("wrote to player\n\r");
+    } else {
+      // playKick((c % 8) * 12);
+    }
+
+    const int tri_octave = f / 12;
+    const int tri_semitone = f % 12;
+
+    xil_printf("f: %d, v: %d\n\r", f, v);
+    xil_printf("octave %d, semitone %d\n\r", tri_octave, tri_semitone);
+    // xil_printf("reg is 0x%08X\n\r", *AudioCrtlReg);
+  }
+
+  cleanup_platform();
+  return 0;
+}
+
+/*
+FIL fil;
+    // interface with SD card
+        int Status;
+        xil_printf("SD Polled File System Example Test \r\n");
+
+        Status = FfsSdPolledExample();
+        if (Status != XST_SUCCESS) {
+                xil_printf("SD Polled File System Example Test failed
+   \r\n"); return XST_FAILURE;
+        }
+        xil_printf("Successfully ran SD Polled File System Example Test
+   \r\n");
+
+
+        // Status = dostuff(&fil);
+        // if (Status != XST_SUCCESS) {
+        // 	xil_printf("SD Polled File System Example Test failed \r\n");
+        // 	return XST_FAILURE;
+        // }
+        // xil_printf("Successfully ran SD Polled File System Example Test
+   \r\n");
+*/
+
+
+
 
 void playBass(uint8_t freq) {
   int scale = 1000;
@@ -206,168 +372,3 @@ void playKick(uint8_t freq_add) {
   //   writeBramVol(0);
   //   writeBramFreq(0);
 };
-
-int my_init() {
-
-  init_platform();
-
-  XGpio Gpio; /* The Instance of the GPIO Driver */
-  XBram Bram; /* The Instance of the BRAM Driver */
-  XBram_Config *ConfigPtr;
-
-  int Status;
-
-  /* Initialize the GPIO driver */
-  Status = XGpio_Initialize(&Gpio, XPAR_ZYBO_BOARD_GPIO_BASEADDR);
-  if (Status != XST_SUCCESS) {
-    xil_printf("Gpio Initialization Failed\r\n");
-    return XST_FAILURE;
-  }
-
-  ConfigPtr = XBram_LookupConfig(XPAR_AXI_BRAM_CTRL_0_BASEADDR);
-  if (ConfigPtr == (XBram_Config *)NULL) {
-    return XST_FAILURE;
-  }
-
-  Status = XBram_CfgInitialize(&Bram, ConfigPtr, ConfigPtr->CtrlBaseAddress);
-  if (Status != XST_SUCCESS) {
-    return XST_FAILURE;
-  }
-
-  /* Set the direction for all signals  */
-  XGpio_SetDataDirection(&Gpio, LED_CHANNEL, ~LEDS_MASK);       // output
-  XGpio_SetDataDirection(&Gpio, SWITCH_CHANNEL, SWITCHES_MASK); // input
-
-  return XST_SUCCESS;
-}
-
-int main() {
-
-  if (my_init() == XST_SUCCESS) {
-    print("Hello World\n\r");
-  } else {
-    return XST_FAILURE;
-  }
-
-  //  // write to the bram
-  //   for (int i = 0; i < 16 * 4; i = i + 4) {
-  //     XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, i, i);
-  //   }
-
-  *AudioCrtlReg = 0x00000000;
-  // uint8_t refresh_en = 1;
-  // writeRefresh(refresh_en);
-  // uint8_t refresh_bram = 1;
-  // writeReg_RefreshBram(refresh_bram);
-  writePlayerVol(0);
-  writeBramVol(0);
-  writePlayerFreq(0); // samples
-  writeBramFreq(0);   // 9, 12, 15 introduce glitching (but only at some vols)
-                      // (and other freqs glitch at other vols..)
-
-  while (1) {
-
-    // // write loop iteration to bram
-    // XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, 0, loop_count++);
-
-    /*
-        // Read gpio switches
-        u32 switches = XGpio_DiscreteRead(&Gpio, SWITCH_CHANNEL);
-        XGpio_DiscreteWrite(&Gpio, LED_CHANNEL, switches);
-        xil_printf("checkeddddd! %x\n\r", switches);
-    */
-
-    /*
-        // read bram contents
-        for (int i = 0; i < 16 * 4; i = i + 4) {
-          int out_data;
-          out_data = *(volatile u32 *) ((XPAR_AXI_BRAM_CTRL_0_BASEADDR) + (i));
-
-          xil_printf("%d: %X\n\r", i, out_data);
-        }
-    */
-    // xil_printf("f is: %d\n", f);
-
-    char c = inbyte();
-
-    static uint8_t f = 0;
-    static uint8_t v = 0;
-
-    if (c == '\r') {
-
-      // writePlayerVol(player_v++);
-
-      //      refresh_en = refresh_en ? 0 : 1;
-      //      xil_printf("refresh_main_buffer is %d\n", refresh_en);
-      //      writeRefresh(refresh_en);
-      //
-      //    } else if (c == 'x') {
-      //      refresh_bram = refresh_bram ? 0 : 1;
-      //      xil_printf("refresh_bram is %d\n", refresh_bram);
-      //      writeReg_RefreshBram(refresh_bram);
-
-    } else if (c == '+') {
-      v++;
-
-    } else if (c == '-') {
-      v--;
-
-    } else if (c == 'y') {
-      // freq up
-      f++;
-
-    } else if (c == 'w') {
-      // freq down
-      f--;
-
-    } else if (c == 'v') {
-      // apply to sine
-      writeBramVol(v);
-      writeBramFreq(f);
-
-      xil_printf("wrote to bram (sine player)\n\r");
-    } else if (c == 'm') {
-      // apply to triangle
-      writePlayerVol(v);
-      writePlayerFreq(f);
-
-      xil_printf("wrote to player\n\r");
-    } else {
-      // playKick((c % 8) * 12);
-    }
-
-    const int tri_octave = f / 12;
-    const int tri_semitone = f % 12;
-
-    xil_printf("f: %d, v: %d\n\r", f, v);
-    xil_printf("octave %d, semitone %d\n\r", tri_octave, tri_semitone);
-    // xil_printf("reg is 0x%08X\n\r", *AudioCrtlReg);
-  }
-
-  cleanup_platform();
-  return 0;
-}
-
-/*
-FIL fil;
-    // interface with SD card
-        int Status;
-        xil_printf("SD Polled File System Example Test \r\n");
-
-        Status = FfsSdPolledExample();
-        if (Status != XST_SUCCESS) {
-                xil_printf("SD Polled File System Example Test failed
-   \r\n"); return XST_FAILURE;
-        }
-        xil_printf("Successfully ran SD Polled File System Example Test
-   \r\n");
-
-
-        // Status = dostuff(&fil);
-        // if (Status != XST_SUCCESS) {
-        // 	xil_printf("SD Polled File System Example Test failed \r\n");
-        // 	return XST_FAILURE;
-        // }
-        // xil_printf("Successfully ran SD Polled File System Example Test
-   \r\n");
-*/

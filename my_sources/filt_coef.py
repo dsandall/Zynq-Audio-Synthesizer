@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 
 # Filter Orders
 order_101 = 101  # 101-order filter
-order_31 = 24    # 31-order filter
+order_31 = 23    # 31-order filter
 # Parameters
 fs = 48000  # Sampling rate (Hz)
 nyquist = fs / 2
-cutoff = 10000  # Cutoff frequency
-highpass = False
+cutoff = 5000  # Cutoff frequency
+highpass = True
 
 ##
 ##

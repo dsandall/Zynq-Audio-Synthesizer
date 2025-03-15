@@ -68,7 +68,8 @@ module src_oneshot_hihat #(
   // AA LP filter
   shortint current_sample_aafilt;
   fir_lowpass #() aa_filt_i (
-      .clk(pblrc),
+      .sample_clk(pblrc),
+      .mclk(mclk),
       .rst(rst),
       .sample_in(current_sample_nofilt),
       .sample_out(current_sample_aafilt)
@@ -79,7 +80,8 @@ module src_oneshot_hihat #(
   hihat_highpass_filter hihat_filt_i (
       .sample_in(current_sample_aafilt),
       .sample_out(current_sample_final),
-      .clk(pblrc),
+      .sample_clk(pblrc),
+      .mclk(mclk),
       .rst(rst)
   );
 
@@ -90,19 +92,21 @@ endmodule
 module hihat_highpass_filter (
     input  shortint sample_in,   // 16-bit signed input sample
     output shortint sample_out,  // 16-bit signed output sample
-    input  logic    clk,         // Clock signal
+    input  logic    sample_clk,  // Clock signal
+    input  logic    mclk,
     input  logic    rst          // Reset signal
 );
 
   localparam int NUM_COEF = 7;
   shortint h[NUM_COEF] = '{256, -461, -8051, 18101, -8051, -461, 256};
 
-  generic_fir_filter #(
+  pipelined_fir_filter #(
       .NUM_COEF(NUM_COEF)
-  ) fir_lowpass_i (
+  ) firstrd_lowpass_i (
       .sample_in(sample_in),
       .sample_out(sample_out),
-      .clk(clk),
+      .sample_clk(sample_clk),
+      .clk_fast(mclk),
       .rst(rst),
       .coef(h)
   );

@@ -81,10 +81,11 @@ module src_triangle #(
 
   shortint current_sample_filt;
   fir_lowpass #() lp_filter (
-      .clk(pblrc),
-      .rst(rst),
+      .sample_clk(pblrc),
       .sample_in(current_sample_nofilt),
-      .sample_out(current_sample_filt)
+      .sample_out(current_sample_filt),
+      .mclk(mclk),
+      .rst(rst)
   );
 
   assign p_sample_buffer = sw ? current_sample_filt : current_sample_nofilt;
