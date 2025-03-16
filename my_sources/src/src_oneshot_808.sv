@@ -33,7 +33,7 @@ module src_oneshot_808 #(
   shortint sine_lut[CLIP_LEN];
   sine_lut #(.LUT_SIZE(CLIP_LEN)) sine_lut_i (.lut(sine_lut));
 
-  static reg [FREQ_RES_BITS-1:0] freq = 12 * 2;
+  static reg [FREQ_RES_BITS-1:0] freq = 12 * 1 + 2;
   shortint current_sample_novol;
   player_module #(
       .CLIP_LEN(CLIP_LEN),

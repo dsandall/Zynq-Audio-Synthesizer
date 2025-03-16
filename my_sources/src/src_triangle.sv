@@ -52,6 +52,22 @@ module src_triangle #(
     input sw
 );
 
+  logic activate = volume != 0;
+
+  logic [VOLUME_BITS-1:0] volume_env;
+  logic [VOLUME_BITS-1:0] volume_final;
+  assign volume_final = (volume_env * volume) / (2 ** 6);
+  oneshot_enveloper #(
+      .ATTACK_TIME(500),
+      .DECAY_TIME(5000),
+      .MAX_VOL(2 ** 6)
+  ) envelope_i (
+      .mclk(mclk),
+      .rst(rst),
+      .trigger(activate),
+      .volume_out(volume_env)
+  );
+
   shortint triangle_lut[CLIP_LEN];
   triangle_lut #(.LUT_SIZE(CLIP_LEN)) triangle_lut_mod_inst (.lut(triangle_lut));
 
@@ -75,7 +91,7 @@ module src_triangle #(
   ) volume_adjust_tri (
       .sample_in(current_sample_novol),
       .sample_out(current_sample_nofilt),
-      .volume(volume)
+      .volume(volume_final)
   );
 
 

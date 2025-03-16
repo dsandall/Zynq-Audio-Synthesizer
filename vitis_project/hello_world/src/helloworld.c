@@ -39,13 +39,13 @@
 #include "xparameters.h"
 
 typedef struct __attribute__((packed)) {
-  uint8_t vol;
-  uint8_t freq;
+  volatile uint8_t vol;
+  volatile uint8_t freq;
 } SourceControl_t;
 
 typedef struct __attribute__((packed)) {
-  SourceControl_t triangle;
-  SourceControl_t sine;
+  volatile SourceControl_t triangle;
+  volatile SourceControl_t sine;
 } OscillatorControlReg_t;
 
 typedef struct __attribute__((packed)) {
@@ -126,11 +126,16 @@ int my_init() {
   return XST_SUCCESS;
 }
 
-void sine_note(uint8_t f) {
-  OscReg->sine.vol = 200;
-  OscReg->sine.freq = f;
-  usleep(100000);
-  OscReg->sine.vol = 0;
+void sine_note(uint8_t f, uint8_t dur) {
+  uint32_t total_duration = 120000 * dur;
+
+  *((uint32_t *)OscReg) =
+      (*((uint32_t *)OscReg) & 0xFFFF00FF) | (f << 8); // write freq
+  *((uint32_t *)OscReg) =
+      (*((uint32_t *)OscReg) & 0xFFFFFF00) | (200 << 0); // write vol
+  usleep(total_duration - 20000);
+  *((uint32_t *)OscReg) =
+      (*((uint32_t *)OscReg) & 0xFFFFFF00) | (0 << 0); // write vol
   usleep(20000);
 };
 
@@ -166,28 +171,28 @@ void e1m1() {
   // bar 1
   DrumReg->kick = 1;
   DrumReg->hihat = 1;
-  sine_note(2 * 12 + 4);
+  sine_note(2 * 12 + 4, 1);
   DrumReg->kick = 0;
   DrumReg->hihat = 0;
-  sine_note(2 * 12 + 4);
-  sine_note(3 * 12 + 4);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(3 * 12 + 4, 1);
 
-  sine_note(2 * 12 + 4);
-  sine_note(2 * 12 + 4);
-  sine_note(3 * 12 + 2);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(3 * 12 + 2, 1);
 
-  sine_note(2 * 12 + 4);
-  sine_note(2 * 12 + 4);
-  sine_note(3 * 12 + 0);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(3 * 12 + 0, 1);
 
-  sine_note(2 * 12 + 4);
-  sine_note(2 * 12 + 4);
-  sine_note(3 * 12 - 2);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(3 * 12 - 2, 1);
 
-  sine_note(2 * 12 + 4);
-  sine_note(2 * 12 + 4);
-  sine_note(3 * 12 - 1);
-  sine_note(3 * 12 - 0);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(3 * 12 - 1, 1);
+  sine_note(3 * 12 - 0, 1);
 
   // bar 1 ends
   //
@@ -195,27 +200,23 @@ void e1m1() {
 
   DrumReg->kick = 1;
   DrumReg->hihat = 1;
-  sine_note(2 * 12 + 4);
+  sine_note(2 * 12 + 4, 1);
   DrumReg->kick = 0;
   DrumReg->hihat = 0;
-  sine_note(2 * 12 + 4);
-  sine_note(3 * 12 + 4);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(3 * 12 + 4, 1);
 
-  sine_note(2 * 12 + 4);
-  sine_note(2 * 12 + 4);
-  sine_note(3 * 12 + 2);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(3 * 12 + 2, 1);
 
-  sine_note(2 * 12 + 4);
-  sine_note(2 * 12 + 4);
-  sine_note(3 * 12 + 0);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(3 * 12 + 0, 1);
 
-  sine_note(2 * 12 + 4);
-  sine_note(2 * 12 + 4);
-  sine_note(3 * 12 - 2);
-  sine_note(3 * 12 - 2);
-  sine_note(3 * 12 - 2);
-  sine_note(3 * 12 - 2);
-  sine_note(3 * 12 - 2);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(2 * 12 + 4, 1);
+  sine_note(3 * 12 - 2, 5);
 }
 
 int main() {
@@ -268,6 +269,8 @@ int main() {
       usleep(500);
       DrumReg->kick = 0;
 
+      sine_note(0, 1);
+
     } else if (c == 'w') {
       // freq down
       DrumReg->snare = 1;
@@ -283,7 +286,33 @@ int main() {
       e1m1();
     } else if (c == 'l') {
       drums();
+    } else if (c == 'n') {
+
+      OscReg->sine.freq = 0;
+      OscReg->sine.vol = 0;
+      OscReg->triangle.freq = 0;
+      OscReg->triangle.vol = 0;
+
+    } else if (c == 'a') {
+      xil_printf("%X\r\n", OscReg->sine.vol);
+      OscReg->sine.vol++;
+      xil_printf("%X\r\n", OscReg->sine.vol);
+    } else if (c == 'e') {
+      xil_printf("%X\r\n", OscReg->sine.freq);
+      OscReg->sine.freq++;
+      xil_printf("%X\r\n", OscReg->sine.freq);
+    } else if (c == 'o') {
+      xil_printf("%X\r\n", OscReg->triangle.vol);
+      OscReg->triangle.vol++;
+      xil_printf("%X\r\n", OscReg->triangle.vol);
+    } else if (c == 'u') {
+      xil_printf("%X\r\n", OscReg->triangle.freq);
+      OscReg->triangle.freq++;
+      xil_printf("%X\r\n", OscReg->triangle.freq);
     }
+    xil_printf("%X\r\n", (uint32_t *)OscReg);
+
+    continue;
 
     uint8_t f = 0;
     uint8_t v = 0;
