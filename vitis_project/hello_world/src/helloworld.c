@@ -126,16 +126,32 @@ int my_init() {
   return XST_SUCCESS;
 }
 
-void sine_note(uint8_t f, uint8_t dur) {
-  uint32_t total_duration = 120000 * dur;
-
+uint32_t usec_per_beat;
+void triangle_note(uint8_t f, uint8_t dur) {
+  uint32_t total_duration = usec_per_beat * dur;
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0xFFFF00FF) | (f << 8); // write freq
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0xFFFFFF00) | (200 << 0); // write vol
+
   usleep(total_duration - 20000);
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0xFFFFFF00) | (0 << 0); // write vol
+
+  usleep(20000);
+};
+
+void sine_note(uint8_t f, uint8_t dur) {
+  uint32_t total_duration = usec_per_beat * dur;
+  *((uint32_t *)OscReg) =
+      (*((uint32_t *)OscReg) & 0x00FFFFFF) | (f << 24); // write freq
+  *((uint32_t *)OscReg) =
+      (*((uint32_t *)OscReg) & 0xFF00FFFF) | (200 << 16); // write vol
+
+  usleep(total_duration - 20000);
+  *((uint32_t *)OscReg) =
+      (*((uint32_t *)OscReg) & 0xFF00FFFF) | (0 << 16); // write vol
+
   usleep(20000);
 };
 
@@ -168,6 +184,10 @@ void drums() {
 }
 
 void e1m1() {
+
+  const uint32_t bpm = 220;
+  usec_per_beat = (1000000 * 60) / bpm;
+
   // bar 1
   DrumReg->kick = 1;
   DrumReg->hihat = 1;
@@ -292,25 +312,7 @@ int main() {
       OscReg->sine.vol = 0;
       OscReg->triangle.freq = 0;
       OscReg->triangle.vol = 0;
-
-    } else if (c == 'a') {
-      xil_printf("%X\r\n", OscReg->sine.vol);
-      OscReg->sine.vol++;
-      xil_printf("%X\r\n", OscReg->sine.vol);
-    } else if (c == 'e') {
-      xil_printf("%X\r\n", OscReg->sine.freq);
-      OscReg->sine.freq++;
-      xil_printf("%X\r\n", OscReg->sine.freq);
-    } else if (c == 'o') {
-      xil_printf("%X\r\n", OscReg->triangle.vol);
-      OscReg->triangle.vol++;
-      xil_printf("%X\r\n", OscReg->triangle.vol);
-    } else if (c == 'u') {
-      xil_printf("%X\r\n", OscReg->triangle.freq);
-      OscReg->triangle.freq++;
-      xil_printf("%X\r\n", OscReg->triangle.freq);
     }
-    xil_printf("%X\r\n", (uint32_t *)OscReg);
 
     continue;
 
