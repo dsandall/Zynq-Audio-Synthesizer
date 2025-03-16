@@ -11,24 +11,12 @@ module src_oneshot_hihat #(
     input trig,
     input sw
 );
-
-  shortint noise_lut[CLIP_LEN];
-  noise_lut #(.LUT_SIZE(CLIP_LEN)) noise_lut_mod_inst (.lut(noise_lut));
-
-
-  //WARN: This is sloppy
-  //
-  // Trigger debounce logic
-  logic trigger_prev = 0;  // Previous state of trigger signal
-  logic trigger_rising_edge = 0;  // Flag for rising edge detection
-
-  // Debouncing the trigger to detect rising edge
-  always_ff @(posedge pblrc) begin
-    trigger_prev <= trig;
-    trigger_rising_edge <= trig && !trigger_prev;  // Detect rising edge (trigger asserted)
-  end
-  //WARN: This is sloppy
-
+  reg debounced;
+  debounce debouncer_i (
+      .trig(trig),
+      .clk (pblrc),
+      .out (debounced)
+  );
 
   logic [VOLUME_BITS-1:0] volume_env;
   oneshot_enveloper #(
@@ -37,9 +25,12 @@ module src_oneshot_hihat #(
   ) envelope_i (
       .mclk(mclk),
       .rst(rst),
-      .trigger(trigger_rising_edge),
+      .trigger(debounced),
       .volume_out(volume_env)
   );
+
+  shortint noise_lut[CLIP_LEN];
+  noise_lut #(.LUT_SIZE(CLIP_LEN)) noise_lut_mod_inst (.lut(noise_lut));
 
   static reg [FREQ_RES_BITS-1:0] freq = 12 * 2;
   shortint current_sample_novol;
@@ -75,6 +66,10 @@ module src_oneshot_hihat #(
       .sample_out(current_sample_aafilt)
   );
 
+  //
+  // Post Processing
+  //
+
   // hp filter to bring out the hihat-ness
   shortint current_sample_final;
   hihat_highpass_filter hihat_filt_i (
@@ -87,7 +82,6 @@ module src_oneshot_hihat #(
 
   assign p_sample_buffer = sw ? current_sample_final : current_sample_aafilt;
 endmodule
-
 
 module hihat_highpass_filter (
     input  shortint sample_in,   // 16-bit signed input sample
@@ -112,9 +106,6 @@ module hihat_highpass_filter (
   );
 
 endmodule
-
-
-
 
 module noise_lut #(
     parameter int LUT_SIZE = 256

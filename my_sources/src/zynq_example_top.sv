@@ -1,39 +1,36 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company:
-// Engineer:
-//
-// Create Date: 08/12/2023 10:50:04 AM
-// Design Name:
-// Module Name: zynq_example_top
-// Project Name:
-// Target Devices:
-// Tool Versions:
-// Description:
-//
-// Dependencies:
-//
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-//
-//////////////////////////////////////////////////////////////////////////////////
-// Define a struct to group related audio control signals
 
 localparam int M_BUF_LEN = 32;
 localparam int FREQ_BITS = 8;
 localparam int VOLUME_BITS = 8;
 
-// 16 bits
-typedef struct {
+typedef struct packed {
   logic [FREQ_BITS-1:0]   freq;
   logic [VOLUME_BITS-1:0] vol;
-} SourceControlReg_t;
+} SourceControl_t;
 
-typedef struct {
-  SourceControlReg_t bram;
-  SourceControlReg_t triangle_player;
-} AudioControlReg_t;
+typedef struct packed {
+  SourceControl_t sine;
+  SourceControl_t triangle;
+} OscillatorControlReg_t;
+
+typedef struct packed {
+  SourceControl_t source;
+  reg [15:0] control;
+} OscillatorBRAMReg_t;
+
+typedef struct packed {
+  reg kick;
+  reg snare;
+  reg hihat;
+  reg [28:0] fill;
+} DrumControlReg_t;
+
+typedef struct packed {
+  reg [7:0]  vol;
+  reg [7:0]  strd;
+  reg [15:0] fill;
+} MainControlReg_t;
 
 module zynq_example_top (
     inout [14:0] DDR_addr,
@@ -76,7 +73,7 @@ module zynq_example_top (
   logic rstn;
   assign rst = ~rstn;
 
-  // bram interface instantiation a
+  // bram interface instantiation
   logic [31:0] BRAM_addr;
   logic BRAM_clk;
   logic [31:0] BRAM_din;
@@ -85,79 +82,26 @@ module zynq_example_top (
   logic BRAM_rst;
   logic [3:0] BRAM_we;
 
-  // instantiate gpio control registers (audio control reg)
-  wire [31:0] PS_32b_AudioControlReg_In;
-  wire [31:0] PS_32b_AudioControlReg_Out;
-
-  // and the general board inputs can be accessed by the arm cores
-  wire [31:0] PS_32bIn_AxiReg;
-  assign PS_32bIn_AxiReg[3:0] = sw;
-  assign PS_32bIn_AxiReg[7:4] = btn;
-
-  //// assign the bits to the associated controls
-  // From Arm Cores
-  //  wire [FREQ_RES_BITS -1:0] player_source_freq = PS_32b_AudioControlReg_Out[FREQ_RES_BITS-1:0];
-  //  wire [FREQ_RES_BITS -1:0] bram_source_freq = PS_32b_AudioControlReg_Out[(FREQ_RES_BITS-1)+4:4];
-  //
-  //  wire refresh = PS_32b_AudioControlReg_Out[8];
-  //  wire refresh_bram = PS_32b_AudioControlReg_Out[9];
-  //  //logic [VOLUME_BITS-1:0] volume_master = gpio_ctrl_o_32b_tri_o[15 : 8];
-  //  logic [VOLUME_BITS-1:0] player_source_vol = PS_32b_AudioControlReg_Out[23 : 16];
-  //  logic [VOLUME_BITS-1:0] bram_source_vol = PS_32b_AudioControlReg_Out[31 : 24];
-
   ////////////////
   // audio control
 
   // Declare an instance of the struct
-  SourceControlReg_t player;
-  SourceControlReg_t bram;
-  // Assign values to the struct fields
-  //always_comb begin
-  //end
-
-  assign player.freq = PS_32b_AudioControlReg_Out[7:0];
-  assign bram.freq = PS_32b_AudioControlReg_Out[15:8];
-  assign player.vol = PS_32b_AudioControlReg_Out[23:16];
-  assign bram.vol = PS_32b_AudioControlReg_Out[31:24];
+  MainControlReg_t main;
+  OscillatorControlReg_t osc;
+  OscillatorBRAMReg_t bram;
+  DrumControlReg_t drum;
 
   //----------------------------------------------------------
 
-
   /////////////
   //
-  // MASTER PLAYBACK, TO I2S OUT
-  //
-
-  logic [7:0] m_sample_index;  // 2^8 master sample indexes
-  shortint m_sample_buffer[M_BUF_LEN];
-
-  pain_and_suffering #(
-      .SAMPLE_BITS(16),
-      .CLIP_LEN(M_BUF_LEN),
-      .VOLUME_BITS(VOLUME_BITS)
-  ) pain_i (
-      .audio_I2S_bclk(audio_I2S_bclk),
-      .audio_I2S_pblrc(audio_I2S_pblrc),
-      .audio_I2S_pbdat(audio_I2S_pbdat),
-      .mclk(audio_cons_mclk),
-      .volume(4'b1111),
-      .sample(m_sample_buffer),
-      .sample_index(m_sample_index)
-  );
-
-  //----------------------------------------------------------
-
-
-  /////////////
-  //
-  // AUDIO SOURCES
+  // AUDIO (OSCILLATOR) SOURCES
   //
 
   shortint bram_sample_buffer;  // Buffer for data read from BRAM
   shortint triangle_sample_buffer;
   shortint sine_sample_buffer;
 
-  /*
   I2S_bram_DMA #(
       .NUM_WORDS(256),
       .VOLUME_BITS(VOLUME_BITS),
@@ -174,18 +118,16 @@ module zynq_example_top (
       .BRAM_rst (BRAM_rst),   // BRAM reset
       .BRAM_we  (BRAM_we),    // BRAM write enable
 
-      //.bram_data_buffer(bram_data_buffer),
       .refresh(1),  // TODO:
 
       // Player connections
       .mclk(audio_cons_mclk),
-      .volume(0),  // WARN:
-      .p_frequency(0),  // WARN:
+      .volume(bram.source.vol),
+      .p_frequency(bram.source.freq),
 
       .valid(),
       .current_sample(bram_sample_buffer)
   );
-*/
 
   src_triangle #(
       .CLIP_LEN(256),
@@ -197,9 +139,9 @@ module zynq_example_top (
       .rst(rst),
       .p_sample_buffer(triangle_sample_buffer),
       .valid(),
-      .volume(player.vol),
-      .p_frequency(player.freq),
-      .sw(sw[0])
+      .volume(osc.triangle.vol),
+      .p_frequency(osc.triangle.freq),
+      .sw(sw[3])
   );
 
   src_sine #(
@@ -212,18 +154,14 @@ module zynq_example_top (
       .rst(rst),
       .p_sample_buffer(sine_sample_buffer),
       .valid(),
-      .volume(bram.vol),
-      .p_frequency(bram.freq),
-      .sw(sw[0])
+      .volume(osc.sine.vol),
+      .p_frequency(osc.sine.freq),
+      .sw(sw[3])
   );
 
-  shortint triangle_final;
-  assign triangle_final = triangle_sample_buffer;
+  //----------------------------------------------------------
 
-  shortint sine_final;
-  assign sine_final = sine_sample_buffer;
-
-  /////////////
+  ////////////
   //
   // ONESHOT SOURCES
   //
@@ -231,16 +169,17 @@ module zynq_example_top (
   shortint oneshot_808_sample_buffer;
   shortint oneshot_snare_sample_buffer;
   shortint oneshot_hihat_sample_buffer;
-  /*
   src_oneshot_808 #(
       .CLIP_LEN(256),
       .VOLUME_BITS(VOLUME_BITS),
       .FREQ_RES_BITS(FREQ_BITS)
   ) src_oneshot_808_i (
       .mclk(audio_cons_mclk),
+      .pblrc(audio_I2S_pblrc),
       .rst(rst),
       .p_sample_buffer(oneshot_808_sample_buffer),
-      .trig(btn[0])  // WARN: Fuck it no debouncer, it might work anyway
+      .trig(btn[0] | drum.kick),
+      .sw(sw[0])
   );
 
   src_oneshot_snare #(
@@ -249,11 +188,13 @@ module zynq_example_top (
       .FREQ_RES_BITS(FREQ_BITS)
   ) src_oneshot_snare_i (
       .mclk(audio_cons_mclk),
+      .pblrc(audio_I2S_pblrc),
       .rst(rst),
       .p_sample_buffer(oneshot_snare_sample_buffer),
-      .trig(btn[1])  // WARN: Fuck it no debouncer, it might work anyway
+      .trig(btn[1] | drum.snare),
+      .sw(sw[1])
   );
-*/
+
   src_oneshot_hihat #(
       .CLIP_LEN(256),
       .VOLUME_BITS(VOLUME_BITS),
@@ -263,8 +204,8 @@ module zynq_example_top (
       .pblrc(audio_I2S_pblrc),
       .rst(rst),
       .p_sample_buffer(oneshot_hihat_sample_buffer),
-      .trig(btn[2]),
-      .sw(sw[1])
+      .trig(btn[2] | drum.hihat),
+      .sw(sw[2])
   );
 
   //
@@ -275,11 +216,14 @@ module zynq_example_top (
 
   //----------------------------------------------------------
 
-
   /////////////
   //
-  // Audio Combinator prototype
+  // Audio Combinator
   //
+
+  // master playback buffer
+  logic [7:0] m_sample_index;
+  shortint m_sample_buffer[M_BUF_LEN];
 
   // Bram data buffer at set frequency matching the m sample buffer
   shortint output_filtered, output_filter_input;
@@ -293,8 +237,6 @@ module zynq_example_top (
       before_index <= m_sample_index - 1;
     end
 
-    //output_filter_input <= bram_sample_buffer + triangle_sample_buffer;  // Store in buffer
-    //m_sample_buffer[before_index] <= output_filtered;
     m_sample_buffer[before_index] <=
       oneshot_hihat_sample_buffer +
       oneshot_snare_sample_buffer +
@@ -305,18 +247,28 @@ module zynq_example_top (
       bram_sample_buffer;
   end
 
-  /*
-  fir_lowpass #() lp_filter (
-      .clk (m_sample_index),
-      .rst (rst),
-      .din (output_filter_input),
-      .dout(output_filtered)
-  );
-  */
-
-
   //----------------------------------------------------------
 
+  /////////////
+  //
+  // MASTER PLAYBACK, TO I2S OUT
+  //
+
+  pain_and_suffering #(
+      .SAMPLE_BITS(16),
+      .CLIP_LEN(M_BUF_LEN),
+      .VOLUME_BITS(VOLUME_BITS)
+  ) pain_i (
+      .audio_I2S_bclk(audio_I2S_bclk),
+      .audio_I2S_pblrc(audio_I2S_pblrc),
+      .audio_I2S_pbdat(audio_I2S_pbdat),
+      .mclk(audio_cons_mclk),
+      .volume(main.vol),
+      .sample(m_sample_buffer),
+      .sample_index(m_sample_index)
+  );
+
+  //----------------------------------------------------------
 
   /////////////
   //
@@ -324,12 +276,13 @@ module zynq_example_top (
   //
 
   design_1_wrapper design_1_wrapper_i (
-
-      //// MCU reset, MCU clk
-      .peripheral_aresetn_0(rstn),
-      .FCLK_CLK0_0(clk),
-
-      //// external (leaves the FPGA, interfaces with the rest of the on board peripherals)
+      .BRAM_PORTB_0_addr(BRAM_addr),
+      .BRAM_PORTB_0_clk(BRAM_clk),
+      .BRAM_PORTB_0_din(BRAM_din),
+      .BRAM_PORTB_0_dout(BRAM_dout),
+      .BRAM_PORTB_0_en(BRAM_en),
+      .BRAM_PORTB_0_rst(BRAM_rst),
+      .BRAM_PORTB_0_we(BRAM_we),
       .DDR_addr(DDR_addr),
       .DDR_ba(DDR_ba),
       .DDR_cas_n(DDR_cas_n),
@@ -352,53 +305,23 @@ module zynq_example_top (
       .FIXED_IO_ps_porb(FIXED_IO_ps_porb),
       .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb),
 
+      .drum_control_0_tri_o(drum),
+      .drum_control_1_tri_o(),
+
+      .osc_control_0_tri_o(osc),
+      .osc_control_1_tri_o(bram),
+
+      .main_control_in_tri_i (),
+      .main_control_interrupt(),
+      .main_control_out_tri_o(main),
+
+      .FCLK_CLK0_0(clk),
+      .MCLK(audio_cons_mclk),
 
       //// on board LEDs and switches
       .leds_4bits_tri_o(),
-      .GPIO_In_32bits_tri_i(PS_32bIn_AxiReg),  // allows the arm chip to read the state of gpio
-
-
-      //// audio control gpio
-      .gpio_ctrl_i_32b_tri_i(PS_32b_AudioControlReg_In),
-      .gpio_ctrl_o_32b_tri_o(PS_32b_AudioControlReg_Out),
-      .ip2intc_irpt_0(ip2intc_irpt_0),  // and interrupt
-
-      .MCLK(audio_cons_mclk),
-
-      .slowest_sync_clk_0(audio_I2S_pblrc),  // WARN: be careful with this one
-
-      // internal (stays within the FPGA chip, to let the ARM core IP communicate with the soft logic)
-      .BRAM_PORTB_0_addr(BRAM_addr),
-      .BRAM_PORTB_0_clk (BRAM_clk),
-      .BRAM_PORTB_0_din (BRAM_din),
-      .BRAM_PORTB_0_dout(BRAM_dout),
-      .BRAM_PORTB_0_en  (BRAM_en),
-      .BRAM_PORTB_0_rst (BRAM_rst),
-      .BRAM_PORTB_0_we  (BRAM_we)
-
-      //.BRAM_SynthBuffer_PORTA_1_addr(BRAM_SynthBuffer_addr),
-      //.BRAM_SynthBuffer_PORTA_1_clk(BRAM_SynthBuffer_clk),
-      //.BRAM_SynthBuffer_PORTA_1_din(BRAM_SynthBuffer_din),
-      //.BRAM_SynthBuffer_PORTA_1_dout(BRAM_SynthBuffer_dout),
-      //.BRAM_SynthBuffer_PORTA_1_en(BRAM_SynthBuffer_en),
-      //.BRAM_SynthBuffer_PORTA_1_we(BRAM_SynthBuffer_we),
-
-      //// adding my own stuff for audio
-
-      // These stay on this module
-      //      .s_axis_aud_0_tdata(s_axis_aud_0_tdata), // AXI-S generator > I2S Converter
-      //      .s_axis_aud_0_tid(s_axis_aud_0_tid),
-      //      .s_axis_aud_0_tready(s_axis_aud_0_tready),
-      //      .s_axis_aud_0_tvalid(s_axis_aud_0_tvalid),
-
-      // these leave the chip (constraints file)
-      //.IIC_0_scl_io(IIC_0_scl), // to I2C audio registers
-      //.IIC_0_sda_io(IIC_0_sda),
-
-      /*
-      .sdata_0_out_0(audio_I2S_pbdat), // I2S Converter > I2S chip off board
-      .lrclk_out_0(audio_I2S_pblrc),
-      .bclk_out_0(audio_I2S_bclk)
-      */
+      .GPIO_In_32bits_tri_i(PS_32bIn_AxiReg),
+      .peripheral_aresetn_0(rstn),
+      .slowest_sync_clk_0(audio_I2S_pblrc)
   );
 endmodule

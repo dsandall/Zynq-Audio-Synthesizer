@@ -1,37 +1,37 @@
-// jungle drum loop
-// https://youtu.be/Hal5TuhjNDE
-
-// TODO: use this to create hihat - feed in high passed noise, and make
-// no attack with fast decay
-// https://www.youtube.com/watch?v=lycuJKFHJFw&pp=ygUqaG93IHRvIG1ha2Ugc3ludGhlc2l6ZXIgaGloYXQgZnJvbSBzY3JhdGNo
-
-// TODO: make snare - start with kick drum, but high-low pitch at begin, and
-// add white noise spike/fade at begin https://youtu.be/Ky3yg8ghpo8
-
-
 module src_oneshot_snare #(
     parameter int CLIP_LEN = 64,
     parameter int VOLUME_BITS = 8,
     parameter int FREQ_RES_BITS = 8
 ) (
-
-    input mclk,  // Master Clock (256x sample rate)
+    input mclk,   // Master Clock (256x sample rate)
+    input pblrc,
     input rst,
 
     output shortint p_sample_buffer,
-    input trig
+    input trig,
+    input sw
 );
-  shortint sine_lut[CLIP_LEN];
-  sine_lut #(.LUT_SIZE(CLIP_LEN)) sine_lut_mod_inst (.lut(sine_lut));
 
-  // WARN: same as the 808 vol env right now
+  reg debounced;
+  debounce debouncer_i (
+      .trig(trig),
+      .clk (pblrc),
+      .out (debounced)
+  );
+
   logic [VOLUME_BITS-1:0] volume_env;
-  oneshot_enveloper envelope_i (
+  oneshot_enveloper #(
+      .ATTACK_TIME(1000),
+      .DECAY_TIME (3000)
+  ) envelope_i (
       .mclk(mclk),
       .rst(rst),
-      .trigger(trig),
+      .trigger(debounced),
       .volume_out(volume_env)
   );
+
+  shortint sine_lut[CLIP_LEN];
+  sine_lut #(.LUT_SIZE(CLIP_LEN)) sine_lut_mod_inst (.lut(sine_lut));
 
   static reg [FREQ_RES_BITS-1:0] freq = 12 * 4;  // WARN: middle C
   shortint current_sample_novol;
@@ -53,10 +53,21 @@ module src_oneshot_snare #(
       .VOLUME_BITS(VOLUME_BITS)
   ) volume_adjust_tri (
       .sample_in(current_sample_novol),
-      .sample_out(p_sample_buffer),
+      .sample_out(current_sample_nofilt),
       .volume(volume_env)
   );
 
+  // AA LP filter
+  shortint current_sample_aafilt;
+  fir_lowpass #() aa_filt_i (
+      .sample_in(current_sample_nofilt),
+      .sample_out(current_sample_aafilt),
+      .sample_clk(pblrc),
+      .mclk(mclk),
+      .rst(rst)
+  );
+
+  assign p_sample_buffer = sw ? current_sample_nofilt : current_sample_aafilt;
 endmodule
 
 

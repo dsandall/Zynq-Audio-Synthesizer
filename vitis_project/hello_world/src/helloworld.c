@@ -18,19 +18,8 @@
 // //  *   uartlite    Configurable only in HW design
 // //  *   ps7_uart    115200 (configured by bootrom/bsp)
 // //  */
-// // #include <stdio.h>
-// // #include "platform.h"
-// // #include "xil_printf.h"
-// // int main()
-// // {
-// //     init_platform();
-// //     print("Hello World\n\r");
-// //     print("Successfully ran Hello World application");
-// //     cleanup_platform();
-// //     return 0;
-// // }
 
-#include "ff.h"
+// #include "ff.h"
 #include "platform.h"
 #include "xbram.h"
 #include "xgpio.h"
@@ -45,57 +34,63 @@
 #define LEDS_MASK 0x0F     // 4 leds
 #define SWITCHES_MASK 0x0F // 4 switches
 
-#include "xparameters.h"
-#include "sleep.h"
 #include "sd_card.h"
+#include "sleep.h"
+#include "xparameters.h"
 
-volatile uint32_t *AudioCrtlReg = (uint32_t *)XPAR_AUDIO_CONTROL_GPIO_BASEADDR;
+typedef struct __attribute__((packed)) {
+  uint8_t vol;
+  uint8_t freq;
+} SourceControl_t;
 
-// // From Arm Cores
-// wire [FREQ_RES_BITS -1:0] player_source_freq =
-// gpio_ctrl_o_32b_tri_o[FREQ_RES_BITS-1:0]; wire refresh =
-// gpio_ctrl_o_32b_tri_o[4]; wire [VOLUME_BITS-1:0] volume_master =
-// gpio_ctrl_o_32b_tri_o[15 : 8];
+typedef struct __attribute__((packed)) {
+  SourceControl_t triangle;
+  SourceControl_t sine;
+} OscillatorControlReg_t;
 
-// logic [VOLUME_BITS-1:0] player_source_vol = gpio_ctrl_o_32b_tri_o[23 : 16];
-// logic [VOLUME_BITS-1:0] bram_source_vol = gpio_ctrl_o_32b_tri_o[31 : 24];
+typedef struct __attribute__((packed)) {
+  uint16_t control;
+  SourceControl_t source;
+} OscillatorBRAMReg_t;
 
-void writePlayerFreq(uint8_t freq) {
-  //*AudioCrtlReg = (*AudioCrtlReg & 0xFFFFFFF0) | (freq & 0x000F);
-  *AudioCrtlReg = (*AudioCrtlReg & 0xFFFFFF00) | (freq & 0x00FF);
-};
+typedef struct __attribute__((packed)) {
+  uint32_t fill : 29;
+  uint32_t hihat : 1;
+  uint32_t snare : 1;
+  uint32_t kick : 1;
+} DrumControlReg_t;
 
-void writeBramFreq(uint8_t freq) {
-  *AudioCrtlReg = (*AudioCrtlReg & 0xFFFFF00FF) | (freq & 0x00FF) << 8;
-};
+typedef struct __attribute__((packed)) {
+  uint16_t fill;
+  uint8_t strd;
+  uint8_t vol;
+} MainControlReg_t;
 
-/*
-void writeRefresh(uint8_t bool) {
-  *AudioCrtlReg = (*AudioCrtlReg & 0xFFFFFEFF) | ((bool & 0x0001) << 8);
-  // bit 0 of the second byte in the reg.
-};
-void writeReg_RefreshBram(uint8_t bool) {
-  *AudioCrtlReg = (*AudioCrtlReg & 0xFFFFFDFF) | ((bool & 0x0001) << 9);
-  // bit 0 of the second byte in the reg.
-};
-void writeMasterVol(uint8_t vol){
-    *AudioCrtlReg = (*AudioCrtlReg & 0xFFFF00FF) | ((vol & 0x00FF) << 8);
-};
-*/
-//  assign player.freq = PS_32b_AudioControlReg_Out[7:0];
-//  assign bram.freq = PS_32b_AudioControlReg_Out[15:8];
-//  assign player.vol = PS_32b_AudioControlReg_Out[23:16];
-//  assign bram.vol = PS_32b_AudioControlReg_Out[31:24];
+volatile DrumControlReg_t *DrumReg =
+    (DrumControlReg_t *)XPAR_DRUM_CONTROL_REG_BASEADDR;
+volatile MainControlReg_t *MainReg =
+    (MainControlReg_t *)XPAR_MAIN_CONTROL_REG_BASEADDR;
+volatile OscillatorControlReg_t *OscReg =
+    (OscillatorControlReg_t *)XPAR_OSCILLATOR_CONTROL_REG_BASEADDR;
+volatile OscillatorBRAMReg_t *BRAMReg =
+    (OscillatorBRAMReg_t *)XPAR_XGPIO_2_BASEADDR;
 
-void writePlayerVol(uint8_t vol) {
-  *(AudioCrtlReg) = (*(AudioCrtlReg) & 0xFF00FFFF) | ((vol & 0x00FF) << 16);
-};
+void debug_printHex(const unsigned char *dataBuffer, size_t length) {
+  for (size_t i = 0; i < length; i++) {
+    if (isprint(dataBuffer[i])) {
+      xil_printf("[x%1X \033[1;32m%c\033[0m] ", dataBuffer[i],
+                 dataBuffer[i]); // Green for printable
+    } else {
+      xil_printf("[x%2X  ] ", dataBuffer[i]); // Default color for non-printable
+    }
 
-void writeBramVol(uint8_t vol) {
-  *(AudioCrtlReg) = (*(AudioCrtlReg) & 0x00FFFFFF) | ((vol & 0x00FF) << 24);
-};
-
-void flickBit(int bit) { *AudioCrtlReg ^= 0x1 << bit; };
+    // Line break every 16 bytes for readability
+    if ((i + 1) % 8 == 0) {
+      xil_printf("\n");
+    }
+  }
+  xil_printf("\n");
+}
 
 int my_init() {
 
@@ -131,6 +126,98 @@ int my_init() {
   return XST_SUCCESS;
 }
 
+void sine_note(uint8_t f) {
+  OscReg->sine.vol = 200;
+  OscReg->sine.freq = f;
+  usleep(100000);
+  OscReg->sine.vol = 0;
+  usleep(20000);
+};
+
+void clearDrum() {
+  usleep(200); // give the hardware a second to register the deassertion
+  DrumReg->kick = 0;
+  DrumReg->snare = 0;
+  DrumReg->hihat = 0;
+  usleep(200); // give the hardware a second to register the deassertion
+}
+
+void drums() {
+  DrumReg->kick = 1;
+  DrumReg->hihat = 1;
+  clearDrum();
+  usleep(200000);
+
+  DrumReg->hihat = 1;
+  clearDrum();
+  usleep(200000);
+
+  DrumReg->snare = 1;
+  DrumReg->hihat = 1;
+  clearDrum();
+  usleep(200000);
+
+  DrumReg->hihat = 1;
+  clearDrum();
+  usleep(200000);
+}
+
+void e1m1() {
+  // bar 1
+  DrumReg->kick = 1;
+  DrumReg->hihat = 1;
+  sine_note(2 * 12 + 4);
+  DrumReg->kick = 0;
+  DrumReg->hihat = 0;
+  sine_note(2 * 12 + 4);
+  sine_note(3 * 12 + 4);
+
+  sine_note(2 * 12 + 4);
+  sine_note(2 * 12 + 4);
+  sine_note(3 * 12 + 2);
+
+  sine_note(2 * 12 + 4);
+  sine_note(2 * 12 + 4);
+  sine_note(3 * 12 + 0);
+
+  sine_note(2 * 12 + 4);
+  sine_note(2 * 12 + 4);
+  sine_note(3 * 12 - 2);
+
+  sine_note(2 * 12 + 4);
+  sine_note(2 * 12 + 4);
+  sine_note(3 * 12 - 1);
+  sine_note(3 * 12 - 0);
+
+  // bar 1 ends
+  //
+  // bar 2
+
+  DrumReg->kick = 1;
+  DrumReg->hihat = 1;
+  sine_note(2 * 12 + 4);
+  DrumReg->kick = 0;
+  DrumReg->hihat = 0;
+  sine_note(2 * 12 + 4);
+  sine_note(3 * 12 + 4);
+
+  sine_note(2 * 12 + 4);
+  sine_note(2 * 12 + 4);
+  sine_note(3 * 12 + 2);
+
+  sine_note(2 * 12 + 4);
+  sine_note(2 * 12 + 4);
+  sine_note(3 * 12 + 0);
+
+  sine_note(2 * 12 + 4);
+  sine_note(2 * 12 + 4);
+  sine_note(3 * 12 - 2);
+  sine_note(3 * 12 - 2);
+  sine_note(3 * 12 - 2);
+  sine_note(3 * 12 - 2);
+  sine_note(3 * 12 - 2);
+}
+
 int main() {
 
   if (my_init() == XST_SUCCESS) {
@@ -144,29 +231,20 @@ int main() {
   //     XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, i, i);
   //   }
 
-  *AudioCrtlReg = 0x00000000;
-  // uint8_t refresh_en = 1;
-  // writeRefresh(refresh_en);
-  // uint8_t refresh_bram = 1;
-  // writeReg_RefreshBram(refresh_bram);
-  writePlayerVol(0);
-  writeBramVol(0);
-  writePlayerFreq(0); // samples
-  writeBramFreq(0);   // 9, 12, 15 introduce glitching (but only at some vols)
-                      // (and other freqs glitch at other vols..)
+  // writeReg_RefreshBram(1);
 
   while (1) {
 
+    xil_printf("mainreg is %d\n\r", *MainReg);
+    debug_printHex((const unsigned char *)MainReg, 4);
+
     // // write loop iteration to bram
     // XBram_WriteReg(XPAR_AXI_BRAM_CTRL_0_BASEADDR, 0, loop_count++);
-
     /*
         // Read gpio switches
         u32 switches = XGpio_DiscreteRead(&Gpio, SWITCH_CHANNEL);
         XGpio_DiscreteWrite(&Gpio, LED_CHANNEL, switches);
-        xil_printf("checkeddddd! %x\n\r", switches);
-    */
-    /*
+
         // read bram contents
         for (int i = 0; i < 16 * 4; i = i + 4) {
           int out_data;
@@ -175,62 +253,45 @@ int main() {
           xil_printf("%d: %X\n\r", i, out_data);
         }
     */
-    // xil_printf("f is: %d\n", f);
 
     char c = inbyte();
 
-    static uint8_t f = 0;
-    static uint8_t v = 0;
-
     if (c == '\r') {
 
-      // writePlayerVol(player_v++);
-
-      //      refresh_en = refresh_en ? 0 : 1;
-      //      xil_printf("refresh_main_buffer is %d\n", refresh_en);
-      //      writeRefresh(refresh_en);
-      //
-      //    } else if (c == 'x') {
-      //      refresh_bram = refresh_bram ? 0 : 1;
-      //      xil_printf("refresh_bram is %d\n", refresh_bram);
-      //      writeReg_RefreshBram(refresh_bram);
-
     } else if (c == '+') {
-      v++;
-
+      MainReg->vol++;
     } else if (c == '-') {
-      v--;
-
-    } else if (c == 'y') {
+      MainReg->vol--;
+    } else if (c == ' ') {
       // freq up
-      f++;
+      DrumReg->kick = 1;
+      usleep(500);
+      DrumReg->kick = 0;
 
     } else if (c == 'w') {
       // freq down
-      f--;
+      DrumReg->snare = 1;
+      usleep(500);
+      DrumReg->snare = 0;
 
     } else if (c == 'v') {
-      // apply to sine
-      writeBramVol(v);
-      writeBramFreq(f);
+      DrumReg->hihat = 1;
+      usleep(500);
+      DrumReg->hihat = 0;
 
-      xil_printf("wrote to bram (sine player)\n\r");
     } else if (c == 'm') {
-      // apply to triangle
-      writePlayerVol(v);
-      writePlayerFreq(f);
-
-      xil_printf("wrote to player\n\r");
-    } else {
-      // playKick((c % 8) * 12);
+      e1m1();
+    } else if (c == 'l') {
+      drums();
     }
 
+    uint8_t f = 0;
+    uint8_t v = 0;
     const int tri_octave = f / 12;
     const int tri_semitone = f % 12;
 
     xil_printf("f: %d, v: %d\n\r", f, v);
     xil_printf("octave %d, semitone %d\n\r", tri_octave, tri_semitone);
-    // xil_printf("reg is 0x%08X\n\r", *AudioCrtlReg);
   }
 
   cleanup_platform();
@@ -261,114 +322,12 @@ FIL fil;
    \r\n");
 */
 
+// jungle drum loop
+// https://youtu.be/Hal5TuhjNDE
 
+// TODO: use this to create hihat - feed in high passed noise, and make
+// no attack with fast decay
+// https://www.youtube.com/watch?v=lycuJKFHJFw&pp=ygUqaG93IHRvIG1ha2Ugc3ludGhlc2l6ZXIgaGloYXQgZnJvbSBzY3JhdGNo
 
-
-void playBass(uint8_t freq) {
-  int scale = 1000;
-  int pitchFall_delay = 3;
-  int volumeFall_delay = 9;
-  // high pitch for a sec
-  // low pitch for remainder
-  // long fadeout
-  //
-
-  writePlayerVol(0);
-  writePlayerFreq(freq);
-  writePlayerVol(7);
-  writePlayerFreq(1 + freq);
-  usleep(pitchFall_delay * scale);
-  writePlayerFreq(2 + freq);
-  usleep(pitchFall_delay * scale);
-  writePlayerFreq(3 + freq);
-  usleep(pitchFall_delay * scale);
-  writePlayerFreq(4 + freq);
-  usleep(pitchFall_delay * scale);
-  writePlayerVol(6);
-  usleep(volumeFall_delay * scale);
-  writePlayerVol(5);
-  usleep(volumeFall_delay * scale);
-  usleep(volumeFall_delay * scale);
-  writePlayerVol(4);
-  usleep(volumeFall_delay * scale);
-  usleep(volumeFall_delay * scale);
-  writePlayerVol(3);
-  usleep(volumeFall_delay * scale);
-  usleep(volumeFall_delay * scale);
-  writePlayerVol(2);
-  usleep(volumeFall_delay * scale);
-  usleep(volumeFall_delay * scale);
-  writePlayerVol(1);
-  usleep(volumeFall_delay * scale);
-  usleep(volumeFall_delay * scale);
-  writePlayerVol(0);
-  writePlayerFreq(0);
-};
-
-void playKick(uint8_t freq_add) {
-  int scale = 2500;
-  int pitchFall_delay = 3;
-  const int pitchRise = 8;
-  int volumeFall_delay = 8;
-  // high pitch for a sec
-  // low pitch for remainder
-  // long fadeout
-
-  // hw implementations:
-  // oneshot triggering (register write 1, becomes 0 when "handled", can be
-  // interrupted)
-  //
-  // simple time controllers for linear/constant freq and volume changes
-  //
-  // filters with coefficients that make sense
-  //
-
-  // jungle drum loop
-  // https://youtu.be/Hal5TuhjNDE
-
-  // TODO: use this to create hihat - feed in high passed noise, and make
-  // no attack with fast decay
-  // https://www.youtube.com/watch?v=lycuJKFHJFw&pp=ygUqaG93IHRvIG1ha2Ugc3ludGhlc2l6ZXIgaGloYXQgZnJvbSBzY3JhdGNo
-
-  // TODO: make snare - start with kick drum, but high-low pitch at begin, and
-  // add white noise spike/fade at begin https://youtu.be/Ky3yg8ghpo8
-
-  const uint8_t volStart = 64;
-
-  writeBramVol(volStart);
-
-  for (uint8_t f = freq_add; f < freq_add + pitchRise; f++) {
-    writeBramFreq(f);
-    usleep(pitchFall_delay * scale);
-  }
-
-  for (uint8_t v = volStart; v > 0; v--) {
-    writeBramVol(v);
-    usleep(volumeFall_delay * scale);
-  }
-
-  writeBramVol(0);
-  writeBramFreq(0);
-
-  //   writeBramVol(7);
-  //   writeBramFreq(1 + freq_add);
-  //   usleep(pitchFall_delay * scale);
-  //   writeBramFreq(2 + freq_add);
-  //   usleep(pitchFall_delay * scale);
-  //   writeBramFreq(3 + freq_add);
-  //   usleep(pitchFall_delay * scale);
-  //   writeBramFreq(4 + freq_add);
-  //   usleep(pitchFall_delay * scale);
-  //   writeBramVol(6);
-  //   usleep(volumeFall_delay * scale);
-  //   writeBramVol(5);
-  //   usleep(volumeFall_delay * scale);
-  //   writeBramVol(4);
-  //   usleep(volumeFall_delay * scale);
-  //   writeBramVol(3);
-  //   usleep(volumeFall_delay * scale);
-  //   writeBramVol(2);
-  //   usleep(volumeFall_delay * scale);
-  //   writeBramVol(0);
-  //   writeBramFreq(0);
-};
+// TODO: make snare - start with kick drum, but high-low pitch at begin, and
+// add white noise spike/fade at begin https://youtu.be/Ky3yg8ghpo8

@@ -1,26 +1,5 @@
 `timescale 1ns / 1ps
 
-//////////////////////////////////////////////////////////////////////////////////
-// Company:
-// Engineer:
-//
-// Create Date:
-// Design Name:
-// Module Name: bram_general_interface
-// Project Name:
-// Target Devices:
-// Tool Versions:
-// Description: Generalized BRAM Interface Template
-//              Reads the first 5 words from BRAM and writes them back in reverse.
-//
-// Dependencies:
-//
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-//
-//////////////////////////////////////////////////////////////////////////////////
-
 // WARN: this is currently inefficient, as the bram reads in chunks of
 // 32, but the samples are stored in only the first 16 bits. If this
 // becomes a constraint, pack the samples into words, or increase the
@@ -56,22 +35,12 @@ module I2S_bram_DMA #(
 );
 
   //
-  // for the purposes of the player, we assume the BRAM to be static. (for
-  // now!)
+  // for the purposes of the player, we assume the BRAM to be static during
+  // playback
   //
 
   shortint shortint_buffer[NUM_WORDS];
-  /*
-  reg [31:0] bram_data_buffer[0:NUM_WORDS -1];  // Buffer for data read from BRAM
 
-  // Assign the lower 16 bits of each entry from bram_data_buffer to shortint_buffer
-  integer i;
-  always @* begin
-    for (i = 0; i < NUM_WORDS; i = i + 1) begin
-      shortint_buffer[i] = bram_data_buffer[i][15:0];  // Assign lower 16 bits
-    end
-  end
-*/
   shortint player_out;
   player_module #(
       .CLIP_LEN(CLIP_LEN),
@@ -99,11 +68,6 @@ module I2S_bram_DMA #(
   // end of player
   //
 
-
-
-
-
-  //
   //
   //
   ////
@@ -117,8 +81,6 @@ module I2S_bram_DMA #(
   typedef enum logic [2:0] {
     IDLE,
     READ,
-    WAIT,
-    REVERSE_WRITE,
     DONE
   } state_t;
 
@@ -147,7 +109,7 @@ module I2S_bram_DMA #(
 
       BRAM_rst <= 0;  // De-assert BRAM reset after initialization
 
-      case (state)
+      unique case (state)
         IDLE: begin
           BRAM_en <= 1;
           BRAM_we <= 0;

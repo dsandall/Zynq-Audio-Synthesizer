@@ -2,7 +2,7 @@
 //Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
-//Date        : Sat Feb 22 17:15:11 2025
+//Date        : Sat Mar 15 06:52:14 2025
 //Host        : ice-cubed running 64-bit EndeavourOS Linux
 //Command     : generate_target design_1_wrapper.bd
 //Design      : design_1_wrapper
@@ -42,10 +42,14 @@ module design_1_wrapper
     FIXED_IO_ps_srstb,
     GPIO_In_32bits_tri_i,
     MCLK,
-    gpio_ctrl_i_32b_tri_i,
-    gpio_ctrl_o_32b_tri_o,
-    ip2intc_irpt_0,
+    drum_control_0_tri_o,
+    drum_control_1_tri_o,
     leds_4bits_tri_o,
+    main_control_in_tri_i,
+    main_control_interrupt,
+    main_control_out_tri_o,
+    osc_control_0_tri_o,
+    osc_control_1_tri_o,
     peripheral_aresetn_0,
     slowest_sync_clk_0);
   input [31:0]BRAM_PORTB_0_addr;
@@ -79,10 +83,14 @@ module design_1_wrapper
   inout FIXED_IO_ps_srstb;
   input [31:0]GPIO_In_32bits_tri_i;
   output MCLK;
-  input [31:0]gpio_ctrl_i_32b_tri_i;
-  output [31:0]gpio_ctrl_o_32b_tri_o;
-  output ip2intc_irpt_0;
+  output [31:0]drum_control_0_tri_o;
+  output [31:0]drum_control_1_tri_o;
   output [3:0]leds_4bits_tri_o;
+  input [31:0]main_control_in_tri_i;
+  output main_control_interrupt;
+  output [31:0]main_control_out_tri_o;
+  output [31:0]osc_control_0_tri_o;
+  output [31:0]osc_control_1_tri_o;
   output [0:0]peripheral_aresetn_0;
   input slowest_sync_clk_0;
 
@@ -117,10 +125,14 @@ module design_1_wrapper
   wire FIXED_IO_ps_srstb;
   wire [31:0]GPIO_In_32bits_tri_i;
   wire MCLK;
-  wire [31:0]gpio_ctrl_i_32b_tri_i;
-  wire [31:0]gpio_ctrl_o_32b_tri_o;
-  wire ip2intc_irpt_0;
+  wire [31:0]drum_control_0_tri_o;
+  wire [31:0]drum_control_1_tri_o;
   wire [3:0]leds_4bits_tri_o;
+  wire [31:0]main_control_in_tri_i;
+  wire main_control_interrupt;
+  wire [31:0]main_control_out_tri_o;
+  wire [31:0]osc_control_0_tri_o;
+  wire [31:0]osc_control_1_tri_o;
   wire [0:0]peripheral_aresetn_0;
   wire slowest_sync_clk_0;
 
@@ -156,10 +168,14 @@ module design_1_wrapper
         .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb),
         .GPIO_In_32bits_tri_i(GPIO_In_32bits_tri_i),
         .MCLK(MCLK),
-        .gpio_ctrl_i_32b_tri_i(gpio_ctrl_i_32b_tri_i),
-        .gpio_ctrl_o_32b_tri_o(gpio_ctrl_o_32b_tri_o),
-        .ip2intc_irpt_0(ip2intc_irpt_0),
+        .drum_control_0_tri_o(drum_control_0_tri_o),
+        .drum_control_1_tri_o(drum_control_1_tri_o),
         .leds_4bits_tri_o(leds_4bits_tri_o),
+        .main_control_in_tri_i(main_control_in_tri_i),
+        .main_control_interrupt(main_control_interrupt),
+        .main_control_out_tri_o(main_control_out_tri_o),
+        .osc_control_0_tri_o(osc_control_0_tri_o),
+        .osc_control_1_tri_o(osc_control_1_tri_o),
         .peripheral_aresetn_0(peripheral_aresetn_0),
         .slowest_sync_clk_0(slowest_sync_clk_0));
 endmodule

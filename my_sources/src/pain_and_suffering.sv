@@ -55,11 +55,11 @@ module pain_and_suffering #(
   end
 
   volume_adjust #(
-      .VOLUME_BITS(4)
+      .VOLUME_BITS(8)
   ) volume_adjust_i (
       .sample_in(sample[sample_index]),
       .sample_out(volume_adjusted_sample),
-      .volume(volume[3:0])
+      .volume(volume)
   );
 
   ////// MCLK

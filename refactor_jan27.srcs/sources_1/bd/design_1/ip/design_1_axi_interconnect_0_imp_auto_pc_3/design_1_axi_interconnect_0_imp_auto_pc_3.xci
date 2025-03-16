@@ -1,11 +1,11 @@
 {
   "schema": "xilinx.com:schema:json_instance:1.0",
   "ip_inst": {
-    "xci_name": "design_1_axi_interconnect_0_imp_auto_pc_2",
-    "cell_name": "axi_interconnect_0/m03_couplers/auto_pc",
+    "xci_name": "design_1_axi_interconnect_0_imp_auto_pc_3",
+    "cell_name": "axi_interconnect_0/m04_couplers/auto_pc",
     "component_reference": "xilinx.com:ip:axi_protocol_converter:2.1",
     "ip_revision": "33",
-    "gen_directory": "../../../../../../refactor_jan27.gen/sources_1/bd/design_1/ip/design_1_axi_interconnect_0_imp_auto_pc_2",
+    "gen_directory": "../../../../../../refactor_jan27.gen/sources_1/bd/design_1/ip/design_1_axi_interconnect_0_imp_auto_pc_3",
     "parameters": {
       "component_parameters": {
         "SI_PROTOCOL": [ { "value": "AXI4", "value_src": "user", "value_permission": "bd_and_user", "resolve_type": "user", "usage": "all" } ],
@@ -20,7 +20,7 @@
         "RUSER_WIDTH": [ { "value": "0", "value_permission": "bd_and_user", "resolve_type": "user", "format": "long", "usage": "all" } ],
         "WUSER_WIDTH": [ { "value": "0", "value_permission": "bd_and_user", "resolve_type": "user", "format": "long", "usage": "all" } ],
         "BUSER_WIDTH": [ { "value": "0", "value_permission": "bd_and_user", "resolve_type": "user", "format": "long", "usage": "all" } ],
-        "Component_Name": [ { "value": "design_1_axi_interconnect_0_imp_auto_pc_2", "resolve_type": "user", "usage": "all" } ]
+        "Component_Name": [ { "value": "design_1_axi_interconnect_0_imp_auto_pc_3", "resolve_type": "user", "usage": "all" } ]
       },
       "model_parameters": {
         "C_FAMILY": [ { "value": "zynq", "resolve_type": "generated", "usage": "all" } ],
@@ -57,7 +57,7 @@
         "IPCONTEXT": [ { "value": "IP_Integrator" } ],
         "IPREVISION": [ { "value": "33" } ],
         "MANAGED": [ { "value": "TRUE" } ],
-        "OUTPUTDIR": [ { "value": "../../../../../../refactor_jan27.gen/sources_1/bd/design_1/ip/design_1_axi_interconnect_0_imp_auto_pc_2" } ],
+        "OUTPUTDIR": [ { "value": "../../../../../../refactor_jan27.gen/sources_1/bd/design_1/ip/design_1_axi_interconnect_0_imp_auto_pc_3" } ],
         "SELECTEDSIMMODEL": [ { "value": "rtl" } ],
         "SHAREDDIR": [ { "value": "../../ipshared" } ],
         "SWVERSION": [ { "value": "2024.2" } ],

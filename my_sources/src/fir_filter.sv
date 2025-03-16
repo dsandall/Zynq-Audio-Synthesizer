@@ -1,3 +1,216 @@
+
+// the newest one
+// assumes 48khz sample rate
+module fir_lowpass (
+    input  shortint sample_in,   // 16-bit signed input sample
+    output shortint sample_out,  // 16-bit signed output sample
+    input  logic    sample_clk,  // Clock signal
+    input  logic    mclk,
+    input  logic    rst          // Reset signal
+);
+
+  localparam int NUM_COEF = 24;
+
+  // py set to 20khz
+  shortint h[NUM_COEF] = '{
+      -70,
+      68,
+      -42,
+      -72,
+      324,
+      -693,
+      1049,
+      -1140,
+      622,
+      971,
+      -4740,
+      20108,
+      20108,
+      -4740,
+      971,
+      622,
+      -1140,
+      1049,
+      -693,
+      324,
+      -72,
+      -42,
+      68,
+      -70
+  };
+
+  /*
+  generic_fir_filter #(
+      .NUM_COEF(NUM_COEF)
+  ) fir_lowpass_i (
+      .sample_in(sample_in),
+      .sample_out(sample_out),
+      .sample_clk(sample_clk),
+      .clk_fast(mclk),
+      .rst(rst),
+      .coef(h)
+  );
+*/
+
+  pipelined_fir_filter #(
+      .NUM_COEF(NUM_COEF)
+  ) firstrd_lowpass_i (
+      .sample_in(sample_in),
+      .sample_out(sample_out),
+      .sample_clk(sample_clk),
+      .clk_fast(mclk),
+      .rst(rst),
+      .coef(h)
+  );
+
+endmodule
+
+module pipelined_fir_filter #(
+    parameter int NUM_COEF  // this should be 32 or 33
+) (
+    input  shortint sample_in,             // 16-bit signed input sample
+    output shortint sample_out,            // 16-bit signed output sample
+    input  logic    sample_clk,            // Clock signal
+    input  logic    rst,                   // Reset signal
+    input  shortint coef      [NUM_COEF],
+    input  logic    clk_fast               // 256x faster clock
+);
+
+  // tasks per sample clock
+  // shift new sample in, and shift all the others along
+  // move accumulation to output (after shifting)
+  // sum all h*x
+
+  // Define the shift register for the FIR filter
+  shortint x[NUM_COEF];  // Input shift register (delay line)
+  int accumulator;  // To hold the intermediate results
+
+  always_ff @(posedge sample_clk) begin
+    if (rst) begin
+      x <= '{default: 16'sd0};
+      sample_out <= 0;
+    end else begin
+
+      for (int i = 1; i < NUM_COEF; i++) begin
+        x[i] <= x[i-1];  // Shift all previous samples
+      end
+
+      x[0] <= sample_in;
+
+
+      // use the result of the FSM and set it up again
+      sample_out <= accumulator >>> 15;
+
+    end
+  end
+
+  // handle accumulation
+  typedef enum logic [1:0] {
+    IDLE,
+    ACCUMULATE,
+    DONE
+  } state_t;
+  state_t state;
+  int ia;
+  reg last_trigger;
+
+  always_ff @(posedge clk_fast) begin
+    if (rst) begin
+      ia <= 0;
+      state <= ACCUMULATE;
+      accumulator <= 0;
+      last_trigger <= 0;
+    end else begin
+
+      unique case (state)
+
+        IDLE: begin
+          if (sample_clk != last_trigger) begin
+            last_trigger <= sample_clk;  // save state
+
+            ia <= 0;
+            state <= ACCUMULATE;
+            accumulator <= 0;
+          end
+        end
+
+        ACCUMULATE: begin
+          accumulator <= accumulator + (coef[ia] * x[ia]);
+
+          ia <= ia + 1;
+          if (ia + 1 == NUM_COEF) begin
+            state <= IDLE;
+          end
+        end
+
+      endcase
+
+    end
+  end
+
+endmodule
+
+/*
+module generic_fir_filter #(
+    parameter int NUM_COEF  // this should be 32 or 33
+) (
+    input  shortint sample_in,             // 16-bit signed input sample
+    output shortint sample_out,            // 16-bit signed output sample
+    input  logic    sample_clk,            // Clock signal
+    input  logic    rst,                   // Reset signal
+    input  shortint coef      [NUM_COEF],
+    input  logic    clk_fast               // 256x faster clock
+);
+
+  // Define the shift register for the FIR filter
+  shortint x[NUM_COEF];  // Input shift register (delay line)
+  int accumulator;  // To hold the intermediate results
+
+  always_ff @(posedge sample_clk or posedge rst) begin
+    if (rst) begin
+      // Reset the shift register and accumulator
+      accumulator <= 32'sd0;
+      sample_out  <= 16'sd0;
+    end else begin
+
+      // Shift the input values into the delay line
+      x[0] <= sample_in;  // New sample enters the shift register
+      for (int i = 1; i < NUM_COEF; i++) begin
+        x[i] <= x[i-1];  // Shift all previous samples
+      end
+
+      // Apply the FIR filter: accumulator = sum of h[i] * x[i]
+      accumulator <= 32'sd0;  // Reset accumulator for each new sample
+      for (int i = 0; i < NUM_COEF; i++) begin
+        accumulator = accumulator + (coef[i] * x[i]);
+      end
+
+      sample_out <= accumulator >>> 15;
+    end
+  end
+
+endmodule
+*/
+
+
+
+///
+///
+///
+///
+//
+/// really old stuff
+///
+///
+///
+///
+//
+
+
+
+
+
+
 /*
 module fir_filter (
     input  logic    clk,        // Clock signal
@@ -247,195 +460,3 @@ module fir_highpass (
 endmodule
 */
 
-// the newest one
-// assumes 48khz sample rate
-module fir_lowpass (
-    input  shortint sample_in,   // 16-bit signed input sample
-    output shortint sample_out,  // 16-bit signed output sample
-    input  logic    sample_clk,  // Clock signal
-    input  logic    mclk,
-    input  logic    rst          // Reset signal
-);
-
-  localparam int NUM_COEF = 24;
-
-  // py set to 20khz
-  shortint h[NUM_COEF] = '{
-      -70,
-      68,
-      -42,
-      -72,
-      324,
-      -693,
-      1049,
-      -1140,
-      622,
-      971,
-      -4740,
-      20108,
-      20108,
-      -4740,
-      971,
-      622,
-      -1140,
-      1049,
-      -693,
-      324,
-      -72,
-      -42,
-      68,
-      -70
-  };
-
-  /*
-  generic_fir_filter #(
-      .NUM_COEF(NUM_COEF)
-  ) fir_lowpass_i (
-      .sample_in(sample_in),
-      .sample_out(sample_out),
-      .sample_clk(sample_clk),
-      .clk_fast(mclk),
-      .rst(rst),
-      .coef(h)
-  );
-*/
-
-  pipelined_fir_filter #(
-      .NUM_COEF(NUM_COEF)
-  ) firstrd_lowpass_i (
-      .sample_in(sample_in),
-      .sample_out(sample_out),
-      .sample_clk(sample_clk),
-      .clk_fast(mclk),
-      .rst(rst),
-      .coef(h)
-  );
-
-endmodule
-
-module pipelined_fir_filter #(
-    parameter int NUM_COEF  // this should be 32 or 33
-) (
-    input  shortint sample_in,             // 16-bit signed input sample
-    output shortint sample_out,            // 16-bit signed output sample
-    input  logic    sample_clk,            // Clock signal
-    input  logic    rst,                   // Reset signal
-    input  shortint coef      [NUM_COEF],
-    input  logic    clk_fast               // 256x faster clock
-);
-
-  // tasks per sample clock
-  // shift new sample in, and shift all the others along
-  // move accumulation to output (after shifting)
-  // sum all h*x
-
-  // Define the shift register for the FIR filter
-  shortint x[NUM_COEF];  // Input shift register (delay line)
-  int accumulator;  // To hold the intermediate results
-
-  always_ff @(posedge sample_clk) begin
-    if (rst) begin
-      x <= '{default: 16'sd0};
-      sample_out <= 0;
-    end else begin
-
-      for (int i = 1; i < NUM_COEF; i++) begin
-        x[i] <= x[i-1];  // Shift all previous samples
-      end
-
-      x[0] <= sample_in;
-
-
-      // use the result of the FSM and set it up again
-      sample_out <= accumulator >>> 15;
-
-    end
-  end
-
-  // handle accumulation
-  typedef enum logic [1:0] {
-    IDLE,
-    ACCUMULATE,
-    DONE
-  } state_t;
-  state_t state;
-  int ia;
-  reg last_trigger;
-
-  always_ff @(posedge clk_fast) begin
-    if (rst) begin
-      ia <= 0;
-      state <= ACCUMULATE;
-      accumulator <= 0;
-      last_trigger <= 0;
-    end else begin
-
-      unique case (state)
-
-        IDLE: begin
-          if (sample_clk != last_trigger) begin
-            last_trigger <= sample_clk;  // save state
-
-            ia <= 0;
-            state <= ACCUMULATE;
-            accumulator <= 0;
-          end
-        end
-
-        ACCUMULATE: begin
-          accumulator <= accumulator + (coef[ia] * x[ia]);
-
-          ia <= ia + 1;
-          if (ia + 1 == NUM_COEF) begin
-            state <= IDLE;
-          end
-        end
-
-      endcase
-
-    end
-  end
-
-endmodule
-
-/*
-module generic_fir_filter #(
-    parameter int NUM_COEF  // this should be 32 or 33
-) (
-    input  shortint sample_in,             // 16-bit signed input sample
-    output shortint sample_out,            // 16-bit signed output sample
-    input  logic    sample_clk,            // Clock signal
-    input  logic    rst,                   // Reset signal
-    input  shortint coef      [NUM_COEF],
-    input  logic    clk_fast               // 256x faster clock
-);
-
-  // Define the shift register for the FIR filter
-  shortint x[NUM_COEF];  // Input shift register (delay line)
-  int accumulator;  // To hold the intermediate results
-
-  always_ff @(posedge sample_clk or posedge rst) begin
-    if (rst) begin
-      // Reset the shift register and accumulator
-      accumulator <= 32'sd0;
-      sample_out  <= 16'sd0;
-    end else begin
-
-      // Shift the input values into the delay line
-      x[0] <= sample_in;  // New sample enters the shift register
-      for (int i = 1; i < NUM_COEF; i++) begin
-        x[i] <= x[i-1];  // Shift all previous samples
-      end
-
-      // Apply the FIR filter: accumulator = sum of h[i] * x[i]
-      accumulator <= 32'sd0;  // Reset accumulator for each new sample
-      for (int i = 0; i < NUM_COEF; i++) begin
-        accumulator = accumulator + (coef[i] * x[i]);
-      end
-
-      sample_out <= accumulator >>> 15;
-    end
-  end
-
-endmodule
-*/

@@ -3,25 +3,37 @@ module src_oneshot_808 #(
     parameter int VOLUME_BITS = 8,
     parameter int FREQ_RES_BITS = 8
 ) (
-    input mclk,  // Master Clock (256x sample rate)
+    input mclk,   // Master Clock (256x sample rate)
+    input pblrc,
     input rst,
 
     output shortint p_sample_buffer,
-    input trig
+    input trig,
+    input sw
 );
+
+  reg debounced;
+  debounce debouncer_i (
+      .trig(trig),
+      .clk (pblrc),
+      .out (debounced)
+  );
+
+  logic [VOLUME_BITS-1:0] volume_env;
+  oneshot_enveloper #(
+      .ATTACK_TIME(500),
+      .DECAY_TIME (5000)
+  ) envelope_i (
+      .mclk(mclk),
+      .rst(rst),
+      .trigger(debounced),
+      .volume_out(volume_env)
+  );
 
   shortint sine_lut[CLIP_LEN];
   sine_lut #(.LUT_SIZE(CLIP_LEN)) sine_lut_i (.lut(sine_lut));
 
-  logic [VOLUME_BITS-1:0] volume_env;
-  oneshot_enveloper envelope_i (
-      .mclk(mclk),
-      .rst(rst),
-      .trigger(trig),
-      .volume_out(volume_env)
-  );
-
-  static reg [FREQ_RES_BITS-1:0] freq = 12 * 1;
+  static reg [FREQ_RES_BITS-1:0] freq = 12 * 2;
   shortint current_sample_novol;
   player_module #(
       .CLIP_LEN(CLIP_LEN),
@@ -41,12 +53,22 @@ module src_oneshot_808 #(
       .VOLUME_BITS(VOLUME_BITS)
   ) volume_adjust_tri (
       .sample_in(current_sample_novol),
-      .sample_out(p_sample_buffer),
+      .sample_out(current_sample_nofilt),
       .volume(volume_env)
   );
 
-endmodule
+  // AA LP filter
+  shortint current_sample_aafilt;
+  fir_lowpass #() aa_filt_i (
+      .sample_clk(pblrc),
+      .mclk(mclk),
+      .rst(rst),
+      .sample_in(current_sample_nofilt),
+      .sample_out(current_sample_aafilt)
+  );
 
+  assign p_sample_buffer = sw ? current_sample_nofilt : current_sample_aafilt;
+endmodule
 
 // implements rise, sustain, and fall
 // will play indefinitely if not deasserted
