@@ -5,7 +5,7 @@
 // Additional Comments: // I2S Transciever
 //////////////////////////////////////////////////////////////////////////////////
 
-module pain_and_suffering #(
+module I2S_output_driver #(
     parameter int SAMPLE_BITS,
     parameter int CLIP_LEN,
     //parameter int FREQ_RES_BITS,

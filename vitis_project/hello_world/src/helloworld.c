@@ -127,32 +127,39 @@ int my_init() {
 }
 
 uint32_t usec_per_beat;
-void triangle_note(uint8_t f, uint8_t dur) {
+void sine_note(uint8_t f, uint8_t dur) {
+        float dut = 0.8;
+
+
   uint32_t total_duration = usec_per_beat * dur;
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0xFFFF00FF) | (f << 8); // write freq
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0xFFFFFF00) | (200 << 0); // write vol
 
-  usleep(total_duration - 20000);
+  usleep(total_duration * dut);
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0xFFFFFF00) | (0 << 0); // write vol
 
-  usleep(20000);
+  usleep(total_duration * (1-dut));
 };
 
-void sine_note(uint8_t f, uint8_t dur) {
+void triangle_note(uint8_t f, uint8_t dur) {
+
+    float dut = 0.8;
+
   uint32_t total_duration = usec_per_beat * dur;
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0x00FFFFFF) | (f << 24); // write freq
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0xFF00FFFF) | (200 << 16); // write vol
 
-  usleep(total_duration - 20000);
+
+  usleep(total_duration * dut);
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0xFF00FFFF) | (0 << 16); // write vol
 
-  usleep(20000);
+  usleep(total_duration * (1-dut));
 };
 
 void clearDrum() {
@@ -186,7 +193,7 @@ void drums() {
 void e1m1() {
 
   const uint32_t bpm = 220;
-  usec_per_beat = (1000000 * 60) / bpm;
+  usec_per_beat = (700000 * 60) / bpm;
 
   // bar 1
   DrumReg->kick = 1;

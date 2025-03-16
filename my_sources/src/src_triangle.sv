@@ -1,20 +1,3 @@
-// localparam PLAYER_CLIP_LEN = 32;
-//  int player_vol = 4;
-//  shortint player_sample_buffer;  // Buffer for data read from BRAM
-//  player_module #(
-//      .SAMPLE_BITS(SAMPLE_BITS),
-//      .CLIP_LEN(PLAYER_CLIP_LEN),
-//  ) player_module_i (
-//      .mclk(audio_cons_mclk),
-//      .rst (rst),
-//
-//      .m_sample_index(m_sample_index),
-//      .p_sample_buffer(player_sample_buffer),
-//      .valid(player_valid),
-//
-//      .volume(player_vol)
-//  );
-
 module triangle_lut #(
     parameter int LUT_SIZE = 64
 ) (
@@ -45,77 +28,35 @@ module src_triangle #(
     input rst,
 
     output shortint p_sample_buffer,
-    output valid,
 
-    input [VOLUME_BITS-1 : 0] volume,
-    input [FREQ_RES_BITS-1 : 0] p_frequency,
-    input sw
+    input [  VOLUME_BITS-1 : 0] volume,
+    input [FREQ_RES_BITS-1 : 0] p_frequency
 );
-
-  logic activate = volume != 0;
-
-  logic [VOLUME_BITS-1:0] volume_env;
-  logic [VOLUME_BITS-1:0] volume_final;
-  assign volume_final = (volume_env * volume) / (2 ** 6);
-  oneshot_enveloper #(
-      .ATTACK_TIME(500),
-      .DECAY_TIME(5000),
-      .MAX_VOL(2 ** 6)
-  ) envelope_i (
-      .mclk(mclk),
-      .rst(rst),
-      .trigger(activate),
-      .volume_out(volume_env)
-  );
 
   shortint triangle_lut[CLIP_LEN];
   triangle_lut #(.LUT_SIZE(CLIP_LEN)) triangle_lut_mod_inst (.lut(triangle_lut));
 
-  shortint current_sample_novol;
-  player_module #(
+  enveloped_oscillator_module #(
       .CLIP_LEN(CLIP_LEN),
-      .FREQ_RES_BITS(FREQ_RES_BITS)
-  ) player_module_i (
+      .VOLUME_BITS(VOLUME_BITS),
+      .FREQ_RES_BITS(FREQ_RES_BITS),
+      .ATTACK(150),
+      .DECAY(300)
+  ) sine_i (
       .mclk(mclk),
+      .pblrc(pblrc),
       .rst(rst),
+      .p_sample_buffer(p_sample_buffer),
+      .valid(),
+      .volume(volume),
       .p_frequency(p_frequency),
-      .data_buffer(triangle_lut),
-      .player_sample(current_sample_novol),
-      .valid(valid)
+      .sample_buffer(triangle_lut)
   );
-
-  shortint current_sample_nofilt;
-  // assign the output
-  volume_adjust #(
-      .VOLUME_BITS(VOLUME_BITS)
-  ) volume_adjust_tri (
-      .sample_in(current_sample_novol),
-      .sample_out(current_sample_nofilt),
-      .volume(volume_final)
-  );
-
-
-  shortint current_sample_filt;
-  fir_lowpass #() lp_filter (
-      .sample_clk(pblrc),
-      .sample_in(current_sample_nofilt),
-      .sample_out(current_sample_filt),
-      .mclk(mclk),
-      .rst(rst)
-  );
-
-  assign p_sample_buffer = sw ? current_sample_filt : current_sample_nofilt;
 
 endmodule
 
 
-//
-//
-//
-// WARN: untested vvv
-//
-//
-//
+/*
 
 module button_debouncer_fsm (
     input  logic clk,        // System clock
@@ -150,7 +91,6 @@ module button_debouncer_fsm (
 
   assign btn_stable = (state == STABLE);
 endmodule
-
 
 
 
@@ -241,4 +181,4 @@ module button_activated_attack_release #(
   end
 
 endmodule
-
+*/

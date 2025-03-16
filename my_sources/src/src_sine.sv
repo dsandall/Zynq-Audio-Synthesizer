@@ -31,67 +31,31 @@ module src_sine #(
     input pblrc,  // sample rate
     input rst,
 
-
     output shortint p_sample_buffer,
-    output valid,
 
-    input [VOLUME_BITS-1 : 0] volume,
-    input [FREQ_RES_BITS-1 : 0] p_frequency,
-    input sw
+    input [  VOLUME_BITS-1 : 0] volume,
+    input [FREQ_RES_BITS-1 : 0] p_frequency
 );
-
-  logic activate = volume != 0;
-
-  logic [VOLUME_BITS-1:0] volume_env;
-  logic [VOLUME_BITS-1:0] volume_final;
-  assign volume_final = (volume_env * volume) / (2 ** 6);
-  oneshot_enveloper #(
-      .ATTACK_TIME(500),
-      .DECAY_TIME(5000),
-      .MAX_VOL(2 ** 6)
-  ) envelope_i (
-      .mclk(mclk),
-      .rst(rst),
-      .trigger(activate),
-      .volume_out(volume_env)
-  );
 
   shortint sine_lut[CLIP_LEN];
   sine_lut #(.LUT_SIZE(CLIP_LEN)) sine_lut_i (.lut(sine_lut));
 
-  shortint current_sample_novol;
-  player_module #(
+  enveloped_oscillator_module #(
       .CLIP_LEN(CLIP_LEN),
-      .FREQ_RES_BITS(FREQ_RES_BITS)
-  ) player_module_sine_i (
+      .VOLUME_BITS(VOLUME_BITS),
+      .FREQ_RES_BITS(FREQ_RES_BITS),
+      .ATTACK(150),
+      .DECAY(300)
+  ) sine_i (
       .mclk(mclk),
+      .pblrc(pblrc),
       .rst(rst),
+      .p_sample_buffer(p_sample_buffer),
+      .valid(),
+      .volume(volume),
       .p_frequency(p_frequency),
-      .data_buffer(sine_lut),
-      .player_sample(current_sample_novol),
-      .valid(valid)
+      .sample_buffer(sine_lut)
   );
-
-  shortint current_sample_nofilt;
-  // assign the output
-  volume_adjust #(
-      .VOLUME_BITS(VOLUME_BITS)
-  ) volume_adjust_sine_i (
-      .sample_in(current_sample_novol),
-      .sample_out(current_sample_nofilt),
-      .volume(volume_final)
-  );
-
-  shortint current_sample_filt;
-  fir_lowpass #() lp_filter (
-      .sample_clk(pblrc),
-      .rst(rst),
-      .mclk(mclk),
-      .sample_in(current_sample_nofilt),
-      .sample_out(current_sample_filt)
-  );
-
-  assign p_sample_buffer = sw ? current_sample_filt : current_sample_nofilt;
 
 endmodule
 

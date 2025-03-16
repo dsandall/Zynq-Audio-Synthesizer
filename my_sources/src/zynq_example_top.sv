@@ -69,15 +69,16 @@ module zynq_example_top (
 
   // instantiate clock and reset
   logic clk;
+  assign clk = BRAM_clk;
   logic rst;
   logic rstn;
   assign rst = ~rstn;
 
   // bram interface instantiation
   logic [31:0] BRAM_addr;
-  logic BRAM_clk;
   logic [31:0] BRAM_din;
   logic [31:0] BRAM_dout;
+  logic BRAM_clk;
   logic BRAM_en;
   logic BRAM_rst;
   logic [3:0] BRAM_we;
@@ -102,31 +103,28 @@ module zynq_example_top (
   shortint triangle_sample_buffer;
   shortint sine_sample_buffer;
 
-  I2S_bram_DMA #(
+  src_bram #(
       .NUM_WORDS(256),
       .VOLUME_BITS(VOLUME_BITS),
       .FREQ_RES_BITS(FREQ_BITS)
-  ) I2S_bram_DMA_i (
-      .clk(clk),  // System clock
+  ) src_bram_i (
       .rst(rst),  // System reset
 
       .BRAM_addr(BRAM_addr),  // BRAM address
-      .BRAM_clk (BRAM_clk),   // BRAM clock
-      .BRAM_din (BRAM_din),   // BRAM data input
+      .BRAM_clk(BRAM_clk),  // BRAM clock
+      .BRAM_din(BRAM_din),  // BRAM data input
       .BRAM_dout(BRAM_dout),  // BRAM data output
-      .BRAM_en  (BRAM_en),    // BRAM enable
-      .BRAM_rst (BRAM_rst),   // BRAM reset
-      .BRAM_we  (BRAM_we),    // BRAM write enable
-
+      .BRAM_en(BRAM_en),  // BRAM enable
+      .BRAM_rst(BRAM_rst),  // BRAM reset
+      .BRAM_we(BRAM_we),  // BRAM write enable
       .refresh(1),  // TODO:
 
       // Player connections
       .mclk(audio_cons_mclk),
+      .pblrc(audio_I2S_pblrc),
       .volume(bram.source.vol),
       .p_frequency(bram.source.freq),
-
-      .valid(),
-      .current_sample(bram_sample_buffer)
+      .p_sample_buffer(bram_sample_buffer)
   );
 
   src_triangle #(
@@ -134,14 +132,12 @@ module zynq_example_top (
       .VOLUME_BITS(VOLUME_BITS),
       .FREQ_RES_BITS(FREQ_BITS)
   ) src_triangle_i (
+      .rst(rst),
       .mclk(audio_cons_mclk),
       .pblrc(audio_I2S_pblrc),
-      .rst(rst),
-      .p_sample_buffer(triangle_sample_buffer),
-      .valid(),
       .volume(osc.triangle.vol),
       .p_frequency(osc.triangle.freq),
-      .sw(sw[3])
+      .p_sample_buffer(triangle_sample_buffer)
   );
 
   src_sine #(
@@ -149,14 +145,12 @@ module zynq_example_top (
       .VOLUME_BITS(VOLUME_BITS),
       .FREQ_RES_BITS(FREQ_BITS)
   ) src_sine_i (
+      .rst(rst),
       .mclk(audio_cons_mclk),
       .pblrc(audio_I2S_pblrc),
-      .rst(rst),
-      .p_sample_buffer(sine_sample_buffer),
-      .valid(),
       .volume(osc.sine.vol),
       .p_frequency(osc.sine.freq),
-      .sw(sw[3])
+      .p_sample_buffer(sine_sample_buffer)
   );
 
   //----------------------------------------------------------
@@ -254,7 +248,7 @@ module zynq_example_top (
   // MASTER PLAYBACK, TO I2S OUT
   //
 
-  pain_and_suffering #(
+  I2S_output_driver #(
       .SAMPLE_BITS(16),
       .CLIP_LEN(M_BUF_LEN),
       .VOLUME_BITS(VOLUME_BITS)
