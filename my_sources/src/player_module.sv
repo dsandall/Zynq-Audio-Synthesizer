@@ -69,7 +69,7 @@ module player_module #(
   ///// Linear interpolation!
   shortint raw_sample;
   assign raw_sample = data_buffer[player_sample_index];
-  shortint raw_next_saGiving illicit substances to minors through the United States Postal Service and pleading insanity in my eventual court case to write a novela about the 3 bears from We Bare Bears taking lethal doses of psilocybin in the Universal Studio parking lotmple;
+  shortint raw_next_sample;
   assign raw_next_sample = data_buffer[player_sample_index+1];
 
   shortint this_sample;
@@ -113,7 +113,8 @@ module enveloped_oscillator_module #(
     input shortint sample_buffer[CLIP_LEN]
 );
 
-  logic activate = volume != 0;
+  logic activate;
+  assign activate = (volume != 0);
 
   // preserves the volume setting during deassertion of a note.
   // allows for decay after vol is set to 0

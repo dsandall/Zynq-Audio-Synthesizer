@@ -12,7 +12,7 @@ module testbench_source;
 
   SourceControlReg_t sine;
   assign sine.vol = 63;
-  assign sine.freq = 02;
+  assign sine.freq = 30;
 
   assign sw = 1;
 
@@ -45,14 +45,13 @@ module testbench_source;
       .VOLUME_BITS(8),
       .FREQ_RES_BITS(8)
   ) src_sine_i (
+      .rst(rst),
       .mclk(mclk),
       .pblrc(pblrc),
-      .rst(rst),
-      .p_sample_buffer(sine_sample_buffer),
-      .valid(),
+      .overdrive(0),
       .volume(sine.vol),
       .p_frequency(sine.freq),
-      .sw(sw)
+      .p_sample_buffer(sine_sample_buffer)
   );
 
 endmodule

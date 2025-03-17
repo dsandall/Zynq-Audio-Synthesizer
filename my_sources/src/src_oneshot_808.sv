@@ -1,3 +1,33 @@
+
+module overdrive #(
+) (
+    input  shortint       sample_in,
+    input  logic    [7:0] gain,       // Gain factor (0-255) scaled by 2**8
+    output shortint       sample_out
+);
+
+  int x_scaled;
+  int x_abs;
+
+
+  logic signed [50:0] scaled_sample;
+  assign scaled_sample = sample_in;
+
+  always_comb begin
+    if (gain == 0) begin
+      sample_out = sample_in;
+    end else begin
+      int sq = (sample_in * sample_in) >>> 15;  // 15b
+      int cubed = (sq * sample_in);  // 30b
+      int s3 = cubed / 3;  // 30b
+      int out = (sample_in <<< 15) - s3;  // 30b
+      sample_out = out >>> 15;  // 15b
+    end
+  end
+endmodule
+
+
+
 module src_oneshot_808 #(
     parameter int CLIP_LEN = 32,
     parameter int VOLUME_BITS = 8,
@@ -7,6 +37,7 @@ module src_oneshot_808 #(
     input pblrc,
     input rst,
 
+    input [7:0] overdrive,
     output shortint p_sample_buffer,
     input trig,
     input sw
@@ -22,7 +53,7 @@ module src_oneshot_808 #(
   logic [VOLUME_BITS-1:0] volume_env;
   oneshot_enveloper #(
       .ATTACK_TIME(500),
-      .DECAY_TIME (5000)
+      .DECAY_TIME (4000)
   ) envelope_i (
       .mclk(mclk),
       .rst(rst),
@@ -33,7 +64,7 @@ module src_oneshot_808 #(
   shortint sine_lut[CLIP_LEN];
   sine_lut #(.LUT_SIZE(CLIP_LEN)) sine_lut_i (.lut(sine_lut));
 
-  static reg [FREQ_RES_BITS-1:0] freq = 12 * 1 + 2;
+  static reg [FREQ_RES_BITS-1:0] freq = 12 * 1 + 3;
   shortint current_sample_novol;
   player_module #(
       .CLIP_LEN(CLIP_LEN),
@@ -67,7 +98,15 @@ module src_oneshot_808 #(
       .sample_out(current_sample_aafilt)
   );
 
-  assign p_sample_buffer = sw ? current_sample_nofilt : current_sample_aafilt;
+  // overdrive amp
+  shortint current_sample_overdriven;
+  overdrive overdrive_i (
+      .sample_in(current_sample_aafilt),
+      .gain(overdrive),
+      .sample_out(current_sample_overdriven)
+  );
+
+  assign p_sample_buffer = sw ? current_sample_overdriven : current_sample_aafilt;
 endmodule
 
 // implements rise, sustain, and fall

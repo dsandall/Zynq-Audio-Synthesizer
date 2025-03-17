@@ -23,12 +23,13 @@ typedef struct packed {
   reg kick;
   reg snare;
   reg hihat;
-  reg [28:0] fill;
+  reg [7:0] overdrive;
+  reg [20:0] fill;
 } DrumControlReg_t;
 
 typedef struct packed {
   reg [7:0]  vol;
-  reg [7:0]  strd;
+  reg [7:0]  overdrive;
   reg [15:0] fill;
 } MainControlReg_t;
 
@@ -135,6 +136,7 @@ module zynq_example_top (
       .rst(rst),
       .mclk(audio_cons_mclk),
       .pblrc(audio_I2S_pblrc),
+      .overdrive(main.overdrive),
       .volume(osc.triangle.vol),
       .p_frequency(osc.triangle.freq),
       .p_sample_buffer(triangle_sample_buffer)
@@ -148,6 +150,7 @@ module zynq_example_top (
       .rst(rst),
       .mclk(audio_cons_mclk),
       .pblrc(audio_I2S_pblrc),
+      .overdrive(main.overdrive),
       .volume(osc.sine.vol),
       .p_frequency(osc.sine.freq),
       .p_sample_buffer(sine_sample_buffer)
@@ -171,6 +174,7 @@ module zynq_example_top (
       .mclk(audio_cons_mclk),
       .pblrc(audio_I2S_pblrc),
       .rst(rst),
+      .overdrive(drum.overdrive),
       .p_sample_buffer(oneshot_808_sample_buffer),
       .trig(btn[0] | drum.kick),
       .sw(sw[0])

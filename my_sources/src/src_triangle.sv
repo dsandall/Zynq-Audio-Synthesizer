@@ -29,13 +29,15 @@ module src_triangle #(
 
     output shortint p_sample_buffer,
 
-    input [  VOLUME_BITS-1 : 0] volume,
+    input [7:0] overdrive,
+    input [VOLUME_BITS-1 : 0] volume,
     input [FREQ_RES_BITS-1 : 0] p_frequency
 );
 
   shortint triangle_lut[CLIP_LEN];
   triangle_lut #(.LUT_SIZE(CLIP_LEN)) triangle_lut_mod_inst (.lut(triangle_lut));
 
+  shortint current_sample;
   enveloped_oscillator_module #(
       .CLIP_LEN(CLIP_LEN),
       .VOLUME_BITS(VOLUME_BITS),
@@ -46,13 +48,23 @@ module src_triangle #(
       .mclk(mclk),
       .pblrc(pblrc),
       .rst(rst),
-      .p_sample_buffer(p_sample_buffer),
+      .p_sample_buffer(current_sample),
       .valid(),
       .volume(volume),
       .p_frequency(p_frequency),
       .sample_buffer(triangle_lut)
   );
 
+
+  // overdrive amp
+  shortint current_sample_overdriven;
+  overdrive overdrive_i (
+      .sample_in(current_sample),
+      .gain(overdrive),
+      .sample_out(current_sample_overdriven)
+  );
+
+  assign p_sample_buffer = current_sample_overdriven;
 endmodule
 
 

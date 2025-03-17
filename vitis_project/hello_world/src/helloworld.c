@@ -54,15 +54,16 @@ typedef struct __attribute__((packed)) {
 } OscillatorBRAMReg_t;
 
 typedef struct __attribute__((packed)) {
-  uint32_t fill : 29;
-  uint32_t hihat : 1;
-  uint32_t snare : 1;
-  uint32_t kick : 1;
+  volatile uint32_t fill : 21;
+  volatile uint32_t overdrive : 8;
+  volatile uint32_t hihat : 1;
+  volatile uint32_t snare : 1;
+  volatile uint32_t kick : 1;
 } DrumControlReg_t;
 
 typedef struct __attribute__((packed)) {
   uint16_t fill;
-  uint8_t strd;
+  uint8_t overdrive;
   uint8_t vol;
 } MainControlReg_t;
 
@@ -127,40 +128,43 @@ int my_init() {
 }
 
 uint32_t usec_per_beat;
-void sine_note(uint8_t f, uint8_t dur) {
-        float dut = 0.8;
-
+float dut;
+void triangle_note(uint8_t f, uint8_t dur, uint8_t vol) {
 
   uint32_t total_duration = usec_per_beat * dur;
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0xFFFF00FF) | (f << 8); // write freq
   *((uint32_t *)OscReg) =
-      (*((uint32_t *)OscReg) & 0xFFFFFF00) | (200 << 0); // write vol
+      (*((uint32_t *)OscReg) & 0xFFFFFF00) | (vol << 0); // write vol
 
   usleep(total_duration * dut);
+
+if (dut != 1.0) {
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0xFFFFFF00) | (0 << 0); // write vol
 
-  usleep(total_duration * (1-dut));
+  usleep(total_duration * (1.0 - dut));
+}  
+
 };
+void sine_note(uint8_t f, uint8_t dur, uint8_t vol) {
 
-void triangle_note(uint8_t f, uint8_t dur) {
-
-    float dut = 0.8;
 
   uint32_t total_duration = usec_per_beat * dur;
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0x00FFFFFF) | (f << 24); // write freq
   *((uint32_t *)OscReg) =
-      (*((uint32_t *)OscReg) & 0xFF00FFFF) | (200 << 16); // write vol
-
+      (*((uint32_t *)OscReg) & 0xFF00FFFF) | (vol << 16); // write vol
 
   usleep(total_duration * dut);
+
+  if (dut != 1.0) {
+
   *((uint32_t *)OscReg) =
       (*((uint32_t *)OscReg) & 0xFF00FFFF) | (0 << 16); // write vol
 
-  usleep(total_duration * (1-dut));
-};
+  usleep(total_duration * (1.0 - dut));
+}};
 
 void clearDrum() {
   usleep(200); // give the hardware a second to register the deassertion
@@ -189,8 +193,24 @@ void drums() {
   clearDrum();
   usleep(200000);
 }
+static uint8_t volly = 0;
+
+void demo() {
+dut = 1.0;
+
+  const uint32_t bpm = 440;
+  usec_per_beat = (700000 * 60) / bpm;
+
+    for ( int i = 0; i < 100; i++){
+        sine_note(i, 1, volly);
+        xil_printf("%d\n\r", i);
+    }
+
+}
 
 void e1m1() {
+
+dut = 0.8;
 
   const uint32_t bpm = 220;
   usec_per_beat = (700000 * 60) / bpm;
@@ -198,28 +218,28 @@ void e1m1() {
   // bar 1
   DrumReg->kick = 1;
   DrumReg->hihat = 1;
-  sine_note(2 * 12 + 4, 1);
+  sine_note(2 * 12 + 4, 1, volly);
   DrumReg->kick = 0;
   DrumReg->hihat = 0;
-  sine_note(2 * 12 + 4, 1);
-  sine_note(3 * 12 + 4, 1);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(3 * 12 + 4, 1, volly);
 
-  sine_note(2 * 12 + 4, 1);
-  sine_note(2 * 12 + 4, 1);
-  sine_note(3 * 12 + 2, 1);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(3 * 12 + 2, 1, volly);
 
-  sine_note(2 * 12 + 4, 1);
-  sine_note(2 * 12 + 4, 1);
-  sine_note(3 * 12 + 0, 1);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(3 * 12 + 0, 1, volly);
 
-  sine_note(2 * 12 + 4, 1);
-  sine_note(2 * 12 + 4, 1);
-  sine_note(3 * 12 - 2, 1);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(3 * 12 - 2, 1, volly);
 
-  sine_note(2 * 12 + 4, 1);
-  sine_note(2 * 12 + 4, 1);
-  sine_note(3 * 12 - 1, 1);
-  sine_note(3 * 12 - 0, 1);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(3 * 12 - 1, 1, volly);
+  sine_note(3 * 12 - 0, 1, volly);
 
   // bar 1 ends
   //
@@ -227,24 +247,25 @@ void e1m1() {
 
   DrumReg->kick = 1;
   DrumReg->hihat = 1;
-  sine_note(2 * 12 + 4, 1);
+  sine_note(2 * 12 + 4, 1, volly);
   DrumReg->kick = 0;
   DrumReg->hihat = 0;
-  sine_note(2 * 12 + 4, 1);
-  sine_note(3 * 12 + 4, 1);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(3 * 12 + 4, 1, volly);
 
-  sine_note(2 * 12 + 4, 1);
-  sine_note(2 * 12 + 4, 1);
-  sine_note(3 * 12 + 2, 1);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(3 * 12 + 2, 1, volly);
 
-  sine_note(2 * 12 + 4, 1);
-  sine_note(2 * 12 + 4, 1);
-  sine_note(3 * 12 + 0, 1);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(3 * 12 + 0, 1, volly);
 
-  sine_note(2 * 12 + 4, 1);
-  sine_note(2 * 12 + 4, 1);
-  sine_note(3 * 12 - 2, 5);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(2 * 12 + 4, 1, volly);
+  sine_note(3 * 12 - 2, 5, volly);
 }
+
 
 int main() {
 
@@ -263,7 +284,7 @@ int main() {
 
   while (1) {
 
-    xil_printf("mainreg is %d\n\r", *MainReg);
+    xil_printf("mainreg is %X\n\r", *MainReg);
     debug_printHex((const unsigned char *)MainReg, 4);
 
     // // write loop iteration to bram
@@ -281,13 +302,19 @@ int main() {
           xil_printf("%d: %X\n\r", i, out_data);
         }
     */
+    xil_printf("drum reg %X d\n\r", *DrumReg);
 
     char c = inbyte();
 
-    if (c == '\r') {
+
+    static uint8_t main_od = 0;
+
+    if (c == 'z') {
+        sine_note(2 * 12 + 4, 1, volly);
 
     } else if (c == '+') {
       MainReg->vol++;
+
     } else if (c == '-') {
       MainReg->vol--;
     } else if (c == ' ') {
@@ -295,14 +322,13 @@ int main() {
       DrumReg->kick = 1;
       usleep(500);
       DrumReg->kick = 0;
-
-      sine_note(0, 1);
+    } else if (c == 'y') {
+        volly++;
+    xil_printf("v: %d\n\r",  volly);
 
     } else if (c == 'w') {
-      // freq down
-      DrumReg->snare = 1;
-      usleep(500);
-      DrumReg->snare = 0;
+        volly--;
+    xil_printf("v: %d\n\r",  volly);
 
     } else if (c == 'v') {
       DrumReg->hihat = 1;
@@ -313,12 +339,27 @@ int main() {
       e1m1();
     } else if (c == 'l') {
       drums();
-    } else if (c == 'n') {
+    } else if (c == 'h') {
+      demo();
+    } else if (c == 'o') {
+    
+        main_od++;
 
+      *((uint32_t *)MainReg) = (*((uint32_t *)MainReg) & 0xFF00FFFF) | (main_od << 16);
+    } else if (c == 'p') {
+
+      *((uint32_t *)DrumReg) =
+          (*((uint32_t *)DrumReg) & 0xE01FFFFF) | (2 << 21);
+      
+    } else if (c == 'n') {
       OscReg->sine.freq = 0;
       OscReg->sine.vol = 0;
       OscReg->triangle.freq = 0;
       OscReg->triangle.vol = 0;
+      DrumReg->overdrive = 0;
+        *((uint32_t *)MainReg) = (uint32_t) 0;
+        main_od = 0;
+
     }
 
     continue;

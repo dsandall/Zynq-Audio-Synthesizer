@@ -24,7 +24,7 @@ module src_oneshot_snare #(
   oneshot_enveloper_withpitch #(
       .ATTACK_TIME (800),
       .DECAY_TIME  (2000),
-      .SEMITONE_ADD(6)
+      .SEMITONE_ADD(0)
   ) envelope_i (
       .mclk(mclk),
       .rst(rst),
@@ -36,7 +36,7 @@ module src_oneshot_snare #(
   shortint sine_lut[CLIP_LEN];
   sine_lut #(.LUT_SIZE(CLIP_LEN)) sine_lut_mod_inst (.lut(sine_lut));
 
-  logic [FREQ_RES_BITS-1:0] base_freq = 12 * 3 - 4;
+  logic [FREQ_RES_BITS-1:0] base_freq = 12 * 3;
   logic [FREQ_RES_BITS-1:0] final_freq = base_freq + freq_add;
   shortint current_sample_novol;
   player_module #(
