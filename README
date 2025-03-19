@@ -1,0 +1,12 @@
+Where to start:
+ - ./Final Synthesizer Project . PDF
+   - an explanation of the high level design, and some of the theory behind waveshaping and digital synthesis
+ - ./my_sources/ 
+   - When permitted by Vivado, this is where I put my own IP
+   - Includes SV for Audio Engine, Envelope Players, and everything not handled by Vivado's project management
+ - ./vitis_project/ 
+   - This is the software side, including all C code. This is pretty minimal, just UART handling code and the programmed demos.
+   - Demos include: Doom E1M1 and a short drum loop
+ - ./final_demo.mp3
+   - a short recording of the E1M1 demo, some drums I played on the buttons, and a sine wave sweep.
+   - the noise present in the recording comes from my crappy USB audio interface, and is not present when listening on headphones. (slight aliasing IS a factor, due to the implementation)
