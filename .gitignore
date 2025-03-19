@@ -4,6 +4,7 @@
 
 !.gitignore
 !README
+!*.pdf
 
 !my_sources/
 !my_sources/*
