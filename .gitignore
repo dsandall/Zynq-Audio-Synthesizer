@@ -5,6 +5,7 @@
 !.gitignore
 !README
 !*.pdf
+!*.mp3
 
 !my_sources/
 !my_sources/*
